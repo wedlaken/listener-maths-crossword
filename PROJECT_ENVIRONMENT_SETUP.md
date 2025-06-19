@@ -1,7 +1,120 @@
-# Python Virtual Environment Setup and Usage
+# Project Environment Setup and Configuration Guide
+
+## Overview
+This guide covers the complete setup of the Listener Maths Crossword project environment, including virtual environment management, configuration files, and development tools.
 
 ## Why Use a Virtual Environment?
 A virtual environment (venv) isolates your Python project's dependencies from your system Python and other projects. This prevents version conflicts and keeps your project self-contained.
+
+## Project Configuration Files Overview
+
+This project uses several configuration files to manage the development environment, dependencies, and code quality. Understanding these files helps you work effectively with the project.
+
+### 1. `pyrightconfig.json` - Type Checking Configuration
+**Purpose**: Configures Pyright, a static type checker for Python that provides real-time error detection and IntelliSense in Cursor/VS Code.
+
+**Configuration**:
+```json
+{
+    "venvPath": ".",
+    "venv": "venv"
+}
+```
+
+**What it does**:
+- `"venvPath": "."` - Tells Pyright to look for the virtual environment in the current directory
+- `"venv": "venv"` - Specifies the virtual environment folder name
+
+**When it runs**: Automatically in Cursor/VS Code during development to provide:
+- Real-time type checking
+- Error detection before running code
+- IntelliSense and autocomplete features
+
+### 2. `pyproject.toml` - Modern Python Project Configuration
+**Purpose**: The modern standard for Python project configuration, defining build system, dependencies, and tool configurations.
+
+**Current configuration**:
+```toml
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pylint.messages_control]
+disable = ["C0111"]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pylint.basic]
+good-names = ["i", "n", "a", "b", "c"]
+```
+
+**What it contains**:
+- **Build system**: Specifies how to build the project using `setuptools` and `wheel`
+- **Pylint configuration**: Code quality and style checking rules
+  - Disables missing docstring warnings (`C0111`)
+  - Sets maximum line length to 100 characters
+  - Allows short variable names for mathematical operations
+
+**When it runs**:
+- Build tools read this when packaging the project
+- Pylint uses these settings for code quality checks
+- Modern Python tools (pip, build) use this for project metadata
+
+### 3. `setup.py` - Package Installation Configuration
+**Purpose**: Traditional way to define how the Python package should be installed and what dependencies it needs.
+
+**Current configuration**:
+```python
+from setuptools import setup, find_packages
+
+setup(
+    name="listener_maths_crossword",
+    version="0.1",
+    packages=find_packages(),
+    install_requires=[
+        "sympy>=1.14.0",
+    ],
+)
+```
+
+**What it does**:
+- Defines package name (`listener_maths_crossword`)
+- Specifies version (`0.1`)
+- Lists core required dependencies (`sympy>=1.14.0`)
+- Uses `find_packages()` to automatically discover Python modules
+
+**When it runs**:
+- When installing the package with `pip install .`
+- When building distribution packages (`python setup.py sdist bdist_wheel`)
+- When installing in development mode (`pip install -e .`)
+
+### 4. `requirements.txt` - Dependency Management
+**Purpose**: Lists all Python packages the project needs to run with specific versions.
+
+**Key dependencies**:
+- **Core math libraries**: `sympy`, `numpy`, `mpmath`
+- **Image processing**: `opencv-python`, `pillow`, `pytesseract`
+- **Plotting**: `matplotlib` and its dependencies
+- **Utilities**: `colorama`, `six`, etc.
+
+**When it runs**:
+- When setting up a new environment with `pip install -r requirements.txt`
+- When deploying the application
+- When ensuring consistent dependencies across different machines
+
+## Configuration File Relationships
+
+**Modern vs Legacy Approach**:
+- **Modern**: Use `pyproject.toml` for everything (build system, dependencies, tool configuration)
+- **Legacy**: Use `setup.py` for package configuration and `requirements.txt` for dependencies
+
+**Current Project Setup**:
+This project uses a hybrid approach, which is common during transitions:
+- `pyproject.toml` handles build system and code quality tools
+- `setup.py` handles package installation and distribution
+- `requirements.txt` handles development environment setup
+- `pyrightconfig.json` handles development tool configuration
 
 ## Understanding PowerShell Script Files (.ps1)
 The `.ps1` extension stands for "PowerShell Script" - it's not PowerShell version 1, but rather the standard file extension for PowerShell script files. Here's what you need to know:
