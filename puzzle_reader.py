@@ -58,16 +58,56 @@ class ListenerPuzzleReader:
         self.systematic_parser = SystematicGridParser(grid_image_path, clues_image_path)
 
     def read_clues_from_image(self) -> Dict[int, Tuple[str, int, int, int]]:
-        """Read clue parameters from the clues image."""
-        if self.clues_image is None:
-            print("No clues image provided")
-            return {}
+        """Read clue parameters from the clues text file."""
+        clue_parameters = {}
         
-        # This is a placeholder - in a real implementation, you'd use OCR
-        # to read the actual clue parameters from the image
-        # For now, return the known parameters for this puzzle
-        
-        clue_parameters = {
+        try:
+            with open('Listener 4869 clues.txt', 'r') as f:
+                lines = f.readlines()
+            
+            current_direction = None
+            
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                
+                if line.lower() == 'across':
+                    current_direction = 'ACROSS'
+                elif line.lower() == 'down':
+                    current_direction = 'DOWN'
+                elif current_direction and ':' in line:
+                    # Parse clue line: "number b:c" or "number Unclued"
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        clue_number = int(parts[0])
+                        
+                        if parts[1].lower() == 'unclued':
+                            # Unclued clues have parameters (-1, -1)
+                            clue_parameters[clue_number] = (current_direction, 0, -1, -1)
+                        else:
+                            # Parse "b:c" format
+                            b_c_parts = parts[1].split(':')
+                            if len(b_c_parts) == 2:
+                                b = int(b_c_parts[0])
+                                c = int(b_c_parts[1])
+                                # For now, use a default length of 4 (will be updated from grid parser)
+                                clue_parameters[clue_number] = (current_direction, 4, b, c)
+            
+            print(f"Loaded {len(clue_parameters)} clue parameters from text file")
+            return clue_parameters
+            
+        except FileNotFoundError:
+            print("Warning: Listener 4869 clues.txt not found, using placeholder data")
+            # Fallback to placeholder data
+            return self._get_placeholder_clue_parameters()
+        except Exception as e:
+            print(f"Error reading clues file: {e}")
+            return self._get_placeholder_clue_parameters()
+
+    def _get_placeholder_clue_parameters(self) -> Dict[int, Tuple[str, int, int, int]]:
+        """Fallback placeholder clue parameters"""
+        return {
             1: ('ACROSS', 4, 2, 1),
             2: ('DOWN', 2, 1, 0),
             3: ('DOWN', 4, 3, 2),
@@ -93,8 +133,6 @@ class ListenerPuzzleReader:
             23: ('ACROSS', 3, 1, 0),
             24: ('DOWN', 4, 2, 1),
         }
-        
-        return clue_parameters
 
     def extract_clues(self) -> None:
         """Extract clues using the systematic grid parser."""
@@ -109,15 +147,18 @@ class ListenerPuzzleReader:
         # Convert systematic parser results to ListenerClue format
         for clue_tuple in self.systematic_parser.get_all_clues():
             if clue_tuple.number in clue_parameters:
-                direction, length, b, c = clue_parameters[clue_tuple.number]
+                direction, placeholder_length, b, c = clue_parameters[clue_tuple.number]
+                
+                # Use the actual length from the grid parser, not the placeholder
+                actual_length = clue_tuple.length
                 
                 # Create ListenerClue object
                 listener_clue = ListenerClue(
                     number=clue_tuple.number,
                     direction=clue_tuple.direction,
-                    length=clue_tuple.length,
+                    length=actual_length,
                     cell_indices=clue_tuple.cell_indices,
-                    parameters=(length, b, c)
+                    parameters=(actual_length, b, c)
                 )
                 
                 self.clues[clue_tuple.direction].append(listener_clue)
@@ -181,13 +222,20 @@ class ListenerPuzzleReader:
         
         for direction in ['ACROSS', 'DOWN']:
             for clue in self.clues[direction]:
+                # Convert cell index to position (row, col) for the first cell
+                first_cell_index = clue.cell_indices[0]
+                row = first_cell_index // self.grid_size
+                col = first_cell_index % self.grid_size
+                position = (row, col)
+                
                 # Convert to Clue format expected by CrosswordGrid
                 crossword_clue = Clue(
                     number=clue.number,
                     direction=clue.direction,
                     length=clue.length,
-                    cell_indices=clue.cell_indices,
-                    parameters=clue.parameters
+                    position=position,
+                    parameters=clue.parameters,
+                    cell_indices=clue.cell_indices
                 )
                 grid.add_clue(crossword_clue)
         

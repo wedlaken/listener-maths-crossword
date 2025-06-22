@@ -47,6 +47,46 @@
 2. `crossword_solver.py`: Grid and solving logic
 3. `puzzle_reader.py`: Image processing and OCR
 
+### Architecture: Grid Parsing Components
+
+#### `systematic_grid_parser.py` - Low-Level Grid Parser
+**Purpose**: Core grid structure detection and clue boundary analysis
+- **Input**: Grid image only
+- **Process**: Detects thick borders, finds clue boundaries, maps cell indices
+- **Output**: `ClueTuple` objects with cell positions (no clue parameters)
+- **Key Features**: 
+  - Uses ground truth border data for accuracy
+  - 0-63 cell indexing system
+  - Handles ACROSS/DOWN clue detection
+  - Special case handling (e.g., Clue 1 in both directions)
+
+#### `puzzle_reader.py` - High-Level Puzzle Interface
+**Purpose**: Complete puzzle processing and data integration
+- **Input**: Grid image + Clues image + Systematic parser results
+- **Process**: Combines grid structure with clue parameters (b, c values)
+- **Output**: Complete `ListenerClue` objects ready for solving
+- **Key Features**:
+  - Orchestrates the entire puzzle reading process
+  - Integrates clue parameters from separate source
+  - Converts to solver-compatible formats
+  - Provides user-friendly output and visualization
+
+#### Relationship Flow
+```
+Grid Image → systematic_grid_parser.py → ClueTuples (cell positions)
+Clues Image → puzzle_reader.py → Clue parameters (b, c values)
+                    ↓
+            Complete ListenerClue objects
+                    ↓
+            crossword_solver.py
+```
+
+**Design Benefits**:
+- **Modularity**: Grid parsing can be improved independently
+- **Reusability**: Systematic parser can be used by other components
+- **Testability**: Each component can be tested separately
+- **Future-Proofing**: Easy to swap out grid parsing or clue reading methods
+
 ### Important Decisions
 - Using OpenCV and Tesseract for OCR
 - Using SymPy for prime number operations
@@ -104,19 +144,23 @@
 ✅ **Grid structure parsing** complete and accurate  
 ✅ **Clue tuples** generated for all 24 clues  
 ✅ **Cell-clue relationships** mapped  
-🔄 **Next phase**: Integrate clue text and parameters (b, c) from clue list  
+✅ **Clue parameters (b, c)** integrated from text file  
+✅ **Complete clue objects** with positions, lengths, and parameters  
+🔄 **Next phase**: Implement puzzle solver using complete clue data  
 
 #### Lessons Learned
 - Image-based border detection is challenging due to cropping irregularities
 - Ground truth data provides reliable baseline for development
 - Crossword logic requires careful handling of cell reuse (ACROSS + DOWN)
 - Clue 1 special case (appears in both directions) requires specific handling
+- Text-based clue extraction is more reliable than OCR for development
 
 #### Next Steps
-1. Integrate clue text and parameters (b, c) from clue list
-2. Create complete clue objects with all required data
-3. Implement puzzle solver using accurate clue tuples
-4. Later: Improve image-based border detection to match ground truth accuracy
+1. ✅ ~~Integrate clue text and parameters (b, c) from clue list~~ **COMPLETED**
+2. ✅ ~~Create complete clue objects with all required data~~ **COMPLETED**
+3. **Implement puzzle solver** using accurate clue tuples and parameters
+4. **Test solver** with complete puzzle data
+5. Later: Improve image-based border detection to match ground truth accuracy
 
 #### Folder Organization (2024-12-19)
 - **Created `archive/` folder**: Contains old versions of parsers and readers
@@ -138,6 +182,7 @@ listener-maths-crossword/
 │   ├── Listener grid 4869.png       # Puzzle grid
 │   └── Listener 4869 clues.png      # Clues image
 ├── Data:
+│   ├── Listener 4869 clues.txt      # Extracted clue parameters (b, c)
 │   └── clue_parameters_4869.txt     # Template for clue parameters
 ├── Documentation:
 │   ├── DEVELOPMENT.md               # This file
