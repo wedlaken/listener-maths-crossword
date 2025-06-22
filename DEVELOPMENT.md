@@ -116,4 +116,33 @@
 1. Integrate clue text and parameters (b, c) from clue list
 2. Create complete clue objects with all required data
 3. Implement puzzle solver using accurate clue tuples
-4. Later: Improve image-based border detection to match ground truth accuracy 
+4. Later: Improve image-based border detection to match ground truth accuracy
+
+#### Folder Organization (2024-12-19)
+- **Created `archive/` folder**: Contains old versions of parsers and readers
+- **Created `tests/` folder**: Contains all test files for better organization
+- **Deleted redundant files**: `detected_clues_tuples.txt`, `generate_clues_file.py`
+- **Removed `.DS_Store`**: macOS metadata file now properly ignored
+- **Created `clue_parameters_4869.txt`**: Template for storing b, c parameters from online resource
+
+#### Current File Structure
+```
+listener-maths-crossword/
+├── Core files:
+│   ├── systematic_grid_parser.py    # Main grid parser
+│   ├── puzzle_reader.py             # Updated puzzle reader
+│   ├── crossword_solver.py          # Puzzle solver
+│   ├── listener.py                  # Core logic
+│   └── border_calibration.py        # Border detection tool
+├── Images:
+│   ├── Listener grid 4869.png       # Puzzle grid
+│   └── Listener 4869 clues.png      # Clues image
+├── Data:
+│   └── clue_parameters_4869.txt     # Template for clue parameters
+├── Documentation:
+│   ├── DEVELOPMENT.md               # This file
+│   ├── DETERMINE_GRID_STRUCTURE.md  # Grid parsing approach
+│   └── [other .md files]
+├── archive/                         # Old versions
+└── tests/                          # Test files
+``` 

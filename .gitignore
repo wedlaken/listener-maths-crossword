@@ -33,6 +33,8 @@ env/
 
 # Project specific
 images/
+tests/
+archive/
 *.jpg
 *.jpeg
 *.gif
@@ -85,6 +87,8 @@ env/
 
 # Project specific
 images/
+tests/
+archive/
 *.jpg
 *.jpeg
 *.gif
