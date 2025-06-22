@@ -35,8 +35,62 @@ env/
 images/
 *.jpg
 *.jpeg
-*.png
 *.gif
+
+# Allow specific puzzle images in root folder
+!Listener*.png
+
+# Logs
+*.log
+
+# Local development settings
+.env
+.env.local
+
+# macOS system files
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+images/
+*.jpg
+*.jpeg
+*.gif
+
+# Allow specific puzzle images in root folder
+!Listener*.png
 
 # Logs
 *.log
