@@ -428,12 +428,42 @@ class SystematicGridParser:
                 row_summary.append(f"{idx}:A{across} D{down}")
             print("  ".join(row_summary))
 
-def main():
-    """Test the systematic grid parser"""
-    parser = SystematicGridParser('Listener grid 4869.png', 'Listener 4869 clues.png')
+def parse_grid() -> List[Tuple[int, str, Tuple[int, ...]]]:
+    """
+    Parse the grid and return clue information.
+    Returns list of (number, direction, cell_indices) tuples.
+    """
+    parser = SystematicGridParser('Listener grid 4869.png')
     parser.parse_grid_structure()
-    parser.print_results()
-    parser.print_cell_clue_summary()
+    
+    clues = []
+    for clue_tuple in parser.get_all_clues():
+        clues.append((clue_tuple.number, clue_tuple.direction, clue_tuple.cell_indices))
+    
+    return clues
+
+def main():
+    """Main function for testing the parser"""
+    print("Systematic Grid Parser Test")
+    print("=" * 40)
+    
+    try:
+        # Create parser
+        parser = SystematicGridParser('Listener grid 4869.png')
+        
+        # Parse grid structure
+        parser.parse_grid_structure()
+        
+        # Print results
+        parser.print_results()
+        
+        # Print cell clue summary
+        parser.print_cell_clue_summary()
+        
+    except Exception as e:
+        print(f"Error: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     main()

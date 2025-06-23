@@ -162,32 +162,102 @@ Clues Image → puzzle_reader.py → Clue parameters (b, c values)
 4. **Test solver** with complete puzzle data
 5. Later: Improve image-based border detection to match ground truth accuracy
 
-#### Folder Organization (2024-12-19)
-- **Created `archive/` folder**: Contains old versions of parsers and readers
-- **Created `tests/` folder**: Contains all test files for better organization
-- **Deleted redundant files**: `detected_clues_tuples.txt`, `generate_clues_file.py`
-- **Removed `.DS_Store`**: macOS metadata file now properly ignored
-- **Created `clue_parameters_4869.txt`**: Template for storing b, c parameters from online resource
+### 2024-12-19: Backtracking Implementation
 
-#### Current File Structure
-```
-listener-maths-crossword/
-├── Core files:
-│   ├── systematic_grid_parser.py    # Main grid parser
-│   ├── puzzle_reader.py             # Updated puzzle reader
-│   ├── crossword_solver.py          # Puzzle solver
-│   ├── listener.py                  # Core logic
-│   └── border_calibration.py        # Border detection tool
-├── Images:
-│   ├── Listener grid 4869.png       # Puzzle grid
-│   └── Listener 4869 clues.png      # Clues image
-├── Data:
-│   ├── Listener 4869 clues.txt      # Extracted clue parameters (b, c)
-│   └── clue_parameters_4869.txt     # Template for clue parameters
-├── Documentation:
-│   ├── DEVELOPMENT.md               # This file
-│   ├── DETERMINE_GRID_STRUCTURE.md  # Grid parsing approach
-│   └── [other .md files]
-├── archive/                         # Old versions
-└── tests/                          # Test files
-``` 
+#### Key Achievements
+- **Implemented comprehensive backtracking system** for puzzle solving
+- **Added rejected solutions tracking** to prevent infinite loops
+- **Created state snapshot/restoration** for complete backtracking
+- **Developed constraint propagation** with intelligent clue selection
+- **Fixed unclued clue handling** using b=0, c=0 special case
+
+#### Technical Details
+- **Rejected Solutions List**: `self.rejected_solutions` tracks eliminated solutions for potential restoration
+- **State Snapshots**: Complete puzzle state can be saved/restored for backtracking
+- **Tried Solutions Tracking**: `self.tried_solutions` prevents infinite loops in backtracking
+- **Depth Limiting**: Maximum recursion depth prevents stack overflow
+- **Smart Clue Selection**: Picks clues with fewest solutions for efficient backtracking
+
+#### Files Created/Modified
+- `crossword_solver.py` - Enhanced with backtracking capabilities
+- `puzzle_integration.py` - Integrates systematic parser with solver
+- `test_backtracking.py` - Comprehensive backtracking tests
+- `test_simple_backtracking.py` - Simple backtracking verification
+
+#### Current Status
+✅ **Backtracking system** fully implemented and tested  
+✅ **State management** working correctly  
+✅ **Constraint propagation** solving many clues automatically  
+✅ **Infinite loop prevention** working  
+✅ **Unclued clue handling** implemented  
+🔄 **Next phase**: Puzzle solution presentation and user interface  
+
+#### Lessons Learned
+- Backtracking requires careful state management to prevent infinite loops
+- Rejected solutions tracking is essential for effective backtracking
+- Constraint propagation can solve many clues without guessing
+- Depth limiting is crucial for preventing stack overflow
+- State snapshots must capture all relevant data for proper restoration
+
+### 2024-12-19: Clue ID System and Strategic Solver Development
+
+#### Key Achievements
+- **Implemented unique clue ID system** (A1, D1, etc.) to prevent conflicts between ACROSS/DOWN clues
+- **Fixed clue parameter conflicts** that were causing incorrect clue identification
+- **Developed strategic solver approach** with phased solving like human solvers
+- **Created comprehensive debugging tools** for clue object analysis
+- **Achieved 41.7% puzzle completion** with 10/24 clues solved
+
+#### Technical Details
+- **Unique Clue IDs**: Changed from number-based to ID-based system (A1, D1, A4, D2, etc.)
+- **Clue Parameter Loading**: Fixed to use (number, direction) tuples as keys
+- **Strategic Solver Phases**:
+  - Phase 1: Apply already-solved clues
+  - Phase 2: Constraint propagation for single-solution clues
+  - Phase 3: Backtracking at optimal checkpoints
+- **Checkpoint Analysis**: Identifies best clues for backtracking based on solution count and impact
+- **JSON Export System**: Complete clue object export for debugging and analysis
+
+#### Files Created/Modified
+- `crossword_solver.py` - Updated to use clue IDs instead of numbers
+- `puzzle_integration.py` - Fixed clue parameter loading and integration
+- `strategic_solver.py` - New phased solving approach
+- `targeted_solver.py` - Focused solving with fewest solutions first
+- `focused_solver.py` - Group-based solving approach
+- `export_clues_json.py` - JSON export for debugging
+- `debug_clue_parameters.py` - Clue parameter analysis tool
+
+#### Current Status
+✅ **Clue ID system** working correctly, no more conflicts  
+✅ **Clue parameter loading** fixed and accurate  
+✅ **Strategic solver** implemented with human-like approach  
+✅ **Debugging tools** comprehensive and working  
+✅ **41.7% completion** achieved (10/24 clues solved)  
+🔄 **Next phase**: Improve checkpoint selection and conflict resolution  
+
+#### Progress Summary
+- **Solved clues**: A18=1024, A20=32, A22=2858, D5=2048, D17=2401, A11=1430
+- **Grid cells filled**: 25/64 cells (39.1%)
+- **Remaining challenges**: Several clues with 2-5 solutions need strategic choices
+- **Unclued clues**: A12, A14, D7, D8 (900,000+ solutions each)
+
+#### Lessons Learned
+- Unique clue IDs are essential for handling ACROSS/DOWN conflicts
+- Human-like strategic solving is more effective than brute force
+- Checkpoint selection based on impact and solution count works well
+- JSON export is invaluable for debugging complex clue relationships
+- Constraint conflicts need better detection and resolution
+
+#### Next Steps
+1. **Improve conflict detection** in backtracking (A1=1215 created D2 conflict)
+2. **Implement better checkpoint selection** prioritizing 2-solution clues
+3. **Add conflict resolution** to automatically backtrack from failed paths
+4. **Develop solution validation** to verify completed puzzle correctness
+5. **Create user interface** for manual solving assistance
+6. **Add progress visualization** showing grid state and remaining clues
+
+#### Technical Debt
+- Need better error handling for constraint conflicts
+- Checkpoint selection algorithm could be more sophisticated
+- JSON export could include more debugging information
+- Strategic solver could benefit from machine learning approach 
