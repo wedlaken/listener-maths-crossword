@@ -63,17 +63,30 @@ def clue_to_dict(clue: ListenerClue) -> dict:
     }
 
 def main():
-    """Export all clue objects to JSON."""
+    """Export all clue objects to JSON, excluding unclued clues."""
     print("=== EXPORTING CLUE OBJECTS TO JSON ===")
     
     # Parse grid and load parameters
     grid_clues = parse_grid()
     clue_params = load_clue_parameters("Listener 4869 clues.txt")
     
-    # Create clue objects
+    # Define unclued clues to exclude
+    unclued_clues = {
+        (7, "DOWN"),   # Clue 7 DOWN
+        (8, "DOWN"),   # Clue 8 DOWN  
+        (12, "ACROSS"), # Clue 12 ACROSS
+        (14, "ACROSS")  # Clue 14 ACROSS
+    }
+    
+    # Create clue objects (excluding unclued clues)
     clues = []
     
     for number, direction, cell_indices in grid_clues:
+        # Skip unclued clues
+        if (number, direction) in unclued_clues:
+            print(f"Skipping unclued clue: {number} {direction}")
+            continue
+            
         clue_id = create_clue_id(number, direction)
         param_key = (number, direction)
         
@@ -100,12 +113,14 @@ def main():
         "solved_clues": len([c for c in clues if c.is_solved()]),
         "unsolved_clues": len([c for c in clues if not c.is_solved()]),
         "clued_clues": len([c for c in clues if not c.is_undefined]),
-        "unclued_clues": len([c for c in clues if c.is_undefined])
+        "unclued_clues": len([c for c in clues if c.is_undefined]),
+        "excluded_unclued_clues": len(unclued_clues)
     }
     
     # Create full export
     export_data = {
         "summary": summary,
+        "excluded_unclued_clues": list(unclued_clues),
         "clues": clues_data
     }
     
@@ -115,6 +130,7 @@ def main():
         json.dump(export_data, f, indent=2)
     
     print(f"Exported {len(clues)} clue objects to {output_file}")
+    print(f"Excluded {len(unclued_clues)} unclued clues: {unclued_clues}")
     print(f"Summary: {summary}")
     
     # Also print a quick overview
