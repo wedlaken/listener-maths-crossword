@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listener Maths Crossword - Test Output</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin: 0;
+        }
+        
+        .header .timestamp {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        
+        .grid-section {
+            flex: 1;
+        }
+        
+        .info-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .crossword-grid {
+            display: inline-block;
+            border: 3px solid #333;
+            background-color: #333;
+        }
+        
+        .grid-row {
+            display: flex;
+        }
+        
+        .grid-cell {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .clue-number {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 10px;
+            color: #666;
+            font-weight: normal;
+        }
+        
+        .cell-value {
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .thick-right {
+            border-right: 3px solid #333 !important;
+        }
+        
+        .thick-bottom {
+            border-bottom: 3px solid #333 !important;
+        }
+        
+        .thin-right {
+            border-right: 1px solid #ccc;
+        }
+        
+        .thin-bottom {
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .clues-section {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .clues-column {
+            flex: 1;
+        }
+        
+        .clues-column h3 {
+            color: #333;
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .clue {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        
+        .clue.solved {
+            background-color: #d4edda;
+            color: #155724;
+            font-weight: bold;
+        }
+        
+        .clue.unclued {
+            background-color: #fff3cd;
+            color: #856404;
+            font-style: italic;
+        }
+        
+        .progress-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .progress-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #007bff;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .iteration-info {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .iteration-info h3 {
+            margin: 0 0 5px 0;
+            color: #007bff;
+        }
+        
+        .iteration-info p {
+            margin: 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Listener Maths Crossword - Test Output</h1>
+            <div class="timestamp">Generated: 2025-06-24 06:36:15</div>
+        </div>
+
+        <div class="iteration-info">
+            <h3>Iteration 1</h3>
+            <p>Solving progress at this step</p>
+        </div>
+
+        <div class="main-content">
+            <div class="grid-section">
+                <h3>Puzzle Grid</h3>
+                <div class="crossword-grid">
+  <div class="grid-row">
+    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">1</div><div class="cell-value">1</div></div>
+    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">2</div><div class="cell-value">2</div></div>
+    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">3</div><div class="cell-value">1</div></div>
+    <div class="grid-cell thick-right thick-bottom"><div class="cell-value">5</div></div>
+    <div class="grid-cell thin-right thick-bottom"><div class="clue-number">4</div></div>
+    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">5</div></div>
+    <div class="grid-cell thin-right thick-bottom"></div>
+    <div class="grid-cell thin-bottom"><div class="clue-number">6</div></div>
+  </div>
+  <div class="grid-row">
+    <div class="grid-cell thick-right thin-bottom"><div class="cell-value">2</div></div>
+    <div class="grid-cell thick-right thick-bottom"></div>
+    <div class="grid-cell thick-right thin-bottom"></div>
+    <div class="grid-cell thick-right thin-bottom"><div class="clue-number">7</div></div>
+    <div class="grid-cell thick-right thin-bottom"><div class="clue-number">8</div></div>
+    <div class="grid-cell thick-right thin-bottom"></div>
+    <div class="grid-cell thin-right thick-bottom"><div class="clue-number">9</div></div>
+    <div class="grid-cell thin-bottom"></div>
+  </div>
+  <div class="grid-row">
+    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">10</div></div>
+    <div class="grid-cell thin-right thick-bottom"></div>
+    <div class="grid-cell thin-right thin-bottom"></div>
+    <div class="grid-cell thick-right thin-bottom"></div>
+    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">11</div><div class="cell-value">1</div></div>
+    <div class="grid-cell thin-right thin-bottom"><div class="cell-value">4</div></div>
+    <div class="grid-cell thin-right thick-bottom"><div class="cell-value">3</div></div>
+    <div class="grid-cell thin-bottom"></div>
+  </div>
+  <div class="grid-row">
+    <div class="grid-cell thick-right thick-bottom"><div class="cell-value">4</div></div>
+    <div class="grid-cell thin-right thick-bottom"><div class="clue-number">12</div></div>
+    <div class="grid-cell thin-right thick-bottom"></div>
+    <div class="grid-cell thin-right thin-bottom"></div>
+    <div class="grid-cell thin-right thin-bottom"></div>
+    <div class="grid-cell thin-right thick-bottom"></div>
+    <div class="grid-cell thick-right thick-bottom"></div>
+    <div class="grid-cell thick-bottom"></div>
+  </div>
+  <div class="grid-row">
+    <div class="grid-cell thick-right thin-bottom"><div class="clue-number">13</div></div>
+    <div class="grid-cell thin-right thick-bottom"><div class="clue-number">14</div></div>
+    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">15</div></div>
+    <div class="grid-cell thin-right thin-bottom"></div>
+    <div class="grid-cell thin-right thin-bottom"></div>
+    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">16</div></div>
+    <div class="grid-cell thick-right thick-bottom"></div>
+    <div class="grid-cell thin-bottom"><div class="clue-number">17</div></div>
+  </div>
+  <div class="grid-row">
+    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">18</div></div>
+    <div class="grid-cell thin-right thick-bottom"></div>
+    <div class="grid-cell thin-right thin-bottom"></div>
+    <div class="grid-cell thick-right thin-bottom"></div>
+    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">19</div></div>
+    <div class="grid-cell thin-right thin-bottom"></div>
+    <div class="grid-cell thin-right thick-bottom"></div>
+    <div class="grid-cell thin-bottom"></div>
+  </div>
+  <div class="grid-row">
+    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">20</div></div>
+    <div class="grid-cell thick-right thick-bottom"></div>
+    <div class="grid-cell thick-right thin-bottom"></div>
+    <div class="grid-cell thick-right thick-bottom"></div>
+    <div class="grid-cell thick-right thick-bottom"></div>
+    <div class="grid-cell thick-right thin-bottom"></div>
+    <div class="grid-cell thick-right thin-bottom"><div class="clue-number">21</div></div>
+    <div class="grid-cell thin-bottom"></div>
+  </div>
+  <div class="grid-row">
+    <div class="grid-cell thin-right"><div class="clue-number">22</div></div>
+    <div class="grid-cell thin-right"></div>
+    <div class="grid-cell thin-right"></div>
+    <div class="grid-cell thick-right"></div>
+    <div class="grid-cell thin-right"><div class="clue-number">23</div></div>
+    <div class="grid-cell thin-right"></div>
+    <div class="grid-cell thin-right"></div>
+    <div class="grid-cell "></div>
+  </div>
+</div>
+            </div>
+            
+            <div class="info-section">
+                <div class="clues-section">
+  <div class="clues-column">
+    <h3>Across</h3>
+      <div class="clue solved">1. 1215</div>
+      <div class="clue">4. b=3, c=69</div>
+      <div class="clue">9. b=5, c=1</div>
+      <div class="clue">10. b=3, c=104</div>
+      <div class="clue solved">11. 1430</div>
+      <div class="clue unclued">12. Unclued</div>
+      <div class="clue unclued">14. Unclued</div>
+      <div class="clue">18. b=10, c=0</div>
+      <div class="clue">19. b=7, c=9</div>
+      <div class="clue">20. b=5, c=0</div>
+      <div class="clue">22. b=2, c=1427</div>
+      <div class="clue">23. b=6, c=4</div>
+  </div>
+  <div class="clues-column">
+    <h3>Down</h3>
+      <div class="clue solved">1. 2048</div>
+      <div class="clue">2. b=2, c=2</div>
+      <div class="clue">3. b=10, c=1</div>
+      <div class="clue">5. b=11, c=0</div>
+      <div class="clue">6. b=2, c=594</div>
+      <div class="clue unclued">7. Unclued</div>
+      <div class="clue unclued">8. Unclued</div>
+      <div class="clue">13. b=3, c=1281</div>
+      <div class="clue">15. b=4, c=8</div>
+      <div class="clue">16. b=4, c=29</div>
+      <div class="clue">17. b=4, c=0</div>
+      <div class="clue">21. b=4, c=0</div>
+  </div>
+</div>
+                
+<div class="progress-section">
+  <h3>Progress</h3>
+  <div class="progress-bar">
+    <div class="progress-fill" style="width: 12.5%"></div>
+  </div>
+  <div class="progress-stats">
+    <div>Clues solved: 3/24 (12.5%)</div>
+    <div>Cells filled: 11/64 (17.2%)</div>
+  </div>
+</div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

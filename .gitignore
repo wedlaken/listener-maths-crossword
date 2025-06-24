@@ -101,4 +101,6 @@ archive/
 
 # Local development settings
 .env
-.env.local 
+.env.local
+
+clue_objects_export.json 
