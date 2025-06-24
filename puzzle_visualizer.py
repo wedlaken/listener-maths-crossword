@@ -66,6 +66,125 @@ def generate_html_grid(grid_clues: List[Tuple[int, str, Tuple[int, ...]]],
     grid_html = []
     grid_html.append('<div class="crossword-grid">')
     
+    # Create sets of cells that should have thick borders
+    # For barred crossword: thick borders mark the END of clues/solutions
+    thick_right_cells = set()
+    thick_bottom_cells = set()
+    thick_left_cells = set()
+    thick_top_cells = set()
+    
+    # Process ACROSS clues to find thick right borders
+    across_clues = [clue for clue in grid_clues if clue[1] == 'ACROSS']
+    for number, direction, cell_indices in across_clues:
+        if len(cell_indices) > 0:
+            # The last cell of each ACROSS clue gets a thick right border
+            # BUT exclude cells in the rightmost column (column 7) since they already have grid border
+            # AND exclude cells 30 and 38 since they have manual border assignments
+            last_cell = cell_indices[-1]
+            if last_cell % 8 != 7 and last_cell not in {30, 38}:  # Not in rightmost column and not manually assigned
+                thick_right_cells.add(last_cell)
+    
+    # Process DOWN clues to find thick bottom borders
+    down_clues = [clue for clue in grid_clues if clue[1] == 'DOWN']
+    for number, direction, cell_indices in down_clues:
+        if len(cell_indices) > 0:
+            # The last cell of each DOWN clue gets a thick bottom border
+            # BUT exclude cells in the bottom row (row 7) since they already have grid border
+            last_cell = cell_indices[-1]
+            if last_cell < 56:  # Not in bottom row (cells 56-63)
+                thick_bottom_cells.add(last_cell)
+    
+    # Find all cells that are part of ACROSS clues
+    across_cells = set()
+    for number, direction, cell_indices in across_clues:
+        across_cells.update(cell_indices)
+    
+    # Find all cells that are part of DOWN clues
+    down_cells = set()
+    for number, direction, cell_indices in down_clues:
+        down_cells.update(cell_indices)
+    
+    # Handle isolated cells that need borders on multiple sides
+    # These are cells that are not part of ACROSS clues and need isolation
+    isolated_cells = {9, 14, 49}  # Based on your analysis - removed cell 21
+    
+    for cell_index in isolated_cells:
+        if cell_index not in across_cells:
+            # Cell is not part of any ACROSS clue, so it needs left and right borders
+            if cell_index % 8 != 0:  # Not leftmost column
+                thick_left_cells.add(cell_index)
+            if cell_index % 8 != 7:  # Not rightmost column
+                thick_right_cells.add(cell_index)
+        
+        # Check if cell needs top/bottom borders for isolation
+        # This is more complex and depends on the specific grid structure
+        # For now, we'll handle the specific cases you mentioned
+        
+        # Cell 9: needs left, right, bottom borders
+        if cell_index == 9:
+            thick_left_cells.add(9)
+            thick_right_cells.add(9)
+            thick_bottom_cells.add(9)
+        
+        # Cell 14: needs left, top, bottom borders
+        elif cell_index == 14:
+            thick_left_cells.add(14)
+            thick_top_cells.add(14)
+            thick_bottom_cells.add(14)
+        
+        # Cell 49: needs top, bottom, right borders
+        elif cell_index == 49:
+            thick_top_cells.add(49)
+            thick_bottom_cells.add(49)
+            thick_right_cells.add(49)
+    
+    # Add specific borders for cell pair separations
+    # These are based on the 90-degree rotation pattern you described
+    
+    # Cells 11 and 12 separation - thick borders around both cells (except bottom since they're DOWN clues)
+    # Cell 11: top, left, right borders
+    thick_top_cells.add(11)  # Top border for cell 11
+    thick_left_cells.add(11)  # Left border for cell 11
+    thick_right_cells.add(11)  # Right border for cell 11 (border between 11 and 12)
+    # Cell 12: top, right borders (left border handled by cell 11's right border)
+    thick_top_cells.add(12)  # Top border for cell 12
+    thick_right_cells.add(12)  # Right border for cell 12
+    
+    # Cells 30 and 38 separation (90° rotation) - mirrored pattern
+    # Cell 30: right, top borders
+    thick_right_cells.add(30)  # Right border for cell 30
+    thick_top_cells.add(30)    # Top border for cell 30
+    # Cell 38: right, bottom borders
+    thick_right_cells.add(38)  # Right border for cell 38
+    thick_bottom_cells.add(38) # Bottom border for cell 38
+    # Thick border between them (bottom of 30)
+    thick_bottom_cells.add(30) # Bottom border for cell 30 (border between 30 and 38)
+    
+    # Cells 51 and 52 separation (180° rotation) - thick border between them
+    thick_left_cells.add(51)   # Left border for cell 51
+    thick_right_cells.add(51)  # Right border for cell 51 (border between 51 and 52)
+    thick_right_cells.add(52)  # Right border for cell 52
+    thick_bottom_cells.add(51) # Bottom border for cell 51
+    thick_bottom_cells.add(52) # Bottom border for cell 52
+
+    # Cells 25 and 33 separation (270° rotation) - mirrored pattern
+    # Cell 25: left, top borders
+    thick_left_cells.add(25)   # Left border for cell 25
+    thick_top_cells.add(25)    # Top border for cell 25
+    # Cell 33: left, bottom borders
+    thick_left_cells.add(33)   # Left border for cell 33
+    thick_bottom_cells.add(33) # Bottom border for cell 33
+    # Thick border between them (bottom of 25)
+    thick_bottom_cells.add(25) # Bottom border for cell 25 (border between 25 and 33)
+    
+    # Cell 54 borders (90° rotation of cell 14's borders)
+    # Cell 14 has: thick-bottom, thick-left, thick-top
+    # Cell 54 should have: thick-left, thick-top, thick-right (90° rotation)
+    thick_left_cells.add(54)   # Left border for cell 54
+    thick_top_cells.add(54)    # Top border for cell 54
+    thick_right_cells.add(54)  # Right border for cell 54
+    
+    # Add thick borders for cells that end clues in both directions
     for row in range(8):
         grid_html.append('  <div class="grid-row">')
         for col in range(8):
@@ -80,21 +199,21 @@ def generate_html_grid(grid_clues: List[Tuple[int, str, Tuple[int, ...]]],
             # Determine border classes
             border_classes = []
             
-            # Right border (thick if specified)
-            if col < 7:  # Not last column
-                # Check if this cell has a thick right border
-                if cell_index in {3, 8, 9, 10, 11, 12, 13, 19, 24, 30, 32, 38, 43, 49, 50, 51, 52, 53, 54, 59}:
-                    border_classes.append('thick-right')
-                else:
-                    border_classes.append('thin-right')
+            # Apply thick right border if this cell ends an ACROSS clue
+            if cell_index in thick_right_cells:
+                border_classes.append('thick-right')
             
-            # Bottom border (thick if specified)
-            if row < 7:  # Not last row
-                # Check if this cell has a thick bottom border
-                if cell_index in {3, 4, 6, 9, 14, 17, 22, 24, 25, 26, 29, 30, 31, 33, 38, 41, 46, 49, 51, 52}:
-                    border_classes.append('thick-bottom')
-                else:
-                    border_classes.append('thin-bottom')
+            # Apply thick bottom border if this cell ends a DOWN clue
+            if cell_index in thick_bottom_cells:
+                border_classes.append('thick-bottom')
+            
+            # Apply thick left border for isolated cells
+            if cell_index in thick_left_cells:
+                border_classes.append('thick-left')
+            
+            # Apply thick top border for isolated cells
+            if cell_index in thick_top_cells:
+                border_classes.append('thick-top')
             
             border_class = ' '.join(border_classes)
             
@@ -269,13 +388,17 @@ def generate_full_html(grid_clues: List[Tuple[int, str, Tuple[int, ...]]],
             width: 50px;
             height: 50px;
             background-color: white;
-            border: 1px solid #ccc;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             font-weight: bold;
             font-size: 18px;
+            /* Use box-sizing to include borders in width/height */
+            box-sizing: border-box;
+            /* Default thin borders */
+            border-right: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
         }}
         
         .clue-number {{
@@ -292,6 +415,16 @@ def generate_full_html(grid_clues: List[Tuple[int, str, Tuple[int, ...]]],
             color: #333;
         }}
         
+        /* Remove borders from rightmost column and bottom row */
+        .grid-cell:nth-child(8n) {{
+            border-right: none;
+        }}
+        
+        .grid-row:last-child .grid-cell {{
+            border-bottom: none;
+        }}
+        
+        /* Thick borders for barred crossword effect */
         .thick-right {{
             border-right: 3px solid #333 !important;
         }}
@@ -300,12 +433,12 @@ def generate_full_html(grid_clues: List[Tuple[int, str, Tuple[int, ...]]],
             border-bottom: 3px solid #333 !important;
         }}
         
-        .thin-right {{
-            border-right: 1px solid #ccc;
+        .thick-left {{
+            border-left: 3px solid #333 !important;
         }}
         
-        .thin-bottom {{
-            border-bottom: 1px solid #ccc;
+        .thick-top {{
+            border-top: 3px solid #333 !important;
         }}
         
         .clues-section {{

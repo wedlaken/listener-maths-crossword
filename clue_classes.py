@@ -58,11 +58,10 @@ class ListenerClue:
     def _initialize_solutions(self):
         """Initialize possible solutions based on clue type"""
         if self.parameters.is_unclued:
-            # Unclued clues start with all possible numbers of the given length
-            start = 10**(self.length - 1)
-            end = 10**self.length
-            self.possible_solutions = set(range(start, end))
-            self.original_solution_count = len(self.possible_solutions)
+            # Unclued clues start with empty solution sets
+            # They will be populated as constraints are applied from crossing clues
+            self.possible_solutions = set()
+            self.original_solution_count = 0  # Will be set when constraints are first applied
         else:
             # Clued clues use listener.py find_solutions function
             solutions = find_solutions(self.parameters.a, self.parameters.b, self.parameters.c)
@@ -102,6 +101,13 @@ class ListenerClue:
         Update valid solutions based on current grid state.
         Returns True if solutions were eliminated.
         """
+        # For unclued clues, initialize with all possible numbers if this is the first time
+        if self.parameters.is_unclued and self.original_solution_count == 0:
+            start = 10**(self.length - 1)
+            end = 10**self.length
+            self.possible_solutions = set(range(start, end))
+            self.original_solution_count = len(self.possible_solutions)
+        
         solutions_to_remove = []
         
         for solution in self.possible_solutions:

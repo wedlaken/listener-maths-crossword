@@ -67,13 +67,17 @@
             width: 50px;
             height: 50px;
             background-color: white;
-            border: 1px solid #ccc;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             font-weight: bold;
             font-size: 18px;
+            /* Use box-sizing to include borders in width/height */
+            box-sizing: border-box;
+            /* Default thin borders */
+            border-right: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
         }
         
         .clue-number {
@@ -90,6 +94,16 @@
             color: #333;
         }
         
+        /* Remove borders from rightmost column and bottom row */
+        .grid-cell:nth-child(8n) {
+            border-right: none;
+        }
+        
+        .grid-row:last-child .grid-cell {
+            border-bottom: none;
+        }
+        
+        /* Thick borders for barred crossword effect */
         .thick-right {
             border-right: 3px solid #333 !important;
         }
@@ -98,12 +112,12 @@
             border-bottom: 3px solid #333 !important;
         }
         
-        .thin-right {
-            border-right: 1px solid #ccc;
+        .thick-left {
+            border-left: 3px solid #333 !important;
         }
         
-        .thin-bottom {
-            border-bottom: 1px solid #ccc;
+        .thick-top {
+            border-top: 3px solid #333 !important;
         }
         
         .clues-section {
@@ -198,7 +212,7 @@
     <div class="container">
         <div class="header">
             <h1>Listener Maths Crossword - Test Output</h1>
-            <div class="timestamp">Generated: 2025-06-24 06:36:15</div>
+            <div class="timestamp">Generated: 2025-06-24 15:01:42</div>
         </div>
 
         <div class="iteration-info">
@@ -211,83 +225,83 @@
                 <h3>Puzzle Grid</h3>
                 <div class="crossword-grid">
   <div class="grid-row">
-    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">1</div><div class="cell-value">1</div></div>
-    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">2</div><div class="cell-value">2</div></div>
-    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">3</div><div class="cell-value">1</div></div>
-    <div class="grid-cell thick-right thick-bottom"><div class="cell-value">5</div></div>
-    <div class="grid-cell thin-right thick-bottom"><div class="clue-number">4</div></div>
-    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">5</div></div>
-    <div class="grid-cell thin-right thick-bottom"></div>
-    <div class="grid-cell thin-bottom"><div class="clue-number">6</div></div>
+    <div class="grid-cell "><div class="clue-number">1</div><div class="cell-value">1</div></div>
+    <div class="grid-cell "><div class="clue-number">2</div><div class="cell-value">2</div></div>
+    <div class="grid-cell "><div class="clue-number">3</div><div class="cell-value">1</div></div>
+    <div class="grid-cell thick-right"><div class="cell-value">5</div></div>
+    <div class="grid-cell "><div class="clue-number">4</div></div>
+    <div class="grid-cell "><div class="clue-number">5</div></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell "><div class="clue-number">6</div></div>
   </div>
   <div class="grid-row">
-    <div class="grid-cell thick-right thin-bottom"><div class="cell-value">2</div></div>
-    <div class="grid-cell thick-right thick-bottom"></div>
-    <div class="grid-cell thick-right thin-bottom"></div>
-    <div class="grid-cell thick-right thin-bottom"><div class="clue-number">7</div></div>
-    <div class="grid-cell thick-right thin-bottom"><div class="clue-number">8</div></div>
-    <div class="grid-cell thick-right thin-bottom"></div>
-    <div class="grid-cell thin-right thick-bottom"><div class="clue-number">9</div></div>
-    <div class="grid-cell thin-bottom"></div>
+    <div class="grid-cell "><div class="cell-value">2</div></div>
+    <div class="grid-cell thick-right thick-bottom thick-left"></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell thick-right thick-left thick-top"><div class="clue-number">7</div></div>
+    <div class="grid-cell thick-right thick-top"><div class="clue-number">8</div></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell thick-bottom thick-left thick-top"><div class="clue-number">9</div></div>
+    <div class="grid-cell "></div>
   </div>
   <div class="grid-row">
-    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">10</div></div>
-    <div class="grid-cell thin-right thick-bottom"></div>
-    <div class="grid-cell thin-right thin-bottom"></div>
-    <div class="grid-cell thick-right thin-bottom"></div>
-    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">11</div><div class="cell-value">1</div></div>
-    <div class="grid-cell thin-right thin-bottom"><div class="cell-value">4</div></div>
-    <div class="grid-cell thin-right thick-bottom"><div class="cell-value">3</div></div>
-    <div class="grid-cell thin-bottom"></div>
+    <div class="grid-cell "><div class="clue-number">10</div></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell thick-right"></div>
+    <div class="grid-cell "><div class="clue-number">11</div><div class="cell-value">1</div></div>
+    <div class="grid-cell "><div class="cell-value">4</div></div>
+    <div class="grid-cell "><div class="cell-value">3</div></div>
+    <div class="grid-cell "></div>
   </div>
   <div class="grid-row">
-    <div class="grid-cell thick-right thick-bottom"><div class="cell-value">4</div></div>
-    <div class="grid-cell thin-right thick-bottom"><div class="clue-number">12</div></div>
-    <div class="grid-cell thin-right thick-bottom"></div>
-    <div class="grid-cell thin-right thin-bottom"></div>
-    <div class="grid-cell thin-right thin-bottom"></div>
-    <div class="grid-cell thin-right thick-bottom"></div>
-    <div class="grid-cell thick-right thick-bottom"></div>
+    <div class="grid-cell thick-bottom"><div class="cell-value">4</div></div>
+    <div class="grid-cell thick-bottom thick-left thick-top"><div class="clue-number">12</div></div>
+    <div class="grid-cell thick-bottom"></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell thick-bottom"></div>
+    <div class="grid-cell thick-right thick-bottom thick-top"></div>
     <div class="grid-cell thick-bottom"></div>
   </div>
   <div class="grid-row">
-    <div class="grid-cell thick-right thin-bottom"><div class="clue-number">13</div></div>
-    <div class="grid-cell thin-right thick-bottom"><div class="clue-number">14</div></div>
-    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">15</div></div>
-    <div class="grid-cell thin-right thin-bottom"></div>
-    <div class="grid-cell thin-right thin-bottom"></div>
-    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">16</div></div>
+    <div class="grid-cell "><div class="clue-number">13</div></div>
+    <div class="grid-cell thick-bottom thick-left"><div class="clue-number">14</div></div>
+    <div class="grid-cell "><div class="clue-number">15</div></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell "><div class="clue-number">16</div></div>
     <div class="grid-cell thick-right thick-bottom"></div>
-    <div class="grid-cell thin-bottom"><div class="clue-number">17</div></div>
+    <div class="grid-cell "><div class="clue-number">17</div></div>
   </div>
   <div class="grid-row">
-    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">18</div></div>
-    <div class="grid-cell thin-right thick-bottom"></div>
-    <div class="grid-cell thin-right thin-bottom"></div>
-    <div class="grid-cell thick-right thin-bottom"></div>
-    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">19</div></div>
-    <div class="grid-cell thin-right thin-bottom"></div>
-    <div class="grid-cell thin-right thick-bottom"></div>
-    <div class="grid-cell thin-bottom"></div>
-  </div>
-  <div class="grid-row">
-    <div class="grid-cell thin-right thin-bottom"><div class="clue-number">20</div></div>
-    <div class="grid-cell thick-right thick-bottom"></div>
-    <div class="grid-cell thick-right thin-bottom"></div>
-    <div class="grid-cell thick-right thick-bottom"></div>
-    <div class="grid-cell thick-right thick-bottom"></div>
-    <div class="grid-cell thick-right thin-bottom"></div>
-    <div class="grid-cell thick-right thin-bottom"><div class="clue-number">21</div></div>
-    <div class="grid-cell thin-bottom"></div>
-  </div>
-  <div class="grid-row">
-    <div class="grid-cell thin-right"><div class="clue-number">22</div></div>
-    <div class="grid-cell thin-right"></div>
-    <div class="grid-cell thin-right"></div>
+    <div class="grid-cell "><div class="clue-number">18</div></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell "></div>
     <div class="grid-cell thick-right"></div>
-    <div class="grid-cell thin-right"><div class="clue-number">23</div></div>
-    <div class="grid-cell thin-right"></div>
-    <div class="grid-cell thin-right"></div>
+    <div class="grid-cell "><div class="clue-number">19</div></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell "></div>
+  </div>
+  <div class="grid-row">
+    <div class="grid-cell "><div class="clue-number">20</div></div>
+    <div class="grid-cell thick-right thick-bottom thick-top"></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell thick-right thick-bottom thick-left"></div>
+    <div class="grid-cell thick-right thick-bottom"></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell thick-right thick-left thick-top"><div class="clue-number">21</div></div>
+    <div class="grid-cell "></div>
+  </div>
+  <div class="grid-row">
+    <div class="grid-cell "><div class="clue-number">22</div></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell thick-right"></div>
+    <div class="grid-cell "><div class="clue-number">23</div></div>
+    <div class="grid-cell "></div>
+    <div class="grid-cell "></div>
     <div class="grid-cell "></div>
   </div>
 </div>
