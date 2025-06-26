@@ -67,15 +67,6 @@ def load_clues_from_file(filename: str = "Listener 4869 clues.txt") -> Dict[Tupl
     
     return clues
 
-def load_solution_sets(filename: str = "solution_sets.json") -> Dict[str, List[str]]:
-    """Load pre-computed solution sets from JSON file."""
-    try:
-        with open(filename, 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        print(f"Warning: Could not find solution sets file {filename}")
-        return {}
-
 def create_clue_id(number: int, direction: str) -> str:
     """Create a unique identifier for a clue."""
     return f"{number}_{direction}"
@@ -87,7 +78,7 @@ def get_clue_number_at_cell(cell_index: int, grid_clues: List[Tuple[int, str, Tu
             return number
     return None
 
-def load_clue_objects() -> Tuple[List[Tuple[int, str, Tuple[int, ...]]], Dict[int, ListenerClue], ClueManager]:
+def load_clue_objects() -> Tuple[List[Tuple[int, str, Tuple[int, ...]]], Dict[Tuple[int, str], ListenerClue], ClueManager]:
     """Load clue objects using the systematic grid parser and clue classes."""
     print("Loading grid structure and clue objects...")
     
@@ -151,15 +142,15 @@ def load_clue_objects() -> Tuple[List[Tuple[int, str, Tuple[int, ...]]], Dict[in
                 ClueTuple(number=number, direction=direction, cell_indices=cell_indices, length=len(cell_indices), parameters=(len(cell_indices), b, c)),
                 b, c
             )
-        clue_objects[number] = clue
+        clue_objects[(number, direction)] = clue
         clue_manager.add_clue(clue)
     
     # Load clue text and update parameters
     clues_text = load_clues_from_file()
     
     for (number, direction), text in clues_text.items():
-        if number in clue_objects:
-            clue = clue_objects[number]
+        if (number, direction) in clue_objects:
+            clue = clue_objects[(number, direction)]
             
             # Update clue parameters based on text
             if text.lower() == 'unclued':
@@ -185,7 +176,7 @@ def load_clue_objects() -> Tuple[List[Tuple[int, str, Tuple[int, ...]]], Dict[in
                     new_clue = clue  # Keep original if parsing fails
             
             # Update the clue object
-            clue_objects[number] = new_clue
+            clue_objects[(number, direction)] = new_clue
             clue_manager.clues[number] = new_clue
     
     return grid_clues, clue_objects, clue_manager
@@ -338,7 +329,7 @@ def generate_grid_html(solved_cells: Dict[int, str] = None) -> str:
     
     return '\n'.join(grid_html)
 
-def generate_clues_html(clue_objects: Dict[int, ListenerClue], solution_sets: Dict[str, List[str]]) -> str:
+def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> str:
     """Generate HTML for the clues section using clue objects."""
     html = ['<div class="clues-section">']
     
@@ -362,7 +353,8 @@ def generate_clues_html(clue_objects: Dict[int, ListenerClue], solution_sets: Di
         else:
             clue_text = f"{clue.parameters.b}:{clue.parameters.c}"
         
-        status_class = "solved" if solution_count == 1 else "multiple" if solution_count > 1 else "unclued" if clue.parameters.is_unclued else ""
+        # Determine status class - we'll use JavaScript to update this dynamically
+        status_class = "multiple" if solution_count > 1 else "unclued" if clue.parameters.is_unclued else ""
         
         # Render as a single string, e.g. '1. 6:2'
         html.append(f'    <div class="clue {status_class}" data-clue="{clue_id}">')
@@ -411,7 +403,8 @@ def generate_clues_html(clue_objects: Dict[int, ListenerClue], solution_sets: Di
         else:
             clue_text = f"{clue.parameters.b}:{clue.parameters.c}"
         
-        status_class = "solved" if solution_count == 1 else "multiple" if solution_count > 1 else "unclued" if clue.parameters.is_unclued else ""
+        # Determine status class - we'll use JavaScript to update this dynamically
+        status_class = "multiple" if solution_count > 1 else "unclued" if clue.parameters.is_unclued else ""
         
         html.append(f'    <div class="clue {status_class}" data-clue="{clue_id}">')
         
@@ -442,24 +435,22 @@ def generate_clues_html(clue_objects: Dict[int, ListenerClue], solution_sets: Di
     
     return '\n'.join(html)
 
-def main():
-    """Main function to generate interactive solver."""
-    print("=== INTERACTIVE CROSSWORD SOLVER ===")
+def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> str:
+    """Generate the complete interactive HTML interface."""
     
-    # Load clue objects using systematic grid parser and clue classes
-    grid_clues, clue_objects, clue_manager = load_clue_objects()
-    solution_sets = load_solution_sets()
+    # Convert clue objects to JSON for JavaScript
+    clue_data = {}
+    for (number, direction), clue in clue_objects.items():
+        clue_data[f"{number}_{direction}"] = {
+            'number': clue.number,
+            'direction': clue.direction,
+            'cell_indices': list(clue.cell_indices),
+            'length': clue.length,
+            'is_unclued': clue.parameters.is_unclued,
+            'possible_solutions': list(clue.possible_solutions),
+            'original_solution_count': clue.original_solution_count
+        }
     
-    print(f"Loaded {len(grid_clues)} grid clues")
-    print(f"Loaded {len(clue_objects)} clue objects")
-    print(f"Loaded {len(solution_sets)} solution sets")
-    
-    # Debug: Print the clue objects to see what's loaded
-    print("\nDebug - Clue objects loaded:")
-    for number, clue in sorted(clue_objects.items()):
-        print(f"  {clue}")
-    
-    # Generate interactive HTML
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -609,6 +600,20 @@ def main():
             font-weight: bold;
         }}
         
+        .clue.user-selected {{
+            background-color: #cce5ff;
+            color: #004085;
+            font-weight: bold;
+            border-left: 4px solid #007bff;
+        }}
+        
+        .clue.algorithm-solved {{
+            background-color: #d1ecf1;
+            color: #0c5460;
+            font-weight: bold;
+            border-left: 4px solid #17a2b8;
+        }}
+        
         .clue.multiple {{
             background-color: #fff3cd;
             color: #856404;
@@ -665,23 +670,13 @@ def main():
             margin-bottom: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-family: monospace;
-            font-size: 14px;
-        }}
-        
-        .solution-input {{
-            margin-top: 8px;
-            padding: 8px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            border: 1px solid #dee2e6;
         }}
         
         .apply-solution {{
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 4px 12px;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
@@ -689,6 +684,11 @@ def main():
         
         .apply-solution:hover {{
             background-color: #0056b3;
+        }}
+        
+        .apply-solution:disabled {{
+            background-color: #6c757d;
+            cursor: not-allowed;
         }}
         
         .progress-section {{
@@ -724,6 +724,65 @@ def main():
             font-size: 14px;
             color: #666;
         }}
+        
+        .notification {{
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }}
+        
+        .notification.success {{
+            background-color: #28a745;
+        }}
+        
+        .notification.error {{
+            background-color: #dc3545;
+        }}
+        
+        .notification.info {{
+            background-color: #17a2b8;
+        }}
+        
+        .undo-section {{
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            text-align: center;
+        }}
+        
+        .undo-button {{
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }}
+        
+        .undo-button:hover {{
+            background-color: #5a6268;
+        }}
+        
+        .undo-button:disabled {{
+            background-color: #adb5bd;
+            cursor: not-allowed;
+        }}
+        
+        .history-info {{
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }}
     </style>
 </head>
 <body>
@@ -740,7 +799,7 @@ def main():
             </div>
             
             <div class="info-section">
-                {generate_clues_html(clue_objects, solution_sets)}
+                {generate_clues_html(clue_objects)}
                 
                 <div class="progress-section">
                     <h3>Progress</h3>
@@ -752,6 +811,12 @@ def main():
                         <div>Clues solved: 0/24</div>
                     </div>
                 </div>
+                
+                <div class="undo-section">
+                    <h3>Solution History</h3>
+                    <button class="undo-button" id="undo-button" disabled>Undo Last Solution</button>
+                    <div class="history-info" id="history-info">No solutions applied yet</div>
+                </div>
             </div>
         </div>
     </div>
@@ -759,120 +824,699 @@ def main():
     <script>
         // Interactive functionality
         let solvedCells = {{}};
-        let clueObjects = {{}}; // Will be populated with clue data
+        let clueObjects = {json.dumps(clue_data)};
         
-        // Initialize clue objects from the server data
-        function initializeClueObjects() {{
-            // This would be populated from the server-side clue objects
-            // For now, we'll use a simplified approach
-            console.log("Initializing clue objects...");
+        // Track user-selected solutions vs algorithm-determined solutions
+        let userSelectedSolutions = new Set();
+        let originalSolutionCounts = {{}};
+        let originalSolutions = {{}};
+        
+        // Initialize original solution counts and store original solutions
+        for (const [clueId, clue] of Object.entries(clueObjects)) {{
+            originalSolutionCounts[clueId] = clue.possible_solutions.length;
+            originalSolutions[clueId] = [...clue.possible_solutions]; // Store original solutions
         }}
         
-        // Handle clue clicks to show/hide solution dropdowns
-        document.querySelectorAll('.clue').forEach(clue => {{
-            clue.addEventListener('click', function(e) {{
+        // Undo system
+        let solutionHistory = [];
+        let undoButton = null;
+        let historyInfo = null;
+        
+        // Function to save current state
+        function saveState(clueId, solution) {{
+            const state = {{
+                timestamp: new Date().toLocaleTimeString(),
+                clueId: clueId,
+                solution: solution,
+                solvedCells: {{...solvedCells}},
+                clueObjects: JSON.parse(JSON.stringify(clueObjects)), // Deep copy
+                userSelectedSolutions: new Set(userSelectedSolutions) // Copy the set
+            }};
+            solutionHistory.push(state);
+            updateUndoButton();
+            console.log('Saved state:', state);
+        }}
+        
+        // Function to restore previous state
+        function undoLastSolution() {{
+            if (solutionHistory.length === 0) return;
+            
+            const lastState = solutionHistory.pop();
+            console.log('Undoing solution:', lastState);
+            
+            // Restore solved cells
+            solvedCells = {{...lastState.solvedCells}};
+            
+            // Restore clue objects
+            clueObjects = JSON.parse(JSON.stringify(lastState.clueObjects));
+            
+            // Restore user-selected solutions
+            userSelectedSolutions = new Set(lastState.userSelectedSolutions);
+            
+            // Update grid display
+            updateGridDisplay();
+            
+            // Update all clue displays
+            updateAllClueDisplays();
+            
+            // Update progress
+            updateProgress();
+            
+            // Update undo button
+            updateUndoButton();
+            
+            // Show notification based on action type
+            if (lastState.solution === 'DESELECT') {{
+                showNotification(`Undid deselect for clue ${{lastState.clueId}}`, 'info');
+            }} else {{
+                showNotification(`Undid solution "${{lastState.solution}}" for clue ${{lastState.clueId}}`, 'info');
+            }}
+        }}
+        
+        // Function to update undo button state
+        function updateUndoButton() {{
+            if (!undoButton) return;
+            
+            const canUndo = solutionHistory.length > 0;
+            undoButton.disabled = !canUndo;
+            
+            if (canUndo) {{
+                const lastState = solutionHistory[solutionHistory.length - 1];
+                if (lastState.solution === 'DESELECT') {{
+                    historyInfo.textContent = `Last action: Deselected clue ${{lastState.clueId}} at ${{lastState.timestamp}}`;
+                }} else {{
+                    historyInfo.textContent = `Last solution: ${{lastState.solution}} for ${{lastState.clueId}} at ${{lastState.timestamp}}`;
+                }}
+            }} else {{
+                historyInfo.textContent = 'No solutions applied yet';
+            }}
+        }}
+        
+        // Function to update grid display from solvedCells
+        function updateGridDisplay() {{
+            // Clear all cell values first
+            document.querySelectorAll('.cell-value').forEach(el => {{
+                el.remove();
+            }});
+            
+            // Update cells that have values
+            for (const [cellIndex, digit] of Object.entries(solvedCells)) {{
+                updateCellDisplay(parseInt(cellIndex), digit);
+            }}
+        }}
+
+        // Attach event listeners after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {{
+            console.log('DOM loaded, setting up event listeners');
+            
+            // Initialize undo system
+            undoButton = document.getElementById('undo-button');
+            historyInfo = document.getElementById('history-info');
+            updateUndoButton();
+            
+            // Add undo button event listener
+            undoButton.addEventListener('click', undoLastSolution);
+            
+            // Event delegation for clue clicks
+            document.querySelector('.clues-section').addEventListener('click', function(e) {{
+                const clueDiv = e.target.closest('.clue');
+                if (!clueDiv) return;
+                
                 // Don't toggle if clicking on the dropdown or input itself
-                if (e.target.closest('.solution-dropdown') || e.target.closest('.solution-input')) {{
+                if (e.target.closest('.solution-dropdown') || e.target.closest('.solution-input') || e.target.closest('.deselect-dialog') || e.target.classList.contains('apply-solution') || e.target.classList.contains('deselect-solution')) {{
                     return;
                 }}
                 
-                const clueId = this.getAttribute('data-clue');
+                const clueId = clueDiv.getAttribute('data-clue');
+                console.log('Clue clicked:', clueId);
+                
+                // Check if this clue has a user-selected solution
+                if (userSelectedSolutions.has(clueId)) {{
+                    // Show deselect dialog instead of dropdown
+                    showDeselectDialog(clueId);
+                    return;
+                }}
+                
                 const dropdown = document.getElementById(`dropdown-${{clueId}}`);
                 const input = document.getElementById(`input-${{clueId}}`);
                 
+                // Hide all other dropdowns and inputs
+                document.querySelectorAll('.solution-dropdown, .solution-input, .deselect-dialog').forEach(d => {{
+                    if (d !== dropdown && d !== input) d.style.display = 'none';
+                }});
+                
+                // Toggle this dropdown/input
                 if (dropdown) {{
-                    // Hide all other dropdowns and inputs
-                    document.querySelectorAll('.solution-dropdown, .solution-input').forEach(d => {{
-                        if (d !== dropdown) d.style.display = 'none';
-                    }});
-                    
-                    // Toggle this dropdown
-                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                    const isHidden = dropdown.style.display === 'none' || dropdown.style.display === '';
+                    dropdown.style.display = isHidden ? 'block' : 'none';
+                    console.log('Toggled dropdown for', clueId, 'to', isHidden ? 'visible' : 'hidden');
                 }} else if (input) {{
-                    // Hide all other dropdowns and inputs
-                    document.querySelectorAll('.solution-dropdown, .solution-input').forEach(d => {{
-                        if (d !== input) d.style.display = 'none';
-                    }});
+                    const isHidden = input.style.display === 'none' || input.style.display === '';
+                    input.style.display = isHidden ? 'block' : 'none';
+                    console.log('Toggled input for', clueId, 'to', isHidden ? 'visible' : 'hidden');
+                }}
+            }});
+
+            // Handle solution selection and application using event delegation
+            document.querySelector('.clues-section').addEventListener('click', function(e) {{
+                if (e.target.classList.contains('apply-solution')) {{
+                    e.stopPropagation(); // Prevent bubbling to clue click
+                    const clueId = e.target.getAttribute('data-clue');
+                    console.log('Apply button clicked for:', clueId);
                     
-                    // Toggle this input
-                    input.style.display = input.style.display === 'none' ? 'block' : 'none';
+                    const select = e.target.parentNode.querySelector('.solution-select');
+                    const input = e.target.parentNode.querySelector('.solution-text-input');
+                    
+                    let solution = '';
+                    if (select) {{
+                        solution = select.value;
+                        console.log('Selected solution from dropdown:', solution);
+                    }} else if (input) {{
+                        solution = input.value;
+                        console.log('Entered solution from input:', solution);
+                    }}
+                    
+                    if (solution) {{
+                        applySolutionToGrid(clueId, solution);
+                    }} else {{
+                        showNotification('Please select or enter a solution first', 'error');
+                    }}
                 }}
             }});
         }});
-        
-        // Handle solution selection and application
-        document.querySelectorAll('.apply-solution').forEach(button => {{
-            button.addEventListener('click', function(e) {{
-                e.stopPropagation(); // Prevent bubbling to clue click
-                const clueId = this.getAttribute('data-clue');
-                const select = this.parentNode.querySelector('.solution-select');
-                const input = this.parentNode.querySelector('.solution-text-input');
-                
-                let solution = '';
-                if (select) {{
-                    solution = select.value;
-                }} else if (input) {{
-                    solution = input.value;
+
+        function updateCellDisplay(cellIndex, digit) {{
+            const cell = document.querySelector(`[data-cell="${{cellIndex}}"]`);
+            if (cell) {{
+                let valueElement = cell.querySelector('.cell-value');
+                if (!valueElement) {{
+                    // Create the cell-value element if it doesn't exist
+                    valueElement = document.createElement('div');
+                    valueElement.className = 'cell-value';
+                    cell.appendChild(valueElement);
                 }}
-                
-                if (solution) {{
-                    applySolutionToGrid(clueId, solution);
-                }}
-            }});
-        }});
-        
-        // Prevent dropdown and input clicks from bubbling up
-        document.querySelectorAll('.solution-dropdown, .solution-input').forEach(element => {{
-            element.addEventListener('click', function(e) {{
-                e.stopPropagation();
-            }});
-        }});
-        
-        // Prevent select and input clicks from bubbling up
-        document.querySelectorAll('.solution-select, .solution-text-input').forEach(element => {{
-            element.addEventListener('click', function(e) {{
-                e.stopPropagation();
-            }});
-        }});
-        
+                valueElement.textContent = digit;
+            }}
+        }}
+
         function applySolutionToGrid(clueId, solution) {{
             console.log(`Applying solution "${{solution}}" to clue ${{clueId}}`);
+            
+            // Save current state before applying solution
+            saveState(clueId, solution);
             
             // Parse clue ID to get number and direction
             const [number, direction] = clueId.split('_');
             const clueNumber = parseInt(number);
             
-            // For now, just show an alert - in a full implementation,
-            // this would update the grid and propagate constraints
-            alert(`Would apply solution "${{solution}}" to clue ${{clueId}}\\n\\nThis would:\\n1. Place the solution in the grid\\n2. Update all crossing clues\\n3. Remove incompatible solutions\\n4. Refresh the display`);
+            // Validate solution format
+            if (!/^\\d+$/.test(solution)) {{
+                showNotification('Solution must be a number', 'error');
+                return;
+            }}
             
-            // TODO: Implement full solution application:
-            // 1. Get clue object by number
-            // 2. Apply solution to grid cells
-            // 3. Update all contingent clues
-            // 4. Refresh the display
+            // Get clue object
+            const clue = clueObjects[clueId];
+            if (!clue) {{
+                showNotification('Clue not found', 'error');
+                return;
+            }}
+            
+            // Validate solution length
+            if (solution.length !== clue.length) {{
+                showNotification(`Solution must be ${{clue.length}} digits long`, 'error');
+                return;
+            }}
+            
+            // Check if solution is valid for this clue
+            if (!clue.possible_solutions.includes(parseInt(solution))) {{
+                showNotification('This solution is not valid for this clue', 'error');
+                return;
+            }}
+            
+            // Apply solution to grid cells
+            const solutionStr = solution.padStart(clue.length, '0');
+            for (let i = 0; i < clue.cell_indices.length; i++) {{
+                const cellIndex = clue.cell_indices[i];
+                const digit = parseInt(solutionStr[i]);
+                solvedCells[cellIndex] = digit;
+                
+                // Update grid display
+                updateCellDisplay(cellIndex, digit);
+            }}
+            
+            // Mark clue as solved
+            clue.possible_solutions = [parseInt(solution)];
+            
+            // Mark this as a user-selected solution
+            userSelectedSolutions.add(clueId);
+            
+            // Propagate constraints to crossing clues
+            const eliminatedSolutions = propagateConstraints(clueId, solution);
+            
+            // Update all clue displays
+            updateAllClueDisplays();
             
             // Update progress
             updateProgress();
+            
+            // Show success message
+            const eliminatedCount = eliminatedSolutions.length;
+            if (eliminatedCount > 0) {{
+                showNotification(`Solution applied! Eliminated ${{eliminatedCount}} incompatible solutions from crossing clues.`, 'success');
+            }} else {{
+                showNotification('Solution applied successfully!', 'success');
+            }}
+            
+            // Hide the dropdown/input
+            const dropdown = document.getElementById(`dropdown-${{clueId}}`);
+            const input = document.getElementById(`input-${{clueId}}`);
+            if (dropdown) dropdown.style.display = 'none';
+            if (input) input.style.display = 'none';
         }}
-        
+
+        function propagateConstraints(clueId, solution) {{
+            const eliminatedSolutions = [];
+            const clue = clueObjects[clueId];
+            const solutionStr = solution.padStart(clue.length, '0');
+            
+            // Find all clues that share cells with this clue
+            const crossingClues = [];
+            for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {{
+                if (otherClueId !== clueId) {{
+                    // Check if any cells overlap
+                    const overlap = clue.cell_indices.filter(cell => 
+                        otherClue.cell_indices.includes(cell)
+                    );
+                    if (overlap.length > 0) {{
+                        crossingClues.push(otherClueId);
+                    }}
+                }}
+            }}
+            
+            // Eliminate incompatible solutions from crossing clues
+            for (const crossingClueId of crossingClues) {{
+                const crossingClue = clueObjects[crossingClueId];
+                const solutionsToRemove = [];
+                
+                for (const possibleSolution of crossingClue.possible_solutions) {{
+                    const possibleStr = possibleSolution.toString().padStart(crossingClue.length, '0');
+                    let incompatible = false;
+                    
+                    // Check each cell position
+                    for (let i = 0; i < crossingClue.cell_indices.length; i++) {{
+                        const cellIndex = crossingClue.cell_indices[i];
+                        const digit = parseInt(possibleStr[i]);
+                        
+                        // If this cell is already solved, check compatibility
+                        if (cellIndex in solvedCells) {{
+                            if (solvedCells[cellIndex] !== digit) {{
+                                incompatible = true;
+                                break;
+                            }}
+                        }}
+                    }}
+                    
+                    if (incompatible) {{
+                        solutionsToRemove.push(possibleSolution);
+                    }}
+                }}
+                
+                // Remove incompatible solutions
+                for (const solutionToRemove of solutionsToRemove) {{
+                    crossingClue.possible_solutions = crossingClue.possible_solutions.filter(s => s !== solutionToRemove);
+                    eliminatedSolutions.push({{clueId: crossingClueId, solution: solutionToRemove}});
+                }}
+            }}
+            
+            return eliminatedSolutions;
+        }}
+
+        function updateAllClueDisplays() {{
+            // Update each clue's display based on current state
+            for (const [clueId, clue] of Object.entries(clueObjects)) {{
+                updateClueDisplay(clueId, clue);
+            }}
+        }}
+
+        function updateClueDisplay(clueId, clue) {{
+            const clueElement = document.querySelector(`[data-clue="${{clueId}}"]`);
+            if (!clueElement) return;
+            
+            // Update solution count - show actual remaining solutions, not just "1" if user selected
+            const countElement = clueElement.querySelector('.solution-count');
+            if (countElement) {{
+                countElement.textContent = `${{clue.possible_solutions.length}} solutions`;
+            }}
+            
+            // Update clue styling based on solution count and user selection
+            clueElement.className = 'clue';
+            
+            if (clue.possible_solutions.length === 1) {{
+                if (userSelectedSolutions.has(clueId)) {{
+                    // User manually selected this solution
+                    clueElement.classList.add('user-selected');
+                }} else {{
+                    // Algorithm determined only one solution remains
+                    clueElement.classList.add('algorithm-solved');
+                }}
+            }} else if (clue.possible_solutions.length > 1) {{
+                if (userSelectedSolutions.has(clueId)) {{
+                    // User selected a solution but there are still other possibilities
+                    clueElement.classList.add('user-selected');
+                }} else {{
+                    // Multiple solutions available, no user selection
+                    clueElement.classList.add('multiple');
+                }}
+            }} else if (clue.is_unclued) {{
+                clueElement.classList.add('unclued');
+            }}
+            
+            // Update dropdown options if it exists
+            const dropdown = document.getElementById(`dropdown-${{clueId}}`);
+            if (dropdown) {{
+                const select = dropdown.querySelector('.solution-select');
+                if (select) {{
+                    // Keep the first option (placeholder) and update only the solution options
+                    const placeholderOption = select.querySelector('option[value=""]');
+                    select.innerHTML = '';
+                    
+                    // Restore the placeholder option
+                    if (placeholderOption) {{
+                        select.appendChild(placeholderOption);
+                    }} else {{
+                        const newPlaceholder = document.createElement('option');
+                        newPlaceholder.value = '';
+                        newPlaceholder.textContent = '-- Select a solution --';
+                        select.appendChild(newPlaceholder);
+                    }}
+                    
+                    // Add the solution options
+                    for (const solution of clue.possible_solutions) {{
+                        const option = document.createElement('option');
+                        option.value = solution;
+                        option.textContent = solution.toString().padStart(clue.length, '0');
+                        select.appendChild(option);
+                    }}
+                    
+                    console.log(`Updated dropdown for ${{clueId}} with ${{clue.possible_solutions.length}} solutions`);
+                }}
+            }}
+        }}
+
         function updateProgress() {{
             const filledCells = Object.keys(solvedCells).length;
             const percentage = (filledCells / 64) * 100;
             
+            // Count solved clues (both user-selected and algorithm-determined)
+            let solvedClues = 0;
+            for (const clue of Object.values(clueObjects)) {{
+                if (clue.possible_solutions.length === 1) {{
+                    solvedClues++;
+                }}
+            }}
+            
             document.querySelector('.progress-fill').style.width = percentage + '%';
             document.querySelector('.progress-stats').innerHTML = 
                 `<div>Cells filled: ${{filledCells}}/64 (${{percentage.toFixed(1)}}%)</div>
-                 <div>Clues solved: ${{filledCells}}/24</div>`;
+                 <div>Clues solved: ${{solvedClues}}/24</div>`;
         }}
-        
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', function() {{
-            initializeClueObjects();
-        }});
+
+        function showNotification(message, type) {{
+            // Remove existing notifications
+            const existing = document.querySelector('.notification');
+            if (existing) {{
+                existing.remove();
+            }}
+            
+            // Create new notification
+            const notification = document.createElement('div');
+            notification.className = `notification ${{type}}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {{
+                notification.style.opacity = '1';
+            }}, 10);
+            
+            // Hide notification after 3 seconds
+            setTimeout(() => {{
+                notification.style.opacity = '0';
+                setTimeout(() => {{
+                    if (notification.parentNode) {{
+                        notification.remove();
+                    }}
+                }}, 300);
+            }}, 3000);
+        }}
+
+        function showDeselectDialog(clueId) {{
+            // Hide any existing dialogs
+            document.querySelectorAll('.solution-dropdown, .solution-input, .deselect-dialog').forEach(d => {{
+                d.style.display = 'none';
+            }});
+            
+            const clue = clueObjects[clueId];
+            const currentSolution = clue.possible_solutions[0];
+            const solutionStr = currentSolution.toString().padStart(clue.length, '0');
+            
+            // Create deselect dialog
+            const dialog = document.createElement('div');
+            dialog.className = 'deselect-dialog';
+            dialog.id = `deselect-${{clueId}}`;
+            dialog.style.cssText = `
+                margin-top: 8px;
+                padding: 12px;
+                background-color: #fff3cd;
+                border: 1px solid #ffeaa7;
+                border-radius: 4px;
+                border-left: 4px solid #f39c12;
+            `;
+            
+            dialog.innerHTML = `
+                <div style="margin-bottom: 8px; font-weight: bold; color: #856404;">
+                    Current solution: <span style="font-family: monospace;">${{solutionStr}}</span>
+                </div>
+                <div style="margin-bottom: 12px; color: #856404;">
+                    Click "Deselect" to remove this solution and restore all possible solutions for this clue.
+                </div>
+                <button class="deselect-solution" data-clue="${{clueId}}" style="
+                    background-color: #dc3545;
+                    color: white;
+                    border: none;
+                    padding: 6px 12px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    margin-right: 8px;
+                ">Deselect Solution</button>
+                <button class="cancel-deselect" style="
+                    background-color: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 6px 12px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 12px;
+                ">Cancel</button>
+            `;
+            
+            // Find the clue element and append the dialog
+            const clueElement = document.querySelector(`[data-clue="${{clueId}}"]`);
+            if (clueElement) {{
+                clueElement.appendChild(dialog);
+                
+                // Add event listeners
+                dialog.querySelector('.deselect-solution').addEventListener('click', function(e) {{
+                    e.stopPropagation();
+                    deselectSolution(clueId);
+                }});
+                
+                dialog.querySelector('.cancel-deselect').addEventListener('click', function(e) {{
+                    e.stopPropagation();
+                    dialog.style.display = 'none';
+                }});
+            }}
+        }}
+
+        function deselectSolution(clueId) {{
+            console.log(`Deselecting solution for clue ${{clueId}}`);
+            
+            // Save current state before deselecting
+            saveState(clueId, 'DESELECT');
+            
+            const clue = clueObjects[clueId];
+            const currentSolution = clue.possible_solutions[0];
+            
+            // Remove the solution from the grid cells
+            const solutionStr = currentSolution.toString().padStart(clue.length, '0');
+            for (let i = 0; i < clue.cell_indices.length; i++) {{
+                const cellIndex = clue.cell_indices[i];
+                
+                // Check if this cell is used by other user-selected clues
+                let canRemoveCell = true;
+                for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {{
+                    if (otherClueId !== clueId && userSelectedSolutions.has(otherClueId)) {{
+                        if (otherClue.cell_indices.includes(cellIndex)) {{
+                            canRemoveCell = false;
+                            break;
+                        }}
+                    }}
+                }}
+                
+                if (canRemoveCell) {{
+                    delete solvedCells[cellIndex];
+                    
+                    // Clear the cell display
+                    const cell = document.querySelector(`[data-cell="${{cellIndex}}"]`);
+                    if (cell) {{
+                        const valueElement = cell.querySelector('.cell-value');
+                        if (valueElement) {{
+                            valueElement.remove();
+                        }}
+                    }}
+                }}
+            }}
+            
+            // Remove from user-selected solutions BEFORE recalculating constraints
+            userSelectedSolutions.delete(clueId);
+            
+            // Explicitly restore original solutions for the deselected clue
+            const originalCount = clue.original_solution_count || 0;
+            console.log(`Restoring original solutions for ${{clueId}}: original count = ${{originalCount}}`);
+            
+            // Restore from stored original solutions
+            if (originalSolutions[clueId]) {{
+                clue.possible_solutions = [...originalSolutions[clueId]]; // Deep copy
+                console.log(`Restored original solutions for ${{clueId}}:`, originalSolutions[clueId]);
+            }} else {{
+                console.log(`No original solutions found for ${{clueId}}`);
+                clue.possible_solutions = [];
+            }}
+            
+            // Recalculate constraints for all OTHER clues (not the deselected one)
+            recalculateAllConstraintsExcept(clueId);
+            
+            // Update all clue displays
+            updateAllClueDisplays();
+            
+            // Update progress
+            updateProgress();
+            
+            // Hide the deselect dialog
+            const dialog = document.getElementById(`deselect-${{clueId}}`);
+            if (dialog) {{
+                dialog.style.display = 'none';
+            }}
+            
+            // Show success message
+            const restoredCount = clue.possible_solutions.length;
+            showNotification(`Deselected solution for clue ${{clueId}}. Restored ${{restoredCount}} possible solutions.`, 'success');
+        }}
+
+        function recalculateAllConstraintsExcept(excludeClueId) {{
+            // Recalculate constraints based on current solved cells, excluding the specified clue
+            for (const [clueId, clue] of Object.entries(clueObjects)) {{
+                // Skip the excluded clue and clues that have user-selected solutions
+                if (clueId === excludeClueId || userSelectedSolutions.has(clueId)) continue;
+                
+                // Get original solutions for this clue from our stored original solutions
+                const clueOriginalSolutions = originalSolutions[clueId] || [];
+                const validSolutions = [];
+                
+                // Check each original solution against current grid state
+                for (const solution of clueOriginalSolutions) {{
+                    const solutionInt = parseInt(solution);
+                    const solutionStr = solutionInt.toString().padStart(clue.length, '0');
+                    let isValid = true;
+                    
+                    // Check each cell position
+                    for (let i = 0; i < clue.cell_indices.length; i++) {{
+                        const cellIndex = clue.cell_indices[i];
+                        const digit = parseInt(solutionStr[i]);
+                        
+                        // If this cell is already solved, check compatibility
+                        if (cellIndex in solvedCells) {{
+                            if (solvedCells[cellIndex] !== digit) {{
+                                isValid = false;
+                                break;
+                            }}
+                        }}
+                    }}
+                    
+                    if (isValid) {{
+                        validSolutions.push(solutionInt);
+                    }}
+                }}
+                
+                // Update the clue's possible solutions
+                clue.possible_solutions = validSolutions;
+            }}
+        }}
+
+        function recalculateAllConstraints() {{
+            // Recalculate constraints for all clues (used for undo operations)
+            for (const [clueId, clue] of Object.entries(clueObjects)) {{
+                // Skip clues that have user-selected solutions
+                if (userSelectedSolutions.has(clueId)) continue;
+                
+                // Get original solutions for this clue from our stored original solutions
+                const clueOriginalSolutions = originalSolutions[clueId] || [];
+                const validSolutions = [];
+                
+                // Check each original solution against current grid state
+                for (const solution of clueOriginalSolutions) {{
+                    const solutionInt = parseInt(solution);
+                    const solutionStr = solutionInt.toString().padStart(clue.length, '0');
+                    let isValid = true;
+                    
+                    // Check each cell position
+                    for (let i = 0; i < clue.cell_indices.length; i++) {{
+                        const cellIndex = clue.cell_indices[i];
+                        const digit = parseInt(solutionStr[i]);
+                        
+                        // If this cell is already solved, check compatibility
+                        if (cellIndex in solvedCells) {{
+                            if (solvedCells[cellIndex] !== digit) {{
+                                isValid = false;
+                                break;
+                            }}
+                        }}
+                    }}
+                    
+                    if (isValid) {{
+                        validSolutions.push(solutionInt);
+                    }}
+                }}
+                
+                // Update the clue's possible solutions
+                clue.possible_solutions = validSolutions;
+            }}
+        }}
     </script>
 </body>
 </html>"""
+    
+    return html_content
+
+def main():
+    """Main function to generate interactive solver."""
+    print("=== INTERACTIVE CROSSWORD SOLVER ===")
+    
+    # Load clue objects using systematic grid parser and clue classes
+    grid_clues, clue_objects, clue_manager = load_clue_objects()
+    
+    print(f"Loaded {len(grid_clues)} grid clues")
+    print(f"Loaded {len(clue_objects)} clue objects")
+    
+    # Debug: Print the clue objects to see what's loaded
+    print("\nDebug - Clue objects loaded:")
+    for number, clue in sorted(clue_objects.items()):
+        print(f"  {clue}")
+    
+    # Generate interactive HTML
+    html_content = generate_interactive_html(clue_objects)
     
     # Save and open
     filename = "interactive_solver.html"

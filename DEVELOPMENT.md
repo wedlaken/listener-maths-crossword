@@ -117,6 +117,51 @@ Clues Image → puzzle_reader.py → Clue parameters (b, c values)
 
 ## Daily Progress Log
 
+### 2024-12-19: Interactive Solver Enhancements - Deselect & Cleanup
+
+#### Key Achievements
+- **Implemented deselect functionality** allowing users to remove individual solutions and restore original possibilities
+- **Removed JSON dependencies** - solver now uses pure object-based approach with stored original solutions
+- **Enhanced visual distinction** between user-selected solutions (blue) and algorithm-determined solutions (teal)
+- **Fixed variable naming conflicts** in JavaScript constraint recalculation functions
+- **Maintained undo functionality** while adding targeted deselect capability
+
+#### Technical Details
+- **Deselect Dialog**: Yellow-themed confirmation dialog with "Deselect Solution" and "Cancel" buttons
+- **Smart Cell Handling**: Deselecting only removes cells not used by other user-selected clues
+- **Original Solution Storage**: Stores initial solutions at initialization for reliable restoration
+- **Visual Feedback**: 
+  - User-selected solutions: Blue background with blue left border
+  - Algorithm-solved clues: Teal background with teal left border
+  - Multiple solutions: Yellow background (unchanged)
+- **Accurate Solution Counts**: Shows actual remaining solutions, not just "1" when user has selected something
+
+#### Files Modified
+- `interactive_solver.py` - Added deselect functionality, removed JSON dependencies, enhanced styling
+- `interactive_solver.html` - Generated updated interface with new features
+
+#### Current Status
+✅ **Deselect functionality** working correctly  
+✅ **JSON dependencies removed** - pure object-based approach  
+✅ **Visual distinction** between solution types implemented  
+✅ **Undo system** maintained and enhanced  
+✅ **Smart backtracking** allowing selective solution removal  
+🔄 **Next phase**: User registration and progress saving  
+
+#### Lessons Learned
+- **Variable naming conflicts** in JavaScript can silently break functionality
+- **Object-based approach** is more reliable than external file dependencies
+- **User experience** benefits from both targeted deselect and full undo capabilities
+- **Visual feedback** helps users understand the difference between their choices and algorithmic determinations
+- **State management** requires careful tracking of original vs. current solutions
+
+#### Next Steps
+1. **User registration system** for personalized solving sessions
+2. **Progress saving/loading** to persist solving state across sessions
+3. **Puzzle state database** to store user progress and solution history
+4. **Multi-user support** for collaborative solving or competition
+5. **Analytics and statistics** to track solving patterns and difficulty assessment
+
 ### 2024-12-19: Interactive Solver Development
 
 #### Key Achievements
