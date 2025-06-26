@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Interactive Crossword Solver{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h1 class="display-4 mb-4">Interactive Crossword Solver</h1>
+        <p class="lead mb-5">
+            Solve complex mathematical crosswords with intelligent assistance. 
+            Our interactive solver helps you explore solutions while maintaining your progress.
+        </p>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Features</h5>
+                        <ul class="list-unstyled">
+                            <li>✅ Interactive grid solving</li>
+                            <li>✅ Smart constraint propagation</li>
+                            <li>✅ Undo and deselect functionality</li>
+                            <li>✅ Progress saving</li>
+                            <li>✅ User accounts</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Get Started</h5>
+                        <p class="card-text">Create an account to save your progress and start solving!</p>
+                        <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary">Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <h3>About This Project</h3>
+            <p>
+                This interactive crossword solver demonstrates advanced web development concepts including:
+                database management, user authentication, state persistence, and real-time constraint solving.
+                Built for CS50 Final Project showcasing full-stack development skills.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

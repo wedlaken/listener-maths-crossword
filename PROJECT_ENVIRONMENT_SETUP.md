@@ -207,4 +207,223 @@ This is safe because:
 
 ---
 
-If you have any questions, refer to the [Microsoft documentation on execution policies](https://go.microsoft.com/fwlink/?LinkID=135170). 
+If you have any questions, refer to the [Microsoft documentation on execution policies](https://go.microsoft.com/fwlink/?LinkID=135170).
+
+## Development Server Setup
+
+### Overview
+The project includes an advanced development server with auto-reload functionality, similar to nodemon for Node.js applications. This provides a seamless development experience with automatic server restarts when files are modified.
+
+### Auto-Reload Features
+
+#### **What Auto-Reloads:**
+- ✅ **Python files** (`app.py`, `interactive_solver.py`, etc.) - Flask debug mode
+- ✅ **Template files** (`templates/*.html`) - Flask debug mode  
+- ✅ **Static files** (`static/*.html`) - Custom file watcher
+- ✅ **Configuration files** - Custom file watcher
+
+#### **What Doesn't Auto-Reload:**
+- ❌ **Database changes** - Requires manual restart
+- ❌ **Environment variables** - Requires manual restart
+
+### Development Server Options
+
+#### **Option 1: Standard Flask Server (Basic Auto-Reload)**
+```bash
+# Activate virtual environment
+.\venv\Scripts\activate
+
+# Run Flask server
+python app.py
+```
+**Features:**
+- Auto-reloads Python and template files
+- Debug mode enabled
+- Simple setup
+
+#### **Option 2: Advanced Development Server (Full Auto-Reload)**
+```bash
+# Activate virtual environment
+.\venv\Scripts\activate
+
+# Install development dependencies (if not already done)
+pip install watchdog flask-socketio
+
+# Run development server
+python dev_server.py
+```
+**Features:**
+- Auto-reloads ALL file types
+- File watching with debouncing
+- Clean console output
+- Automatic server restart
+
+### Development Server Files
+
+#### **`dev_server.py` - Auto-Reload Server**
+**Purpose**: Provides nodemon-like functionality for Flask development.
+
+**Key Features:**
+- **File watching**: Monitors `./`, `static/`, and `templates/` directories
+- **Debouncing**: Prevents multiple restarts from rapid file changes
+- **Process management**: Automatically kills and restarts Flask server
+- **Clean output**: Shows which files changed and restart status
+
+**How it works:**
+1. Starts Flask server as a subprocess
+2. Sets up file system watchers using `watchdog`
+3. Detects file modifications
+4. Terminates old Flask process
+5. Starts new Flask process
+6. Provides status feedback
+
+**Usage:**
+```bash
+python dev_server.py
+```
+
+**Output example:**
+```
+🚀 Starting Flask development server with auto-reload...
+📁 Watching for changes in: ./, static/, templates/
+🛑 Press Ctrl+C to stop
+
+🔄 File changed: static/interactive_solver.html
+🔄 Restarting Flask server...
+✅ Flask server restarted!
+```
+
+### Development Workflow
+
+#### **For Different File Types:**
+
+**Python Files (`app.py`, `interactive_solver.py`):**
+- Edit file
+- Server auto-restarts (both standard and dev server)
+- Refresh browser
+
+**Template Files (`templates/*.html`):**
+- Edit file  
+- Server auto-restarts (both standard and dev server)
+- Refresh browser
+
+**Static Files (`static/*.html`):**
+- Edit file
+- **Standard server**: Manual refresh required
+- **Dev server**: Auto-restart, then refresh browser
+
+#### **Recommended Workflow:**
+1. **Start development server:**
+   ```bash
+   python dev_server.py
+   ```
+
+2. **Make changes to any file**
+
+3. **Watch for auto-restart message**
+
+4. **Refresh browser to see changes**
+
+### Troubleshooting Development Server
+
+#### **Common Issues:**
+
+**Server won't start:**
+```bash
+# Check if port 5000 is in use
+netstat -ano | findstr :5000
+
+# Kill process if needed
+taskkill /PID <process_id> /F
+```
+
+**Auto-reload not working:**
+- Ensure `debug=True` in `app.py`
+- Check file permissions
+- Verify `watchdog` is installed
+
+**Multiple restarts:**
+- The debouncing feature should prevent this
+- If it persists, check for temporary files (`.tmp`, `~`)
+
+#### **Performance Tips:**
+- **Exclude large files**: Add `.gitignore` patterns to avoid watching unnecessary files
+- **Use SSD**: File watching is faster on solid-state drives
+- **Close other applications**: Reduces system load during development
+
+### Production vs Development
+
+#### **Development Server (`dev_server.py`):**
+- ✅ Auto-reload enabled
+- ✅ Debug mode enabled
+- ✅ File watching active
+- ❌ Not suitable for production
+
+#### **Production Server:**
+- ❌ Auto-reload disabled
+- ❌ Debug mode disabled
+- ✅ Optimized for performance
+- ✅ Use `gunicorn` or similar
+
+**Switching to production:**
+```bash
+# Development
+python dev_server.py
+
+# Production
+gunicorn app:app
+```
+
+---
+
+## Environment Variables
+
+### Development Environment Variables
+The project uses environment variables for configuration. In development, these are set with defaults:
+
+**`SECRET_KEY`**: Used for Flask session security
+- **Development**: `'dev-secret-key-change-in-production'`
+- **Production**: Should be set to a secure random string
+
+**`DATABASE_URL`**: Database connection string
+- **Development**: `sqlite:///crossword_solver.db`
+- **Production**: PostgreSQL or other production database
+
+### Setting Environment Variables
+
+#### **Windows PowerShell:**
+```powershell
+# Set for current session
+$env:SECRET_KEY="your-secret-key"
+
+# Set permanently (user level)
+[Environment]::SetEnvironmentVariable("SECRET_KEY", "your-secret-key", "User")
+```
+
+#### **Windows Command Prompt:**
+```cmd
+# Set for current session
+set SECRET_KEY=your-secret-key
+
+# Set permanently
+setx SECRET_KEY "your-secret-key"
+```
+
+#### **Using .env file (Recommended):**
+Create a `.env` file in your project root:
+```env
+SECRET_KEY=your-secret-key-here
+DATABASE_URL=sqlite:///crossword_solver.db
+FLASK_ENV=development
+```
+
+Then install and use python-dotenv:
+```bash
+pip install python-dotenv
+```
+
+And update `app.py`:
+```python
+from dotenv import load_dotenv
+load_dotenv()
+``` 

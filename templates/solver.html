@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Solver - Interactive Crossword Solver{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Interactive Crossword Solver</h2>
+            <div>
+                <button id="save-progress" class="btn btn-outline-primary btn-sm">Save Progress</button>
+                <button id="load-progress" class="btn btn-outline-secondary btn-sm">Load Progress</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="solver-container">
+    <!-- The interactive solver will be loaded here -->
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading solver...</span>
+        </div>
+        <p class="mt-2">Loading interactive solver...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load the interactive solver in an iframe
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('solver-container');
+    
+    // Create iframe to load the interactive solver
+    const iframe = document.createElement('iframe');
+    iframe.src = '/static/interactive_solver.html';
+    iframe.style.width = '100%';
+    iframe.style.height = '1200px';
+    iframe.style.border = 'none';
+    iframe.style.borderRadius = '8px';
+    
+    // Replace loading message with iframe
+    container.innerHTML = '';
+    container.appendChild(iframe);
+    
+    // Test iframe communication after it loads
+    iframe.onload = function() {
+        console.log('Iframe loaded, testing communication...');
+        iframe.contentWindow.postMessage({action: 'test_communication'}, '*');
+    };
+    
+    // Handle save/load buttons
+    document.getElementById('save-progress').addEventListener('click', function() {
+        console.log('Save Progress button clicked');
+        showNotification('Saving progress...', 'info');
+        
+        // Send message to iframe to save state
+        iframe.contentWindow.postMessage({action: 'save_state'}, '*');
+    });
+    
+    document.getElementById('load-progress').addEventListener('click', function() {
+        console.log('Load Progress button clicked');
+        showNotification('Loading progress...', 'info');
+        
+        // Send message to iframe to load state
+        iframe.contentWindow.postMessage({action: 'load_state'}, '*');
+    });
+    
+    // Listen for messages from iframe
+    window.addEventListener('message', function(event) {
+        console.log('Received message from iframe:', event.data);
+        
+        if (event.data.action === 'save_state_request') {
+            console.log('Save state request received:', event.data.state);
+            
+            // Get state from iframe and save to server
+            fetch('/api/save_state', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(event.data.state)
+            })
+            .then(response => {
+                console.log('Save response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Save response data:', data);
+                if (data.success) {
+                    showNotification('Progress saved successfully!', 'success');
+                } else {
+                    showNotification('Failed to save progress: ' + (data.error || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving state:', error);
+                showNotification('Error saving progress: ' + error.message, 'error');
+            });
+        }
+        else if (event.data.action === 'load_state_request') {
+            console.log('Load state request received');
+            
+            // Load state from server and send to iframe
+            fetch('/api/load_state')
+            .then(response => {
+                console.log('Load response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Load response data:', data);
+                iframe.contentWindow.postMessage({
+                    action: 'load_state_response',
+                    state: data
+                }, '*');
+                showNotification('Progress loaded successfully!', 'success');
+            })
+            .catch(error => {
+                console.error('Error loading state:', error);
+                showNotification('Error loading progress: ' + error.message, 'error');
+            });
+        }
+        else if (event.data.action === 'test_response') {
+            console.log('Test response received from iframe:', event.data.message);
+            showNotification('Iframe communication working!', 'success');
+        }
+    });
+});
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    let alertClass = 'alert-danger';
+    if (type === 'success') alertClass = 'alert-success';
+    else if (type === 'info') alertClass = 'alert-info';
+    
+    notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 3000);
+}
+</script>
+{% endblock %} 

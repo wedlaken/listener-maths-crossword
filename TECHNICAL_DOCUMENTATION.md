@@ -205,3 +205,38 @@ The final version of the puzzle requires an additional transformation layer:
 - Performance improvements should be noted
 - Any changes to the processing pipeline should be reflected in this document
 - The anagram transformation system will require significant additional development 
+
+## Development Infrastructure
+
+### Auto-Reload Development Server
+
+The project includes an advanced development server (`dev_server.py`) that provides automatic reloading functionality similar to nodemon for Node.js applications.
+
+#### **Key Features:**
+- **File watching**: Monitors Python, template, and static files
+- **Auto-restart**: Automatically restarts Flask server on file changes
+- **Debouncing**: Prevents multiple restarts from rapid changes
+- **Process management**: Clean server restart with status feedback
+
+#### **Usage:**
+```bash
+# Install dependencies
+pip install watchdog flask-socketio
+
+# Start development server
+python dev_server.py
+```
+
+#### **Supported File Types:**
+- ✅ **Python files** (`*.py`) - Flask debug mode
+- ✅ **Template files** (`templates/*.html`) - Flask debug mode  
+- ✅ **Static files** (`static/*.html`) - Custom watcher
+- ✅ **Configuration files** - Custom watcher
+
+#### **Development Workflow:**
+1. Start server: `python dev_server.py`
+2. Edit any file
+3. Server auto-restarts
+4. Refresh browser to see changes
+
+This provides a seamless development experience with immediate feedback on code changes. 
