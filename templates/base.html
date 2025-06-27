@@ -15,15 +15,29 @@
         .flash-messages {
             margin-top: 20px;
         }
+        /* Navbar button styling */
+        .navbar .btn-outline-light {
+            border-color: rgba(255,255,255,0.5);
+            color: white;
+        }
+        .navbar .btn-outline-light:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-color: white;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">Crossword Solver</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}">Interactive Crossword Solver</a>
             <div class="navbar-nav ms-auto">
                 {% if session.user_id %}
                     <span class="navbar-text me-3">Welcome, {{ session.email }}</span>
+                    <!-- Save/Load buttons - only show on solver page -->
+                    {% if request.endpoint == 'solver' %}
+                        <button id="save-progress" class="btn btn-outline-light btn-sm me-2">Save Progress</button>
+                        <button id="load-progress" class="btn btn-outline-light btn-sm me-3">Load Progress</button>
+                    {% endif %}
                     <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                 {% else %}
                     <a class="nav-link" href="{{ url_for('login') }}">Login</a>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Crossword Solver</title>
+    <title>Listener 4869</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -175,6 +175,7 @@
         .clue-header {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 8px;
         }
         
@@ -193,6 +194,8 @@
         .solution-count {
             font-size: 12px;
             color: #666;
+            text-align: right;
+            min-width: 80px;
         }
         
         .solution-dropdown {
@@ -274,9 +277,8 @@
         
         .notification {
             position: fixed;
-            top: 1020px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 820px;
+            left: 20px;
             width: 600px;
             padding: 15px;
             border-radius: 6px;
@@ -338,8 +340,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Interactive Crossword Solver</h1>
-            <div class="timestamp">Generated: 2025-06-26 12:02:59</div>
+            <h1>Listener 4869</h1>
+            <div class="timestamp">Published: 24 May 2025</div>
         </div>
 
         <div class="main-content">
@@ -1056,8 +1058,41 @@
                 return;
             }
             
+            // For unclued clues, check if the solution conflicts with already-solved cells
+            if (clue.is_unclued) {
+                const solutionStr = solution.padStart(clue.length, '0');
+                const conflicts = [];
+                
+                for (let i = 0; i < clue.cell_indices.length; i++) {
+                    const cellIndex = clue.cell_indices[i];
+                    const digit = parseInt(solutionStr[i]);
+                    
+                    // Check if this cell is already solved by a clued clue
+                    if (cellIndex in solvedCells) {
+                        if (solvedCells[cellIndex] !== digit) {
+                            conflicts.push({
+                                cellIndex: cellIndex,
+                                existingDigit: solvedCells[cellIndex],
+                                proposedDigit: digit
+                            });
+                        }
+                    }
+                }
+                
+                if (conflicts.length > 0) {
+                    const conflictDetails = conflicts.map(c => 
+                        `cell ${c.cellIndex}: ${c.existingDigit} (existing) vs ${c.proposedDigit} (proposed)`
+                    ).join(', ');
+                    showNotification(`Solution conflicts with existing values: ${conflictDetails}. Clued solutions take precedence over unclued inputs.`, 'error');
+                    return;
+                }
+            }
+            
             // Check if solution is valid for this clue
-            if (!clue.possible_solutions.includes(parseInt(solution))) {
+            if (clue.is_unclued) {
+                // For unclued clues, accept any solution of the correct length
+                // No need to check against possible_solutions since they're empty
+            } else if (!clue.possible_solutions.includes(parseInt(solution))) {
                 showNotification('This solution is not valid for this clue', 'error');
                 return;
             }
@@ -1174,7 +1209,11 @@
             // Update solution count - show actual remaining solutions, not just "1" if user selected
             const countElement = clueElement.querySelector('.solution-count');
             if (countElement) {
-                countElement.textContent = `${clue.possible_solutions.length} solutions`;
+                if (clue.is_unclued) {
+                    countElement.textContent = 'Manual input';
+                } else {
+                    countElement.textContent = `${clue.possible_solutions.length} solutions`;
+                }
             }
             
             // Update clue styling based on solution count and user selection
