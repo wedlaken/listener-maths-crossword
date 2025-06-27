@@ -646,6 +646,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         .solution-count {{
             font-size: 12px;
             color: #666;
+            text-align: right;
         }}
         
         .solution-dropdown {{
@@ -727,8 +728,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         
         .notification {{
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 850px;
+            left: 20px;
+            width: 600px;
             padding: 15px;
             border-radius: 6px;
             color: white;
@@ -736,6 +738,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.3s ease;
+            text-align: center;
         }}
         
         .notification.success {{
@@ -789,7 +792,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
     <div class="container">
         <div class="header">
             <h1>Interactive Crossword Solver</h1>
-            <div class="timestamp">Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</div>
+            <div class="timestamp">Listener 4869, 24 May 2025</div>
         </div>
 
         <div class="main-content">
