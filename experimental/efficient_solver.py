@@ -157,7 +157,7 @@ def create_efficient_puzzle():
     """Create puzzle with efficient clue handling."""
     # Parse grid and load parameters
     grid_clues = parse_grid()
-    clue_params = load_clue_parameters("Listener 4869 clues.txt")
+    clue_params = load_clue_parameters("data/Listener 4869 clues.txt")
     
     # Create puzzle
     puzzle = ListenerPuzzle()

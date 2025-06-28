@@ -117,7 +117,7 @@ def main():
     print("Starting systematic grid parser approach...")
     
     # Initialize systematic grid parser
-    parser = SystematicGridParser('Listener grid 4869.png', 'Listener 4869 clues.png')
+    parser = SystematicGridParser('data/Listener grid 4869.png', 'data/Listener 4869 clues.png')
     
     # Get manual clue mapping (0-63 indexing)
     clue_mapping = get_manual_clue_mapping()

@@ -17,7 +17,7 @@ def test_clue_10_across():
     
     # Step 1: Get the clue tuple from systematic parser
     print("Step 1: Getting clue tuple from systematic parser...")
-    parser = SystematicGridParser('Listener grid 4869.png')
+    parser = SystematicGridParser('data/Listener grid 4869.png')
     parser.parse_grid_structure()
     
     # Find clue 10 across

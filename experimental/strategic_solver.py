@@ -53,7 +53,7 @@ def create_clue_id(number: int, direction: str) -> str:
 def create_puzzle() -> ListenerPuzzle:
     """Create puzzle with all clues."""
     grid_clues = parse_grid()
-    clue_params = load_clue_parameters("Listener 4869 clues.txt")
+    clue_params = load_clue_parameters("data/Listener 4869 clues.txt")
     
     puzzle = ListenerPuzzle()
     

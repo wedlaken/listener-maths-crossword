@@ -60,7 +60,7 @@ def integrate_puzzle():
     
     # Load clue parameters
     print("Loading clue parameters...")
-    clue_params = load_clue_parameters("clue_parameters_4869.txt")
+    clue_params = load_clue_parameters("data/clue_parameters_4869.txt")
     
     # Create puzzle
     puzzle = ListenerPuzzle()

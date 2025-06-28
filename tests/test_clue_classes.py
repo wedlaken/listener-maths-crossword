@@ -15,7 +15,7 @@ def load_clue_parameters() -> Dict[int, Tuple[int, int]]:
     clue_parameters = {}
     
     try:
-        with open('Listener 4869 clues.txt', 'r') as f:
+        with open('data/Listener 4869 clues.txt', 'r') as f:
             lines = f.readlines()
         
         current_direction = None
@@ -50,7 +50,7 @@ def load_clue_parameters() -> Dict[int, Tuple[int, int]]:
         return clue_parameters
         
     except FileNotFoundError:
-        print("Error: Listener 4869 clues.txt not found")
+        print("Error: data/Listener 4869 clues.txt not found")
         return {}
     except Exception as e:
         print(f"Error reading clues file: {e}")
@@ -61,7 +61,7 @@ def create_clue_objects() -> ClueManager:
     
     # Step 1: Get grid structure from systematic parser
     print("Step 1: Parsing grid structure...")
-    parser = SystematicGridParser('Listener grid 4869.png')
+    parser = SystematicGridParser('data/Listener grid 4869.png')
     parser.parse_grid_structure()
     
     # Step 2: Load clue parameters

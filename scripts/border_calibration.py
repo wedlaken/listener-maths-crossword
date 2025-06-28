@@ -182,7 +182,7 @@ class BorderCalibrator:
 
 def main():
     """Calibrate border detection thresholds"""
-    calibrator = BorderCalibrator('Listener grid 4869.png')
+    calibrator = BorderCalibrator('data/Listener grid 4869.png')
     right_threshold, bottom_threshold = calibrator.calibrate_thresholds()
     calibrator.test_thresholds(right_threshold, bottom_threshold)
 

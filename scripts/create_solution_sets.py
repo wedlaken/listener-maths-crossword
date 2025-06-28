@@ -43,10 +43,10 @@ def main():
         print(f"  {clue_id}: {len(solutions)} solutions")
     
     # Save to JSON file
-    with open("solution_sets.json", 'w') as f:
+    with open("data/solution_sets.json", 'w') as f:
         json.dump(solution_sets, f, indent=2)
     
-    print(f"Saved solution sets to solution_sets.json")
+    print(f"Saved solution sets to data/solution_sets.json")
 
 if __name__ == "__main__":
     main() 

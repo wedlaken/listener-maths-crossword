@@ -433,7 +433,7 @@ def parse_grid() -> List[Tuple[int, str, Tuple[int, ...]]]:
     Parse the grid and return clue information.
     Returns list of (number, direction, cell_indices) tuples.
     """
-    parser = SystematicGridParser('Listener grid 4869.png')
+    parser = SystematicGridParser('data/Listener grid 4869.png')
     parser.parse_grid_structure()
     
     clues = []
@@ -449,7 +449,7 @@ def main():
     
     try:
         # Create parser
-        parser = SystematicGridParser('Listener grid 4869.png')
+        parser = SystematicGridParser('data/Listener grid 4869.png')
         
         # Parse grid structure
         parser.parse_grid_structure()

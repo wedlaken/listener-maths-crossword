@@ -62,7 +62,7 @@ class ListenerPuzzleReader:
         clue_parameters = {}
         
         try:
-            with open('Listener 4869 clues.txt', 'r') as f:
+            with open('data/Listener 4869 clues.txt', 'r') as f:
                 lines = f.readlines()
             
             current_direction = None
@@ -98,7 +98,7 @@ class ListenerPuzzleReader:
             return clue_parameters
             
         except FileNotFoundError:
-            print("Warning: Listener 4869 clues.txt not found, using placeholder data")
+            print("Warning: data/Listener 4869 clues.txt not found, using placeholder data")
             # Fallback to placeholder data
             return self._get_placeholder_clue_parameters()
         except Exception as e:
@@ -256,7 +256,7 @@ def main():
     """Test the new puzzle reader with systematic grid parser."""
     print("Testing new puzzle reader with systematic grid parser...")
     
-    reader = ListenerPuzzleReader('Listener grid 4869.png', 'Listener 4869 clues.png')
+    reader = ListenerPuzzleReader('data/Listener grid 4869.png', 'data/Listener 4869 clues.png')
     grid = reader.process_puzzle()
     
     if grid:
