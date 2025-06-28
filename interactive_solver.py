@@ -336,45 +336,34 @@ def generate_grid_html(solved_cells: Dict[int, str] = None) -> str:
 def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> str:
     """Generate HTML for the clues section using clue objects."""
     html = ['<div class="clues-section">']
-    
+
     # Across clues
     html.append('  <div class="clues-column">')
     html.append('    <h3>Across</h3>')
-    
+
     across_clues = [clue for clue in clue_objects.values() if clue.direction == "ACROSS"]
     across_clues.sort(key=lambda x: x.number)
-    
+
     for clue in across_clues:
         clue_id = create_clue_id(clue.number, clue.direction)
-        
-        # Get current valid solutions from the clue object
         current_solutions = clue.get_valid_solutions()
         solution_count = len(current_solutions)
-        
-        # Get clue text
-        if clue.parameters.is_unclued:
-            clue_text = "Unclued"
-        else:
-            clue_text = f"{clue.parameters.b}:{clue.parameters.c}"
-        
-        # Determine status class - we'll use JavaScript to update this dynamically
+        clue_text = "Unclued" if clue.parameters.is_unclued else f"{clue.parameters.b}:{clue.parameters.c}"
         status_class = "multiple" if solution_count > 1 else "unclued" if clue.parameters.is_unclued else ""
-        
-        # Render as a single string, e.g. '1. 6:2'
         html.append(f'    <div class="clue {status_class}" data-clue="{clue_id}">')
-        
-        # For unclued clues, show "Unclued" without solution count
+        html.append('      <div class="clue-header" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">')
+        html.append(f'        <span class="clue-number">{clue.number}.</span>')
+        html.append(f'        <span class="clue-text" style="flex:1; margin-left:8px;">{clue_text}</span>')
+        if not clue.parameters.is_unclued:
+            html.append(f'        <span class="solution-count" style="min-width: 90px; text-align: right;">({solution_count} solutions)</span>')
+        html.append('      </div>')
         if clue.parameters.is_unclued:
-            html.append(f'      <div class="clue-header">{clue.number}. {clue_text}</div>')
-            # Add input box for unclued clues
-            html.append(f'      <div class="solution-input" id="input-{clue_id}" style="display: none;">')
+            html.append(f'      <div class="solution-input" id="input-{clue_id}" style="margin-top: 6px;">')
             html.append(f'        <input type="text" class="solution-text-input" data-clue="{clue_id}" placeholder="Enter {clue.length}-digit solution" maxlength="{clue.length}">')
             html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
+            html.append(f'        <span class="unclued-error" id="error-{clue_id}" style="color: #b00; margin-left: 8px; display: none;"></span>')
             html.append(f'      </div>')
         else:
-            html.append(f'      <div class="clue-header">{clue.number}. {clue_text} <span class="solution-count">({solution_count} solutions)</span></div>')
-            
-            # Show solution dropdown only if there are solutions
             if current_solutions:
                 html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
                 html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
@@ -385,45 +374,36 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
                 html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
                 html.append(f'      </div>')
         html.append(f'    </div>')
+
     html.append('  </div>')
-    
+
     # Down clues
     html.append('  <div class="clues-column">')
     html.append('    <h3>Down</h3>')
-    
+
     down_clues = [clue for clue in clue_objects.values() if clue.direction == "DOWN"]
     down_clues.sort(key=lambda x: x.number)
-    
+
     for clue in down_clues:
         clue_id = create_clue_id(clue.number, clue.direction)
-        
-        # Get current valid solutions from the clue object
         current_solutions = clue.get_valid_solutions()
         solution_count = len(current_solutions)
-        
-        # Get clue text
-        if clue.parameters.is_unclued:
-            clue_text = "Unclued"
-        else:
-            clue_text = f"{clue.parameters.b}:{clue.parameters.c}"
-        
-        # Determine status class - we'll use JavaScript to update this dynamically
+        clue_text = "Unclued" if clue.parameters.is_unclued else f"{clue.parameters.b}:{clue.parameters.c}"
         status_class = "multiple" if solution_count > 1 else "unclued" if clue.parameters.is_unclued else ""
-        
         html.append(f'    <div class="clue {status_class}" data-clue="{clue_id}">')
-        
-        # For unclued clues, show "Unclued" without solution count
+        html.append('      <div class="clue-header" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">')
+        html.append(f'        <span class="clue-number">{clue.number}.</span>')
+        html.append(f'        <span class="clue-text" style="flex:1; margin-left:8px;">{clue_text}</span>')
+        if not clue.parameters.is_unclued:
+            html.append(f'        <span class="solution-count" style="min-width: 90px; text-align: right;">({solution_count} solutions)</span>')
+        html.append('      </div>')
         if clue.parameters.is_unclued:
-            html.append(f'      <div class="clue-header">{clue.number}. {clue_text}</div>')
-            # Add input box for unclued clues
-            html.append(f'      <div class="solution-input" id="input-{clue_id}" style="display: none;">')
+            html.append(f'      <div class="solution-input" id="input-{clue_id}" style="margin-top: 6px;">')
             html.append(f'        <input type="text" class="solution-text-input" data-clue="{clue_id}" placeholder="Enter {clue.length}-digit solution" maxlength="{clue.length}">')
             html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
+            html.append(f'        <span class="unclued-error" id="error-{clue_id}" style="color: #b00; margin-left: 8px; display: none;"></span>')
             html.append(f'      </div>')
         else:
-            html.append(f'      <div class="clue-header">{clue.number}. {clue_text} <span class="solution-count">({solution_count} solutions)</span></div>')
-            
-            # Show solution dropdown only if there are solutions
             if current_solutions:
                 html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
                 html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
@@ -434,9 +414,9 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
                 html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
                 html.append(f'      </div>')
         html.append(f'    </div>')
+
     html.append('  </div>')
     html.append('</div>')
-    
     return '\n'.join(html)
 
 def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> str:
@@ -1055,10 +1035,56 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 return;
             }}
             
-            // Check if solution is valid for this clue
-            if (!clue.possible_solutions.includes(parseInt(solution))) {{
-                showNotification('This solution is not valid for this clue', 'error');
-                return;
+            // For unclued clues, check if the solution conflicts with already solved crossing clues
+            if (clue.is_unclued) {{
+                const solutionStr = solution.padStart(clue.length, '0');
+                const conflicts = [];
+                
+                // Check each cell position against already solved cells
+                for (let i = 0; i < clue.cell_indices.length; i++) {{
+                    const cellIndex = clue.cell_indices[i];
+                    const digit = parseInt(solutionStr[i]);
+                    
+                    // If this cell is already solved, check if it conflicts
+                    if (cellIndex in solvedCells) {{
+                        if (solvedCells[cellIndex] !== digit) {{
+                            // Find which clue this cell belongs to for better error message
+                            let conflictingClue = '';
+                            for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {{
+                                if (otherClue.cell_indices.includes(cellIndex)) {{
+                                    conflictingClue = otherClueId;
+                                    break;
+                                }}
+                            }}
+                            conflicts.push(`Cell ${{cellIndex}} (clue ${{conflictingClue}}) already has value ${{solvedCells[cellIndex]}}, but your solution has ${{digit}}`);
+                        }}
+                    }}
+                }}
+                
+                if (conflicts.length > 0) {{
+                    const errorMsg = `Solution conflicts with existing values:\\n${{conflicts.join('\\n')}}`;
+                    showNotification(errorMsg, 'error');
+                    
+                    // Show error in the unclued clue's error span
+                    const errorSpan = document.getElementById(`error-${{clueId}}`);
+                    if (errorSpan) {{
+                        errorSpan.textContent = 'Conflicts with existing solutions';
+                        errorSpan.style.display = 'inline';
+                    }}
+                    return;
+                }}
+                
+                // Clear any previous error
+                const errorSpan = document.getElementById(`error-${{clueId}}`);
+                if (errorSpan) {{
+                    errorSpan.style.display = 'none';
+                }}
+            }} else {{
+                // For regular clues, check if solution is valid for this clue
+                if (!clue.possible_solutions.includes(parseInt(solution))) {{
+                    showNotification('This solution is not valid for this clue', 'error');
+                    return;
+                }}
             }}
             
             // Apply solution to grid cells
