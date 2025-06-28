@@ -5,39 +5,44 @@ Puzzle visualizer that generates HTML output for grid display
 
 import sys
 import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import json
 from datetime import datetime
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from typing import Dict, Tuple, List, Optional
 
 from systematic_grid_parser import parse_grid
-from typing import Dict, Tuple, List, Optional
 
 def load_clue_parameters(filename: str) -> Dict[Tuple[int, str], Tuple[int, int, int]]:
     """Load clue parameters from file."""
-    parameters = {}
+    clue_params = {}
+    try:
+        # Update path to data directory
+        data_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', filename)
+        with open(data_path, 'r') as f:
+            current_direction = None
+            for line in f:
+                line = line.strip()
+                if line == "Across":
+                    current_direction = "ACROSS"
+                elif line == "Down":
+                    current_direction = "DOWN"
+                elif line and current_direction:
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        number = int(parts[0])
+                        if parts[1] == "Unclued":
+                            clue_params[(number, current_direction)] = (0, 0, 0)
+                        else:
+                            b_c = parts[1].split(':')
+                            if len(b_c) == 2:
+                                b = int(b_c[0])
+                                c = int(b_c[1])
+                                clue_params[(number, current_direction)] = (0, b, c)
     
-    with open(filename, 'r') as f:
-        current_direction = None
-        for line in f:
-            line = line.strip()
-            if line == "Across":
-                current_direction = "ACROSS"
-            elif line == "Down":
-                current_direction = "DOWN"
-            elif line and current_direction:
-                parts = line.split()
-                if len(parts) >= 2:
-                    number = int(parts[0])
-                    if parts[1] == "Unclued":
-                        parameters[(number, current_direction)] = (0, 0, 0)
-                    else:
-                        b_c = parts[1].split(':')
-                        if len(b_c) == 2:
-                            b = int(b_c[0])
-                            c = int(b_c[1])
-                            parameters[(number, current_direction)] = (0, b, c)
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found.")
     
-    return parameters
+    return clue_params
 
 def create_clue_id(number: int, direction: str) -> str:
     """Create unique clue ID like 'A1', 'D1'"""

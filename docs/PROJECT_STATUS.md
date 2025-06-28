@@ -66,13 +66,64 @@ python -c "from app import app; app.run(debug=True, port=5001)"
 
 ```
 listener-maths-crossword/
-├── 🎯 CORE APPLICATION
+├── 🎯 CORE APPLICATION (Root Level)
 │   ├── app.py                     # Flask web application (MAIN ENTRY POINT)
 │   ├── dev_server.py              # Development server with auto-reload
-│   ├── requirements.txt           # Python dependencies (updated versions)
-│   └── Procfile                   # Heroku deployment config
+│   ├── interactive_solver.py      # Core interactive solver logic
+│   ├── crossword_solver.py        # Backtracking solver
+│   ├── systematic_grid_parser.py  # Grid structure parsing
+│   ├── clue_classes.py            # Clue management and validation
+│   ├── listener.py                # Mathematical clue solving
+│   ├── puzzle_reader.py           # Image processing and OCR
+│   ├── puzzle_presenter.py        # Puzzle presentation
+│   ├── puzzle_integration.py      # Integration logic
+│   ├── requirements.txt           # Python dependencies
+│   └── README.md                  # Main project overview
 │
-├── 🎨 WEB INTERFACE
+├── 📁 docs/                       # Documentation
+│   ├── README.md                  # Detailed project documentation
+│   ├── PROJECT_STATUS.md          # This file - current status
+│   ├── PROJECT_SUMMARY.md         # Comprehensive project overview
+│   ├── DEPLOYMENT.md              # Deployment instructions
+│   ├── DEVELOPMENT.md             # Development setup guide
+│   ├── PROJECT_ENVIRONMENT_SETUP.md # Environment configuration
+│   ├── TECHNICAL_DOCUMENTATION.md # Technical details
+│   ├── LOGIC_AND_TEMPLATES_SEPARATION.md
+│   ├── CS50_PROJECT_STEPS.md
+│   ├── DETERMINE_GRID_STRUCTURE.md
+│   ├── LEARNING_POINTS.md
+│   └── TODO.md
+│
+├── 📁 scripts/                    # Utility scripts
+│   ├── puzzle_visualizer.py       # Grid visualization
+│   ├── export_clues_json.py       # Export clue data
+│   ├── create_solution_sets.py    # Generate solution sets
+│   ├── generate_clue_tuples.py    # Generate clue tuples
+│   ├── border_calibration.py      # Image processing calibration
+│   └── puzzle_visualizer_test.html # Test visualization
+│
+├── 📁 tests/                      # Test suite
+│   ├── test_backtracking.py
+│   ├── test_clue_10_across.py
+│   ├── test_clue_classes.py
+│   ├── test_listener_validation.py
+│   ├── test_puzzle_presentation.py
+│   └── test_simple_backtracking.py
+│
+├── 📁 data/                       # Data files
+│   ├── clue_parameters_4869.txt   # Puzzle parameters
+│   ├── Listener 4869 clues.txt    # Original clue list
+│   ├── Listener 4869 clues.png    # Clue image
+│   ├── Listener grid 4869.png     # Grid image
+│   └── solution_sets.json         # Generated solution sets
+│
+├── 📁 experimental/               # Experimental/alternative solvers
+│   ├── efficient_solver.py        # Alternative solving approach
+│   ├── focused_solver.py          # Focused solving strategy
+│   ├── strategic_solver.py        # Strategic solving approach
+│   └── targeted_solver.py         # Targeted solving method
+│
+├── 📁 web/                        # Web interface
 │   ├── templates/                 # Flask HTML templates
 │   │   ├── base.html             # Base template
 │   │   ├── index.html            # Landing page
@@ -82,47 +133,17 @@ listener-maths-crossword/
 │   └── static/                   # Static files
 │       └── interactive_solver.html  # Interactive solver (iframe)
 │
-├── 🧩 PUZZLE SOLVING ENGINE
-│   ├── interactive_solver.py     # Core interactive solver logic
-│   ├── clue_classes.py           # Clue management and validation
-│   ├── crossword_solver.py       # Original backtracking solver
-│   ├── systematic_grid_parser.py # Grid structure parsing
-│   ├── puzzle_reader.py          # Image processing and OCR
-│   └── listener.py               # Mathematical clue solving
+├── 📁 config/                     # Configuration files
+│   ├── .gitignore                # Git ignore rules
+│   ├── pyproject.toml            # Python project config
+│   ├── pyrightconfig.json        # Type checking config
+│   ├── setup.py                  # Package setup
+│   └── Procfile                  # Heroku deployment config
 │
-├── 🔧 UTILITY SCRIPTS
-│   ├── puzzle_visualizer.py      # Grid visualization
-│   ├── export_clues_json.py      # Export clue data
-│   ├── create_solution_sets.py   # Generate solution sets
-│   └── border_calibration.py     # Image processing calibration
+├── 📁 instance/                   # Database files (gitignored)
+│   └── crossword_solver.db       # SQLite database (auto-created)
 │
-├── 🧪 TESTING
-│   ├── tests/                    # Test suite
-│   ├── test_*.py                 # Individual test files
-│   └── test_db.py                # Database testing
-│
-├── 📚 DOCUMENTATION
-│   ├── README.md                 # Main project documentation
-│   ├── PROJECT_STATUS.md         # This file - current status
-│   ├── PROJECT_SUMMARY.md        # Comprehensive project overview
-│   ├── DEPLOYMENT.md             # Deployment instructions
-│   ├── DEVELOPMENT.md            # Development setup guide
-│   ├── PROJECT_ENVIRONMENT_SETUP.md # Environment configuration
-│   └── TECHNICAL_DOCUMENTATION.md # Technical details
-│
-├── 🗄️ DATA
-│   ├── instance/                 # Database files (gitignored)
-│   │   └── crossword_solver.db   # SQLite database (auto-created)
-│   ├── clue_parameters_4869.txt  # Puzzle parameters
-│   ├── Listener 4869 clues.txt   # Original clue list
-│   ├── Listener 4869 clues.png   # Clue image
-│   └── Listener grid 4869.png    # Grid image
-│
-└── 📦 CONFIGURATION
-    ├── .gitignore                # Git ignore rules
-    ├── pyproject.toml            # Python project config
-    ├── pyrightconfig.json        # Type checking config
-    └── setup.py                  # Package setup
+└── 📁 images/                     # Additional image assets
 ```
 
 ## 🎮 **HOW TO USE THE APPLICATION**

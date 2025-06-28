@@ -5,7 +5,7 @@ Strategic solver that works in phases like a human would
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from systematic_grid_parser import parse_grid
 from crossword_solver import ListenerPuzzle, ListenerClue

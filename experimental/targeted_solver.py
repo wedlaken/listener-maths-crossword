@@ -5,11 +5,12 @@ Targeted solver that applies solved clues first, then works with fewest solution
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from typing import Dict, Tuple, List, Optional
 
 from systematic_grid_parser import parse_grid
 from crossword_solver import ListenerPuzzle, ListenerClue
-from typing import Dict, Tuple, List, Optional
 
 def load_clue_parameters(filename: str) -> Dict[Tuple[int, str], Tuple[int, int, int]]:
     """Load clue parameters from file."""

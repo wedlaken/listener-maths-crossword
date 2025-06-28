@@ -3,6 +3,9 @@ Test script for the new clue classes
 Demonstrates how to create and manage ListenerClue objects with actual puzzle data
 """
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from systematic_grid_parser import SystematicGridParser, ClueTuple
 from clue_classes import ClueFactory, ClueManager, ListenerClue, ClueParameters
 from typing import Dict, List, Tuple

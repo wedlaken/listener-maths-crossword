@@ -2,6 +2,9 @@
 Comprehensive test of listener.py to validate the logic and show prime factors
 """
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import math
 from sympy import isprime
 from typing import List, Tuple

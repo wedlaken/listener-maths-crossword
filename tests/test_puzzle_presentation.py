@@ -2,6 +2,10 @@
 Test script to demonstrate puzzle solution presentation
 """
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'experimental'))
 from puzzle_integration import create_puzzle_from_files
 from puzzle_presenter import PuzzlePresenter
 

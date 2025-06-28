@@ -2,6 +2,9 @@
 Test script to show a typical clue object (10 across) and its generated solutions
 """
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from systematic_grid_parser import SystematicGridParser, ClueTuple
 from crossword_solver import ListenerClue
 from listener import find_solutions

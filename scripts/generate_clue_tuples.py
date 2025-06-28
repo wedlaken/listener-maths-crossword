@@ -1,6 +1,9 @@
 # Generate clue tuples using Systematic Grid Parser
 # Uses 0-63 indexing and systematic boundary detection
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from systematic_grid_parser import SystematicGridParser
 
 def get_manual_clue_mapping():

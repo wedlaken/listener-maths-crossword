@@ -22,7 +22,9 @@ def load_clue_parameters(filename: str) -> Dict[Tuple[int, str], Tuple[int, int,
     """Load clue parameters from file."""
     clue_params = {}
     try:
-        with open(filename, 'r') as f:
+        # Update path to data directory
+        data_path = os.path.join('data', filename)
+        with open(data_path, 'r') as f:
             for line in f:
                 line = line.strip()
                 if not line or not line[0].isdigit():
@@ -45,7 +47,9 @@ def load_clues_from_file(filename: str = "Listener 4869 clues.txt") -> Dict[Tupl
     current_direction = None
     
     try:
-        with open(filename, 'r') as f:
+        # Update path to data directory
+        data_path = os.path.join('data', filename)
+        with open(data_path, 'r') as f:
             for line in f:
                 line = line.strip()
                 if not line:
