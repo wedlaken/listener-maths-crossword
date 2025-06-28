@@ -358,7 +358,7 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
             html.append(f'        <span class="solution-count" style="min-width: 90px; text-align: right;">({solution_count} solutions)</span>')
         html.append('      </div>')
         if clue.parameters.is_unclued:
-            html.append(f'      <div class="solution-input" id="input-{clue_id}" style="margin-top: 6px;">')
+            html.append(f'      <div class="solution-input" id="input-{clue_id}" style="display: none;">')
             html.append(f'        <input type="text" class="solution-text-input" data-clue="{clue_id}" placeholder="Enter {clue.length}-digit solution" maxlength="{clue.length}">')
             html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
             html.append(f'        <span class="unclued-error" id="error-{clue_id}" style="color: #b00; margin-left: 8px; display: none;"></span>')
@@ -398,7 +398,7 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
             html.append(f'        <span class="solution-count" style="min-width: 90px; text-align: right;">({solution_count} solutions)</span>')
         html.append('      </div>')
         if clue.parameters.is_unclued:
-            html.append(f'      <div class="solution-input" id="input-{clue_id}" style="margin-top: 6px;">')
+            html.append(f'      <div class="solution-input" id="input-{clue_id}" style="display: none;">')
             html.append(f'        <input type="text" class="solution-text-input" data-clue="{clue_id}" placeholder="Enter {clue.length}-digit solution" maxlength="{clue.length}">')
             html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
             html.append(f'        <span class="unclued-error" id="error-{clue_id}" style="color: #b00; margin-left: 8px; display: none;"></span>')
