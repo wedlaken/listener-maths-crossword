@@ -1,3 +1,37 @@
+"""
+LEGACY CODE - MOVED TO EXPERIMENTAL FOLDER
+
+This file contains the original automatic puzzle solving approach that has been
+superseded by the interactive solver approach. This code represents the pre-ground
+truth data era when we were still working with OCR and automatic solving.
+
+CURRENT STATUS: LEGACY/EXPERIMENTAL
+- Contains automatic puzzle solving algorithms (not interactive)
+- Uses legacy ListenerClue class with different interface than clue_classes.py
+- Includes backtracking algorithms for complete automation
+- Predates the ground truth data approach
+- Not used by the current interactive solver
+
+CURRENT APPROACH:
+- interactive_solver.py uses clue_classes.py for interactive solving
+- Ground truth data approach eliminates OCR dependencies
+- Human-guided solving with constraint propagation
+- Real-time interactive interface
+
+This file should be moved to the experimental/ folder as it represents an
+earlier development phase and is no longer part of the main application.
+
+DEPENDENCIES:
+- Used by some experimental solvers and tests
+- Contains ListenerClue and ListenerPuzzle classes (legacy versions)
+- Contains CrosswordGrid class for automated solving
+
+MIGRATION:
+- New interactive approach uses clue_classes.py instead
+- ClueFactory and ClueManager provide better separation of concerns
+- Ground truth data eliminates OCR dependencies
+"""
+
 from typing import Dict, List, Set, Tuple, Optional
 from dataclasses import dataclass
 from listener import find_solutions
