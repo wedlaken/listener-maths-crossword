@@ -75,4 +75,10 @@ For detailed development information, see the [Development Guide](docs/DEVELOPME
 
 ## 📄 License
 
-This project was created for CS50 Final Project submission. 
+This project was created for CS50 Final Project submission.
+
+## Project Structure Notes
+
+- The main application is now fully interactive and human-guided.
+- **Legacy code:** The original automatic solver (`crossword_solver.py`) has been moved to the `experimental/` folder for reference only. It is not part of the main application and is no longer maintained.
+- All current logic and clue management is handled by `clue_classes.py` and the interactive solver. 
