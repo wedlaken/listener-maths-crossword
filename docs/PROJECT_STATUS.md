@@ -8,9 +8,15 @@ The project has evolved from a command-line puzzle solver to a **sophisticated, 
 
 ### Core Puzzle Solving Engine
 - ✅ **Mathematical clue solving** (`listener.py`) - Finds numbers with specific prime factor properties
-- ✅ **Grid structure parsing** (`systematic_grid_parser.py`) - Processes 8x8 crossword grids
+- ✅ **Grid structure parsing** (`systematic_grid_parser.py`) - Processes 8x8 crossword grids using ground truth data
 - ✅ **Constraint satisfaction solver** (`crossword_solver.py`) - Backtracking algorithm for puzzle completion
 - ✅ **Solution generation** - Creates all possible solutions for each clue based on mathematical constraints
+
+### Data Input Strategy: Ground Truth Approach
+- ✅ **Manual clue parsing** - Clue parameters extracted from puzzle images using online tools
+- ✅ **Hard-coded grid structure** - Border positions and clue numbers manually determined
+- ✅ **Text-based input** - Clue data stored in simple text files (`data/Listener 4869 clues.txt`)
+- ✅ **Reliable foundation** - Eliminated OCR dependencies for consistent, predictable behavior
 
 ### Advanced Web Application (Flask)
 - ✅ **User authentication system** - Registration and login with email/password
@@ -37,6 +43,27 @@ The project has evolved from a command-line puzzle solver to a **sophisticated, 
 - ✅ **Requirements management** - All dependencies documented and versioned
 - ✅ **Git version control** - Proper .gitignore and project structure
 - ✅ **Cross-platform compatibility** - Works on Windows, macOS, and Linux
+
+## 🔄 **STRATEGIC DECISIONS**
+
+### OCR to Ground Truth Transition
+**Decision**: Transitioned from OpenCV/Tesseract OCR to ground truth data approach
+
+**Why**: OCR challenges were creating development bottlenecks:
+- **OCR Accuracy**: Tesseract struggled with small, printed numbers in grid cells
+- **Image Quality Dependencies**: Results varied significantly based on image resolution and lighting
+- **Development Bottleneck**: Debugging OCR issues consumed significant development time
+- **Cross-Platform Issues**: OCR setup and dependencies varied across development environments
+- **Learning Focus**: OCR debugging was taking time away from core programming concepts
+
+**Benefits Achieved**:
+- **Reliability**: 100% accurate data input, eliminating OCR errors
+- **Development Speed**: Focus shifted from debugging OCR to core algorithm development
+- **Cross-Platform Consistency**: No dependency on system-specific OCR installations
+- **Maintainability**: Simple text files easier to modify and version control
+- **Learning Focus**: More time available for advanced programming concepts and web development
+
+**Future Planning**: OCR infrastructure preserved for potential future reintegration with improved accuracy
 
 ## 🚀 **DEPLOYMENT READY**
 
@@ -71,10 +98,10 @@ listener-maths-crossword/
 │   ├── dev_server.py              # Development server with auto-reload
 │   ├── interactive_solver.py      # Core interactive solver logic
 │   ├── crossword_solver.py        # Backtracking solver
-│   ├── systematic_grid_parser.py  # Grid structure parsing
+│   ├── systematic_grid_parser.py  # Grid structure parsing (ground truth data)
 │   ├── clue_classes.py            # Clue management and validation
 │   ├── listener.py                # Mathematical clue solving
-│   ├── puzzle_reader.py           # Image processing and OCR
+│   ├── puzzle_reader.py           # Image processing and OCR (legacy)
 │   ├── puzzle_presenter.py        # Puzzle presentation
 │   ├── puzzle_integration.py      # Integration logic
 │   ├── requirements.txt           # Python dependencies
@@ -99,7 +126,7 @@ listener-maths-crossword/
 │   ├── export_clues_json.py       # Export clue data
 │   ├── create_solution_sets.py    # Generate solution sets
 │   ├── generate_clue_tuples.py    # Generate clue tuples
-│   ├── border_calibration.py      # Image processing calibration
+│   ├── border_calibration.py      # Image processing calibration (legacy)
 │   └── puzzle_visualizer_test.html # Test visualization
 │
 ├── 📁 tests/                      # Test suite
@@ -112,9 +139,9 @@ listener-maths-crossword/
 │
 ├── 📁 data/                       # Data files
 │   ├── clue_parameters_4869.txt   # Puzzle parameters
-│   ├── Listener 4869 clues.txt    # Original clue list
-│   ├── Listener 4869 clues.png    # Clue image
-│   ├── Listener grid 4869.png     # Grid image
+│   ├── Listener 4869 clues.txt    # Original clue list (ground truth data)
+│   ├── Listener 4869 clues.png    # Clue image (reference)
+│   ├── Listener grid 4869.png     # Grid image (reference)
 │   └── solution_sets.json         # Generated solution sets
 │
 ├── 📁 experimental/               # Experimental/alternative solvers
@@ -168,15 +195,13 @@ listener-maths-crossword/
 ## 🔄 **RECENT MAJOR CHANGES**
 
 ### Latest Updates (Current Session - June 27, 2025)
-- ✅ **SQL Integration Complete** - Flask-SQLAlchemy installed and working
-- ✅ **Database Creation** - SQLite database auto-created in instance/ directory
-- ✅ **Port Configuration** - Updated to port 5001 to avoid AirPlay conflict on macOS
-- ✅ **Dependencies Updated** - Flask 3.1.1, Flask-SocketIO 5.5.1, Werkzeug 3.1.3
-- ✅ **Requirements.txt Updated** - All package versions synchronized
-- ✅ **Project Summary Enhanced** - Comprehensive documentation of advanced features
-- ✅ **Cross-Platform Setup** - Virtual environment working on macOS
+- ✅ **Documentation Update** - Updated documentation to reflect OCR to ground truth transition
+- ✅ **Strategic Decision Documentation** - Clear documentation of development decisions and rationale
+- ✅ **Learning Points Enhanced** - Added strategic decision making section to learning documentation
+- ✅ **Project Status Updated** - Reflected current implementation approach
 
 ### Previous Major Achievements
+- ✅ **Ground Truth Data Implementation** - Transitioned from OCR to reliable text-based data input
 - ✅ **Database persistence** - SQLite with SQLAlchemy ORM
 - ✅ **User authentication** - Email/password registration and login
 - ✅ **Interactive solver** - Real-time constraint propagation
@@ -194,18 +219,17 @@ listener-maths-crossword/
 4. **Analytics** - Track solving progress and statistics
 
 ### Future Enhancements
-1. **OCR Improvements** - Better image processing for different puzzle formats
+1. **OCR Reintegration** - Improved image processing for different puzzle formats (when accuracy improves)
 2. **Mobile optimization** - Better touch interface
 3. **Social features** - Share solutions, leaderboards
 4. **Advanced solving** - AI hints, difficulty levels
-5. **Puzzle creation** - Tools for creating new puzzles
-6. **Export features** - PDF solutions, progress reports
 
-### Technical Improvements
-1. **Performance optimization** - Faster constraint propagation
-2. **Error handling** - Better user feedback for edge cases
-3. **Testing coverage** - More comprehensive test suite
-4. **Code documentation** - API documentation and code comments
+### Legacy OCR Infrastructure
+The following components remain available for future OCR development:
+- **Image loading**: OpenCV image processing capabilities
+- **Grid detection**: Contour detection and cell boundary identification
+- **Border analysis**: Thickness measurement algorithms
+- **OCR integration**: Tesseract setup and configuration
 
 ## 🐛 **KNOWN ISSUES**
 

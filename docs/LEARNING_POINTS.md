@@ -16,6 +16,100 @@ This document captures key Python programming concepts and learning points encou
 - [Inheritance](#inheritance)
 - [Built-in Functions and Iteration](#built-in-functions-and-iteration)
 - [Error Handling](#error-handling)
+- [Strategic Decision Making](#strategic-decision-making)
+
+---
+
+## Strategic Decision Making
+
+### OCR vs. Ground Truth Data: A Strategic Pivot
+
+**Context**: The project initially attempted to use OpenCV and Tesseract OCR for automated puzzle parsing, but encountered significant reliability and development challenges.
+
+#### The Challenge
+- **OCR Accuracy**: Tesseract struggled with small, printed numbers in grid cells
+- **Development Bottleneck**: Debugging OCR issues consumed significant development time
+- **Cross-Platform Issues**: OCR setup and dependencies varied across development environments
+- **Learning Focus**: OCR debugging was taking time away from core programming concepts
+
+#### The Decision
+To maintain project momentum and focus on core algorithmic development, the decision was made to **transition to ground truth data**:
+
+```python
+# Instead of OCR detection:
+def detect_clue_numbers_ocr(self) -> Dict[int, int]:
+    # OCR code that was unreliable...
+    
+# Use hard-coded ground truth data:
+def detect_clue_numbers_ocr(self) -> Dict[int, int]:
+    # Updated mapping based on visual review of the actual puzzle
+    detected_numbers = {
+        1: 0,   # Clue 1 in cell 0
+        2: 1,   # Clue 2 in cell 1
+        3: 2,   # Clue 3 in cell 2
+        # ... etc
+    }
+    return detected_numbers
+```
+
+#### Benefits Achieved
+1. **Reliability**: 100% accurate data input, eliminating OCR errors
+2. **Development Speed**: Focus shifted from debugging OCR to core algorithm development
+3. **Cross-Platform Consistency**: No dependency on system-specific OCR installations
+4. **Learning Focus**: More time available for advanced programming concepts
+
+#### Lessons Learned
+
+##### Strategic Decision Making
+- **Pragmatic Approach**: Sometimes simpler solutions enable faster progress
+- **Risk Assessment**: Identify development bottlenecks early and mitigate them
+- **Learning Priorities**: Focus on core programming concepts over peripheral technologies
+- **Iterative Development**: Start simple, add complexity as needed
+
+##### Project Management
+- **Documentation**: Clear documentation of decisions and their rationale
+- **Future Planning**: Maintain infrastructure for potential future enhancements
+- **Resource Allocation**: Balance technical ambition with practical constraints
+- **Adaptability**: Be willing to pivot when initial approaches prove problematic
+
+##### Technical Architecture
+- **Separation of Concerns**: Keep data input separate from core algorithms
+- **Maintainability**: Simple text files easier to modify and version control
+- **Framework Preservation**: Maintain OCR infrastructure for potential future use
+- **Validation**: Ground truth data provides reliable foundation for testing
+
+#### Code Example: Ground Truth Border Detection
+```python
+class SystematicGridParser:
+    def __init__(self, grid_image_path: str, clues_image_path: str = None):
+        # Ground truth border data from user
+        self.thick_right_borders = {3, 8, 9, 10, 11, 12, 13, 19, 24, 30, 32, 38, 43, 49, 50, 51, 52, 53, 54, 59}
+        self.thick_bottom_borders = {3, 4, 6, 9, 14, 17, 22, 24, 25, 26, 29, 30, 31, 33, 38, 41, 46, 49, 51, 52}
+    
+    def is_thick_border(self, cell_index: int, direction: str) -> bool:
+        """Check if a cell has a thick border using ground truth data"""
+        if direction == 'right':
+            return cell_index in self.thick_right_borders
+        elif direction == 'bottom':
+            return cell_index in self.thick_bottom_borders
+        return False
+```
+
+#### Future Considerations
+While the current implementation uses ground truth data, the framework remains in place for future OCR integration:
+
+```python
+# Future OCR integration could look like:
+def is_thick_border(self, cell_index: int, direction: str) -> bool:
+    """Check if a cell has a thick border using OCR or ground truth"""
+    if self.use_ocr:
+        return self.detect_border_ocr(cell_index, direction)
+    else:
+        # Use ground truth data as fallback
+        return self.is_thick_border_ground_truth(cell_index, direction)
+```
+
+This strategic decision demonstrates the importance of **pragmatic problem-solving** and **adaptive project management** in software development.
 
 ---
 

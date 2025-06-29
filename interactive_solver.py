@@ -320,7 +320,7 @@ def generate_grid_html(solved_cells: Dict[int, str] = None) -> str:
             # Create interactive cell
             cell_html = f'    <div class="grid-cell {border_class}" data-cell="{cell_index}">'
             if clue_number:
-                cell_html += f'<div class="clue-number">{clue_number}</div>'
+                cell_html += f'<div class="grid-clue-number">{clue_number}</div>'
             if cell_value:
                 cell_html += f'<div class="cell-value">{cell_value}</div>'
             cell_html += '</div>'
@@ -351,11 +351,11 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
         clue_text = "Unclued" if clue.parameters.is_unclued else f"{clue.parameters.b}:{clue.parameters.c}"
         status_class = "multiple" if solution_count > 1 else "unclued" if clue.parameters.is_unclued else ""
         html.append(f'    <div class="clue {status_class}" data-clue="{clue_id}">')
-        html.append('      <div class="clue-header" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">')
+        html.append('      <div class="clue-header">')
         html.append(f'        <span class="clue-number">{clue.number}.</span>')
-        html.append(f'        <span class="clue-text" style="flex:1; margin-left:8px;">{clue_text}</span>')
+        html.append(f'        <span class="clue-text">{clue_text}</span>')
         if not clue.parameters.is_unclued:
-            html.append(f'        <span class="solution-count" style="min-width: 90px; text-align: right;">({solution_count} solutions)</span>')
+            html.append(f'        <span class="solution-count">({solution_count} solutions)</span>')
         html.append('      </div>')
         if clue.parameters.is_unclued:
             html.append(f'      <div class="solution-input" id="input-{clue_id}" style="display: none;">')
@@ -391,11 +391,11 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
         clue_text = "Unclued" if clue.parameters.is_unclued else f"{clue.parameters.b}:{clue.parameters.c}"
         status_class = "multiple" if solution_count > 1 else "unclued" if clue.parameters.is_unclued else ""
         html.append(f'    <div class="clue {status_class}" data-clue="{clue_id}">')
-        html.append('      <div class="clue-header" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">')
+        html.append('      <div class="clue-header">')
         html.append(f'        <span class="clue-number">{clue.number}.</span>')
-        html.append(f'        <span class="clue-text" style="flex:1; margin-left:8px;">{clue_text}</span>')
+        html.append(f'        <span class="clue-text">{clue_text}</span>')
         if not clue.parameters.is_unclued:
-            html.append(f'        <span class="solution-count" style="min-width: 90px; text-align: right;">({solution_count} solutions)</span>')
+            html.append(f'        <span class="solution-count">({solution_count} solutions)</span>')
         html.append('      </div>')
         if clue.parameters.is_unclued:
             html.append(f'      <div class="solution-input" id="input-{clue_id}" style="display: none;">')
@@ -509,7 +509,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             border-bottom: 1px solid #ccc;
         }}
         
-        .clue-number {{
+        .grid-clue-number {{
             position: absolute;
             top: 2px;
             left: 2px;
@@ -615,22 +615,28 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             gap: 8px;
         }}
         
-        .clue-number {{
-            font-weight: bold;
+        .clue-header .clue-number {{
+            font-weight: normal;
             min-width: 20px;
-            color: #333;
-            font-size: 14px;
+            color: #888;
+            font-size: 13px;
+            flex-shrink: 0;
         }}
         
         .clue-text {{
             flex: 1;
             margin-left: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #222;
         }}
         
         .solution-count {{
             font-size: 12px;
             color: #666;
             text-align: right;
+            flex-shrink: 0;
+            min-width: 90px;
         }}
         
         .solution-dropdown {{

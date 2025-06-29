@@ -47,6 +47,33 @@ This document summarizes the essential steps for demonstrating your CS50 project
 
 ---
 
+## 4. Strategic Decision Making (Advanced CS50 Skill)
+
+- **Problem-Solving Approach:** Demonstrate how you identified and solved development challenges
+- **Adaptive Development:** Show how you pivoted from OCR to ground truth data when initial approach proved problematic
+- **Technical Decision Making:** Explain the rationale behind key architectural decisions
+- **How to Demonstrate:**
+  - Explain the initial OCR approach and why it was challenging
+  - Show the ground truth data files (`data/Listener 4869 clues.txt`)
+  - Discuss the benefits of the strategic pivot
+  - Show how OCR infrastructure is preserved for future use
+
+---
+
+## 5. Advanced Programming Concepts
+
+- **Complex Algorithms:** Mathematical constraint satisfaction and prime factorization
+- **Real-time Interactivity:** JavaScript-based constraint propagation
+- **State Management:** Sophisticated undo/redo system with state snapshots
+- **Data Structures:** Custom clue classes and complex grid management
+- **How to Demonstrate:**
+  - Show the mathematical algorithms in `listener.py`
+  - Demonstrate real-time constraint propagation in the interactive solver
+  - Show the undo/redo functionality working
+  - Explain the data structures and their relationships
+
+---
+
 ## Quick Reference
 
 - **Local run:**
@@ -58,7 +85,33 @@ This document summarizes the essential steps for demonstrating your CS50 project
 - **Database:**
   - File: `crossword_solver.db` (auto-created)
   - Models: `User`, `PuzzleSession` in `app.py`
+- **Data Sources:**
+  - Ground truth data: `data/Listener 4869 clues.txt`
+  - Grid structure: Hard-coded in `systematic_grid_parser.py`
 
 ---
 
-**This checklist will help you demonstrate a range of languages, frameworks, and functionalities for your CS50 project!** 
+## Key Learning Points to Highlight
+
+### Technical Skills
+- **Full-Stack Development:** Complete web application with frontend and backend
+- **Database Design:** Proper schema design with user accounts and session management
+- **API Development:** RESTful endpoints for save/load functionality
+- **Real-time Interactivity:** JavaScript-based constraint propagation
+- **Mathematical Programming:** Prime factorization and constraint satisfaction algorithms
+
+### Problem-Solving Skills
+- **Strategic Decision Making:** Ability to pivot when initial approaches prove challenging
+- **Risk Assessment:** Identifying and mitigating development bottlenecks early
+- **Iterative Development:** Starting simple and adding complexity as needed
+- **Documentation:** Clear documentation of decisions and their rationale
+
+### Project Management
+- **Adaptability:** Willingness to change approach when needed
+- **Learning Focus:** Prioritizing core programming concepts over peripheral technologies
+- **Future Planning:** Maintaining infrastructure for potential enhancements
+- **Resource Allocation:** Balancing technical ambition with practical constraints
+
+---
+
+**This checklist will help you demonstrate a range of languages, frameworks, and functionalities for your CS50 project, including advanced problem-solving and strategic thinking skills!** 
