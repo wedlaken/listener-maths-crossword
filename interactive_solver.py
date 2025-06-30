@@ -455,6 +455,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
         }}
         
         .header {{
@@ -473,6 +474,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             display: flex;
             gap: 30px;
             align-items: flex-start;
+            position: relative;
         }}
         
         .grid-section {{
@@ -717,10 +719,11 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         }}
         
         .notification {{
-            position: fixed;
-            top: 850px;
-            left: 20px;
-            width: 600px;
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 400px;
+            max-width: 45%;
             padding: 15px;
             border-radius: 6px;
             color: white;
@@ -1292,7 +1295,14 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             const notification = document.createElement('div');
             notification.className = `notification ${{type}}`;
             notification.textContent = message;
-            document.body.appendChild(notification);
+            
+            // Append to main-content instead of body
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {{
+                mainContent.appendChild(notification);
+            }} else {{
+                document.body.appendChild(notification);
+            }}
             
             // Show notification
             setTimeout(() => {{
