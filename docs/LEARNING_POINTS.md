@@ -17,6 +17,7 @@ This document captures key Python programming concepts and learning points encou
 - [Built-in Functions and Iteration](#built-in-functions-and-iteration)
 - [Error Handling](#error-handling)
 - [Strategic Decision Making](#strategic-decision-making)
+- [Iframe/Parent Window Communication](#iframeparent-window-communication)
 
 ---
 
@@ -914,6 +915,267 @@ def get_untried_solutions(self) -> List[int]:
     """Get solutions that haven't been tried yet."""
     return [s for s in self.valid_solutions if s not in self.tried_solutions]
 ```
+
+---
+
+## Iframe/Parent Window Communication
+
+### Overview
+The project uses **iframe communication** to separate the interactive puzzle solver from the main web application, enabling clean separation of concerns and modular architecture.
+
+### Architecture Pattern
+```
+Parent Window (Flask Template)
+├── User authentication
+├── Save/Load buttons
+├── Database communication
+└── Iframe container
+    └── Interactive Solver (Static HTML)
+        ├── Puzzle grid
+        ├── Clue management
+        ├── Constraint propagation
+        └── State management
+```
+
+### Key JavaScript Concepts
+
+#### 1. Iframe Creation and Loading
+```javascript
+// Create iframe dynamically
+const iframe = document.createElement('iframe');
+iframe.src = '/static/interactive_solver.html';
+iframe.style.width = '100%';
+iframe.style.height = '1200px';
+iframe.style.border = 'none';
+
+// Replace loading message with iframe
+container.innerHTML = '';
+container.appendChild(iframe);
+
+// Test communication after iframe loads
+iframe.onload = function() {
+    console.log('Iframe loaded, testing communication...');
+    iframe.contentWindow.postMessage({action: 'test_communication'}, '*');
+};
+```
+
+**Key Points**:
+- **Dynamic Creation**: Iframe created programmatically rather than in HTML
+- **Loading Event**: `onload` event ensures iframe is fully loaded before communication
+- **Content Window Access**: `iframe.contentWindow` provides access to iframe's window object
+
+#### 2. PostMessage API for Cross-Frame Communication
+```javascript
+// Parent window sends message to iframe
+iframe.contentWindow.postMessage({action: 'save_state'}, '*');
+
+// Parent window listens for messages from iframe
+window.addEventListener('message', function(event) {
+    console.log('Received message from iframe:', event.data);
+    
+    if (event.data.action === 'save_state_request') {
+        // Handle save request
+    }
+});
+```
+
+**Key Concepts**:
+- **`postMessage()`**: Secure method for cross-origin/frame communication
+- **Message Structure**: Use objects with `action` property for message routing
+- **Origin Parameter**: `'*'` allows communication with any origin (use specific origin in production)
+- **Event-Driven**: Communication is asynchronous and event-based
+
+#### 3. Message Flow Patterns
+
+##### Save State Flow:
+```javascript
+// 1. User clicks "Save Progress" button in parent window
+document.getElementById('save-progress').addEventListener('click', function() {
+    // 2. Parent sends message to iframe
+    iframe.contentWindow.postMessage({action: 'save_state'}, '*');
+});
+
+// 3. Iframe receives message and prepares state
+window.addEventListener('message', function(event) {
+    if (event.data.action === 'save_state') {
+        // 4. Iframe sends state back to parent
+        window.parent.postMessage({
+            action: 'save_state_request',
+            state: {
+                solvedCells: {...solvedCells},
+                clueObjects: JSON.parse(JSON.stringify(clueObjects)),
+                userSelectedSolutions: Array.from(userSelectedSolutions)
+            }
+        }, '*');
+    }
+});
+
+// 5. Parent receives state and saves to server
+window.addEventListener('message', function(event) {
+    if (event.data.action === 'save_state_request') {
+        fetch('/api/save_state', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(event.data.state)
+        });
+    }
+});
+```
+
+##### Load State Flow:
+```javascript
+// 1. User clicks "Load Progress" button in parent window
+document.getElementById('load-progress').addEventListener('click', function() {
+    // 2. Parent loads state from server
+    fetch('/api/load_state')
+    .then(response => response.json())
+    .then(data => {
+        // 3. Parent sends state to iframe
+        iframe.contentWindow.postMessage({
+            action: 'load_state_response',
+            state: data
+        }, '*');
+    });
+});
+
+// 4. Iframe receives state and restores puzzle
+window.addEventListener('message', function(event) {
+    if (event.data.action === 'load_state_response') {
+        // Restore state from event.data.state
+        solvedCells = {...event.data.state.solvedCells};
+        clueObjects = JSON.parse(JSON.stringify(event.data.state.clueObjects));
+        userSelectedSolutions = new Set(event.data.state.userSelectedSolutions);
+        
+        // Update UI
+        updateGridDisplay();
+        updateAllClueDisplays();
+        updateProgress();
+    }
+});
+```
+
+#### 4. State Serialization and Deserialization
+```javascript
+// Serializing complex objects for transmission
+const state = {
+    solvedCells: {...solvedCells},  // Shallow copy of object
+    clueObjects: JSON.parse(JSON.stringify(clueObjects)),  // Deep copy
+    userSelectedSolutions: Array.from(userSelectedSolutions)  // Set to Array
+};
+
+// Deserializing received state
+solvedCells = {...event.data.state.solvedCells};
+clueObjects = JSON.parse(JSON.stringify(event.data.state.clueObjects));
+userSelectedSolutions = new Set(event.data.state.userSelectedSolutions);
+```
+
+**Key Points**:
+- **Deep Copying**: `JSON.parse(JSON.stringify())` for complex objects
+- **Set Conversion**: Convert Sets to Arrays for JSON serialization
+- **Object Spread**: Use `{...object}` for shallow copying
+
+#### 5. Error Handling and Security
+```javascript
+// Origin validation (recommended for production)
+window.addEventListener('message', function(event) {
+    // Validate message origin
+    if (event.origin !== 'https://yourdomain.com') {
+        console.warn('Message from unexpected origin:', event.origin);
+        return;
+    }
+    
+    // Validate message structure
+    if (!event.data || !event.data.action) {
+        console.warn('Invalid message format:', event.data);
+        return;
+    }
+    
+    // Process message
+    handleMessage(event.data);
+});
+```
+
+### Benefits of This Architecture
+
+#### 1. **Separation of Concerns**
+- **Parent Window**: User authentication, database operations, navigation
+- **Iframe**: Pure puzzle-solving logic, no server dependencies
+
+#### 2. **Modularity**
+- Interactive solver can be developed and tested independently
+- Easy to swap different puzzle implementations
+- Clean API boundaries between components
+
+#### 3. **Performance**
+- Iframe loads once and stays in memory
+- No page refreshes during puzzle solving
+- Efficient state management within iframe
+
+#### 4. **Maintainability**
+- Clear communication protocols
+- Isolated debugging (console logs in iframe vs parent)
+- Easy to add new features without affecting other components
+
+### Common Patterns and Best Practices
+
+#### 1. **Message Routing**
+```javascript
+// Use action-based routing for different message types
+const messageHandlers = {
+    'save_state': handleSaveState,
+    'load_state': handleLoadState,
+    'test_communication': handleTestCommunication
+};
+
+window.addEventListener('message', function(event) {
+    const handler = messageHandlers[event.data.action];
+    if (handler) {
+        handler(event.data);
+    } else {
+        console.warn('Unknown message action:', event.data.action);
+    }
+});
+```
+
+#### 2. **State Synchronization**
+```javascript
+// Keep parent window informed of iframe state changes
+function notifyParentOfStateChange() {
+    window.parent.postMessage({
+        action: 'state_changed',
+        timestamp: new Date().toISOString()
+    }, '*');
+}
+```
+
+#### 3. **Error Communication**
+```javascript
+// Send errors back to parent window
+function notifyParentOfError(error) {
+    window.parent.postMessage({
+        action: 'error',
+        error: error.message,
+        timestamp: new Date().toISOString()
+    }, '*');
+}
+```
+
+### Learning Outcomes
+
+#### JavaScript Skills Demonstrated
+✅ **Event-Driven Programming** - Message-based communication between frames  
+✅ **Asynchronous Communication** - Non-blocking message passing  
+✅ **State Management** - Complex object serialization and restoration  
+✅ **Error Handling** - Robust error communication across frames  
+✅ **Security Awareness** - Origin validation and message structure validation  
+
+#### Architecture Skills Demonstrated
+✅ **Modular Design** - Clean separation between authentication and puzzle logic  
+✅ **API Design** - Well-defined message protocols  
+✅ **Cross-Frame Communication** - Understanding of browser security model  
+✅ **State Persistence** - Efficient serialization for database storage  
+
+This iframe communication pattern demonstrates advanced JavaScript concepts and architectural thinking, showing how to build complex web applications with clean separation of concerns.
 
 ---
 
