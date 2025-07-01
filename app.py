@@ -13,7 +13,18 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crossword_solver.db'
+
+# Database configuration - supports both SQLite (development) and PostgreSQL (production)
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    # Production: Use PostgreSQL from environment variable
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    print(f"🔧 Using PostgreSQL database: {database_url}")
+else:
+    # Development: Use SQLite
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crossword_solver.db'
+    print(f"🔧 Using SQLite database: instance/crossword_solver.db")
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

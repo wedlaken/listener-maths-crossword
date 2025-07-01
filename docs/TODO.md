@@ -155,6 +155,7 @@
 - [ ] Deployment documentation
 - [ ] Contributing guidelines
 - [ ] Development setup guide
+- [ ] **Database options and setup guide ([DATABASE_OPTIONS.md](DATABASE_OPTIONS.md))**
 
 ---
 

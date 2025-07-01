@@ -1443,4 +1443,345 @@ This iframe communication pattern demonstrates advanced JavaScript concepts and 
 
 ---
 
+## SQLAlchemy ORM and Flask State Management
+
+### Overview
+SQLAlchemy is an **Object-Relational Mapping (ORM)** library that allows you to work with databases using Python objects instead of writing raw SQL. In this project, it's used to persist user puzzle states in a SQLite database.
+
+### Key Concepts
+
+#### 1. **ORM (Object-Relational Mapping)**
+Instead of writing SQL like this:
+```sql
+CREATE TABLE puzzle_session (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    puzzle_id VARCHAR(50) NOT NULL,
+    solved_cells TEXT,
+    user_selected_solutions TEXT,
+    solution_history TEXT
+);
+```
+
+You define Python classes:
+```python
+class PuzzleSession(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    puzzle_id = db.Column(db.String(50), nullable=False)
+    solved_cells = db.Column(db.Text)  # JSON string
+    user_selected_solutions = db.Column(db.Text)  # JSON string
+    solution_history = db.Column(db.Text)  # JSON string
+```
+
+#### 2. **Database Configuration**
+```python
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crossword_solver.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+```
+
+**What this does:**
+- Creates a SQLite database file at `instance/crossword_solver.db`
+- Automatically generates SQL tables from your Python model classes
+- Provides a session-based interface for database operations
+
+#### 3. **Model Definition and Relationships**
+```python
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class PuzzleSession(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    puzzle_id = db.Column(db.String(50), nullable=False)
+    solved_cells = db.Column(db.Text)
+    user_selected_solutions = db.Column(db.Text)
+    solution_history = db.Column(db.Text)
+```
+
+**Key Points:**
+- `db.ForeignKey('user.id')` creates a relationship between tables
+- `nullable=False` means the field is required
+- `unique=True` ensures no duplicate values
+- `default=datetime.utcnow` sets automatic timestamp
+
+#### 4. **Database Operations**
+
+##### Creating Records:
+```python
+# Create a new puzzle session
+puzzle_session = PuzzleSession(
+    user_id=session['user_id'],
+    puzzle_id='Listener_4869'
+)
+db.session.add(puzzle_session)  # Add to session
+db.session.commit()  # Save to database permanently
+```
+
+##### Querying Records:
+```python
+# Find puzzle session for specific user
+puzzle_session = PuzzleSession.query.filter_by(
+    user_id=session['user_id'], 
+    puzzle_id='Listener_4869'
+).first()
+
+# Get all sessions for a user
+all_sessions = PuzzleSession.query.filter_by(user_id=session['user_id']).all()
+```
+
+##### Updating Records:
+```python
+# Update existing record
+puzzle_session.solved_cells = json.dumps(solved_cells_dict)
+puzzle_session.user_selected_solutions = json.dumps(solutions_list)
+db.session.commit()  # Save changes
+```
+
+#### 5. **JSON Serialization for Complex Data**
+Since SQLite doesn't natively support complex data types, we store them as JSON strings:
+
+```python
+class PuzzleSession(db.Model):
+    # ... other fields ...
+    
+    def get_solved_cells(self):
+        return json.loads(self.solved_cells) if self.solved_cells else {}
+    
+    def set_solved_cells(self, cells_dict):
+        self.solved_cells = json.dumps(cells_dict)
+    
+    def get_user_selected_solutions(self):
+        return json.loads(self.user_selected_solutions) if self.user_selected_solutions else []
+    
+    def set_user_selected_solutions(self, solutions_list):
+        self.user_selected_solutions = json.dumps(solutions_list)
+```
+
+**Benefits:**
+- **Type Safety**: Methods ensure proper data types
+- **Error Handling**: `|| []` and `|| {}` provide fallback values
+- **Clean Interface**: Hide JSON serialization complexity
+
+### Complete State Management Flow
+
+#### 1. **Save State Flow**
+```python
+@app.route('/api/save_state', methods=['POST'])
+def save_state():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    data = request.get_json()  # Get state from JavaScript
+    
+    # Find or create puzzle session for this user
+    puzzle_session = PuzzleSession.query.filter_by(
+        user_id=session['user_id'], 
+        puzzle_id='Listener_4869'
+    ).first()
+    
+    if not puzzle_session:
+        puzzle_session = PuzzleSession(
+            user_id=session['user_id'],
+            puzzle_id='Listener_4869'
+        )
+        db.session.add(puzzle_session)
+    
+    # Save the state data
+    puzzle_session.set_solved_cells(data.get('solved_cells', {}))
+    puzzle_session.set_user_selected_solutions(data.get('user_selected_solutions', []))
+    puzzle_session.set_solution_history(data.get('solution_history', []))
+    
+    db.session.commit()  # Persist to database
+    return jsonify({'success': True})
+```
+
+#### 2. **Load State Flow**
+```python
+@app.route('/api/load_state')
+def load_state():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    puzzle_session = PuzzleSession.query.filter_by(
+        user_id=session['user_id'], 
+        puzzle_id='Listener_4869'
+    ).first()
+    
+    if not puzzle_session:
+        return jsonify({
+            'solved_cells': {},
+            'user_selected_solutions': [],
+            'solution_history': []
+        })
+    
+    return jsonify({
+        'solved_cells': puzzle_session.get_solved_cells(),
+        'user_selected_solutions': puzzle_session.get_user_selected_solutions(),
+        'solution_history': puzzle_session.get_solution_history()
+    })
+```
+
+### Database Schema and Data Storage
+
+#### 1. **Generated SQL Tables**
+```sql
+-- Users table
+CREATE TABLE user (
+    id INTEGER NOT NULL, 
+    email VARCHAR(120) NOT NULL, 
+    password_hash VARCHAR(255) NOT NULL, 
+    created_at DATETIME, 
+    PRIMARY KEY (id), 
+    UNIQUE (email)
+);
+
+-- Puzzle sessions table
+CREATE TABLE puzzle_session (
+    id INTEGER NOT NULL, 
+    user_id INTEGER NOT NULL, 
+    puzzle_id VARCHAR(50) NOT NULL, 
+    solved_cells TEXT, 
+    user_selected_solutions TEXT, 
+    solution_history TEXT, 
+    created_at DATETIME, 
+    updated_at DATETIME, 
+    PRIMARY KEY (id), 
+    FOREIGN KEY(user_id) REFERENCES user (id)
+);
+```
+
+#### 2. **Sample Data Storage**
+```sql
+-- Example of stored puzzle state
+INSERT INTO puzzle_session (user_id, puzzle_id, solved_cells, user_selected_solutions) 
+VALUES (
+    1, 
+    'Listener_4869', 
+    '{"0": 1, "1": 2, "2": 3, "4": 5}',  -- JSON string
+    '["1_ACROSS", "3_DOWN"]'  -- JSON string
+);
+```
+
+### Key Learning Points
+
+#### 1. **ORM Benefits**
+✅ **No Raw SQL**: Work with Python objects instead of SQL strings  
+✅ **Type Safety**: Python type hints and validation  
+✅ **Relationships**: Easy foreign key management  
+✅ **Migration Support**: Automatic schema updates  
+✅ **Cross-Database**: Same code works with SQLite, PostgreSQL, MySQL, etc.  
+
+#### 2. **Session Management**
+✅ **Transaction Safety**: `db.session.commit()` ensures data consistency  
+✅ **Rollback Support**: `db.session.rollback()` on errors  
+✅ **Connection Pooling**: Efficient database connection management  
+✅ **Query Optimization**: Lazy loading and caching  
+
+#### 3. **Data Serialization**
+✅ **JSON Storage**: Complex Python objects stored as JSON strings  
+✅ **Type Conversion**: Automatic conversion between Python and database types  
+✅ **Error Handling**: Graceful handling of missing or invalid data  
+✅ **Validation**: Model-level data validation  
+
+#### 4. **User-Specific Data**
+✅ **Session-Based**: Each user gets their own data via `session['user_id']`  
+✅ **Isolation**: Users can't access each other's puzzle states  
+✅ **Persistence**: Data survives server restarts and browser sessions  
+✅ **Scalability**: Easy to add more users and puzzles  
+
+### Common Patterns and Best Practices
+
+#### 1. **Error Handling**
+```python
+try:
+    db.session.commit()
+    return jsonify({'success': True})
+except Exception as e:
+    db.session.rollback()  # Undo changes on error
+    return jsonify({'error': str(e)}), 500
+```
+
+#### 2. **Query Optimization**
+```python
+# Use .first() for single records, .all() for multiple
+puzzle_session = PuzzleSession.query.filter_by(user_id=user_id).first()
+
+# Use .count() for counting records
+session_count = PuzzleSession.query.filter_by(user_id=user_id).count()
+```
+
+#### 3. **Data Validation**
+```python
+def set_solved_cells(self, cells_dict):
+    if not isinstance(cells_dict, dict):
+        raise ValueError("solved_cells must be a dictionary")
+    self.solved_cells = json.dumps(cells_dict)
+```
+
+### Integration with Flask
+
+#### 1. **Session Management**
+```python
+# User authentication sets session
+session['user_id'] = user.id
+session['email'] = user.email
+
+# API routes check session for user-specific data
+if 'user_id' not in session:
+    return jsonify({'error': 'Not authenticated'}), 401
+```
+
+#### 2. **Request/Response Cycle**
+```python
+# 1. JavaScript sends state via fetch()
+fetch('/api/save_state', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(state)
+})
+
+# 2. Flask receives data
+data = request.get_json()
+
+# 3. Flask saves to database
+puzzle_session.set_solved_cells(data['solved_cells'])
+db.session.commit()
+
+# 4. Flask responds
+return jsonify({'success': True})
+```
+
+### Learning Outcomes
+
+#### Database Skills Demonstrated
+✅ **ORM Usage** - Working with databases using Python objects  
+✅ **Schema Design** - Proper table relationships and constraints  
+✅ **Data Serialization** - JSON storage for complex data types  
+✅ **Transaction Management** - Safe database operations with rollback  
+
+#### Web Development Skills Demonstrated
+✅ **API Design** - RESTful endpoints for state management  
+✅ **Session Handling** - User authentication and data isolation  
+✅ **Error Handling** - Graceful error responses and logging  
+✅ **Security** - User-specific data access control  
+
+#### Architecture Skills Demonstrated
+✅ **Separation of Concerns** - Database logic separate from business logic  
+✅ **Data Persistence** - Long-term storage of application state  
+✅ **Scalability** - Support for multiple users and puzzles  
+✅ **Maintainability** - Clean, readable database operations  
+
+This SQLAlchemy implementation demonstrates professional-grade database management and web application architecture, showing how to build robust, scalable applications with proper data persistence.
+
+---
+
 *This document will be updated as new programming concepts are encountered in the project.* 
