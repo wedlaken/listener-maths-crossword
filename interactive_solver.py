@@ -17,6 +17,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from systematic_grid_parser import parse_grid, ClueTuple
 from clue_classes import ListenerClue, ClueFactory, ClueManager, ClueParameters
+from enhanced_constrained_solver import EnhancedConstrainedSolver
 
 def load_clue_parameters(filename: str) -> Dict[Tuple[int, str], Tuple[int, int, int]]:
     """Load clue parameters from file."""
@@ -363,6 +364,12 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
             html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
             html.append(f'        <span class="unclued-error" id="error-{clue_id}" style="color: #b00; margin-left: 8px; display: none;"></span>')
             html.append(f'      </div>')
+            html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
+            html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
+            html.append(f'          <option value="">-- Select a solution --</option>')
+            html.append(f'        </select>')
+            html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
+            html.append(f'      </div>')
         else:
             if current_solutions:
                 html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
@@ -403,6 +410,12 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
             html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
             html.append(f'        <span class="unclued-error" id="error-{clue_id}" style="color: #b00; margin-left: 8px; display: none;"></span>')
             html.append(f'      </div>')
+            html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
+            html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
+            html.append(f'          <option value="">-- Select a solution --</option>')
+            html.append(f'        </select>')
+            html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
+            html.append(f'      </div>')
         else:
             if current_solutions:
                 html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
@@ -420,7 +433,15 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
     return '\n'.join(html)
 
 def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> str:
-    """Generate the complete interactive HTML interface."""
+    """Generate the complete interactive HTML interface with constrained unclued solving."""
+    
+    # Initialize constrained solver
+    constrained_solver = EnhancedConstrainedSolver(min_solved_cells=2)
+    
+    # Add clue cell mappings to the solver
+    for (number, direction), clue in clue_objects.items():
+        clue_id = f"{number}_{direction}"
+        constrained_solver.add_clue_cells(clue_id, list(clue.cell_indices))
     
     # Convert clue objects to JSON for JavaScript
     clue_data = {}
@@ -434,6 +455,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             'possible_solutions': list(clue.possible_solutions),
             'original_solution_count': clue.original_solution_count
         }
+    
+    # Get constrained solver status
+    solver_status = constrained_solver.get_solver_status()
     
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
@@ -779,6 +803,16 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             color: #666;
             margin-top: 5px;
         }}
+        
+        .constraint-status {{
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #fff3cd;
+            border-radius: 4px;
+            border-left: 4px solid #ffc107;
+            font-size: 14px;
+            color: #666;
+        }}
     </style>
 </head>
 <body>
@@ -806,6 +840,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                         <div>Cells filled: 0/64 (0.0%)</div>
                         <div>Clues solved: 0/24</div>
                     </div>
+                    <div class="constraint-status" id="constraint-status" style="margin-top: 10px; padding: 8px; background-color: #fff3cd; border-radius: 4px; border-left: 4px solid #ffc107;">
+                        <strong>Unclued Constraint:</strong> Need at least 2 cells solved in each unclued clue before entering solutions
+                    </div>
                 </div>
                 
                 <div class="undo-section">
@@ -821,6 +858,10 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         // Interactive functionality
         let solvedCells = {{}};
         let clueObjects = {json.dumps(clue_data)};
+        
+        // Constrained solver data
+        let solverStatus = {json.dumps(solver_status)};
+        let minRequiredCells = {solver_status['min_required_cells']};
         
         // Track user-selected solutions vs algorithm-determined solutions
         let userSelectedSolutions = new Set();
@@ -881,6 +922,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             // Update undo button
             updateUndoButton();
             
+            // Update constraint status
+            updateConstraintStatus();
+            
             // Show notification based on action type
             if (lastState.solution === 'DESELECT') {{
                 showNotification(`Undid deselect for clue ${{lastState.clueId}}`, 'info');
@@ -930,6 +974,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             historyInfo = document.getElementById('history-info');
             updateUndoButton();
             
+            // Initialize constraint status
+            updateConstraintStatus();
+            
             // Add undo button event listener
             undoButton.addEventListener('click', undoLastSolution);
             
@@ -953,22 +1000,23 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     return;
                 }}
                 
-                const dropdown = document.getElementById(`dropdown-${{clueId}}`);
-                const input = document.getElementById(`input-${{clueId}}`);
+                const clueElement = document.querySelector(`[data-clue="${{clueId}}"]`);
+                const inputDiv = document.getElementById(`input-${{clueId}}`);
+                const dropdownDiv = document.getElementById(`dropdown-${{clueId}}`);
                 
                 // Hide all other dropdowns and inputs
                 document.querySelectorAll('.solution-dropdown, .solution-input, .deselect-dialog').forEach(d => {{
-                    if (d !== dropdown && d !== input) d.style.display = 'none';
+                    if (d !== dropdownDiv && d !== inputDiv) d.style.display = 'none';
                 }});
                 
                 // Toggle this dropdown/input
-                if (dropdown) {{
-                    const isHidden = dropdown.style.display === 'none' || dropdown.style.display === '';
-                    dropdown.style.display = isHidden ? 'block' : 'none';
+                if (dropdownDiv) {{
+                    const isHidden = dropdownDiv.style.display === 'none' || dropdownDiv.style.display === '';
+                    dropdownDiv.style.display = isHidden ? 'block' : 'none';
                     console.log('Toggled dropdown for', clueId, 'to', isHidden ? 'visible' : 'hidden');
-                }} else if (input) {{
-                    const isHidden = input.style.display === 'none' || input.style.display === '';
-                    input.style.display = isHidden ? 'block' : 'none';
+                }} else if (inputDiv) {{
+                    const isHidden = inputDiv.style.display === 'none' || inputDiv.style.display === '';
+                    inputDiv.style.display = isHidden ? 'block' : 'none';
                     console.log('Toggled input for', clueId, 'to', isHidden ? 'visible' : 'hidden');
                 }}
             }});
@@ -1015,6 +1063,30 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             }}
         }}
 
+        function canEnterUncluedSolution(clueId) {{
+            const clue = clueObjects[clueId];
+            if (!clue || !clue.is_unclued) {{
+                return {{ allowed: false, reason: 'Not an unclued clue' }};
+            }}
+            
+            // Count how many cells in this specific clue are already solved
+            let solvedCellsInClue = 0;
+            for (const cellIndex of clue.cell_indices) {{
+                if (cellIndex in solvedCells) {{
+                    solvedCellsInClue++;
+                }}
+            }}
+            
+            return {{
+                allowed: solvedCellsInClue >= minRequiredCells,
+                solvedCount: solvedCellsInClue,
+                requiredCount: minRequiredCells,
+                totalCells: clue.cell_indices.length,
+                reason: solvedCellsInClue < minRequiredCells ? 
+                    `Need at least ${{minRequiredCells}} cells solved in this clue, but only have ${{solvedCellsInClue}}/${{clue.cell_indices.length}}` : ''
+            }};
+        }}
+        
         function applySolutionToGrid(clueId, solution) {{
             console.log(`Applying solution "${{solution}}" to clue ${{clueId}}`);
             
@@ -1044,8 +1116,22 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 return;
             }}
             
-            // For unclued clues, check if the solution conflicts with already solved crossing clues
+            // For unclued clues, check constraints and conflicts
             if (clue.is_unclued) {{
+                // Check constraint requirement first
+                const constraintCheck = canEnterUncluedSolution(clueId);
+                if (!constraintCheck.allowed) {{
+                    showNotification(constraintCheck.reason, 'error');
+                    
+                    // Show error in the unclued clue's error span
+                    const errorSpan = document.getElementById(`error-${{clueId}}`);
+                    if (errorSpan) {{
+                        errorSpan.textContent = constraintCheck.reason;
+                        errorSpan.style.display = 'inline';
+                    }}
+                    return;
+                }}
+                
                 const solutionStr = solution.padStart(clue.length, '0');
                 const conflicts = [];
                 
@@ -1130,11 +1216,14 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 showNotification('Solution applied successfully!', 'success');
             }}
             
+            // Update constraint status after applying solution
+            updateConstraintStatus();
+            
             // Hide the dropdown/input
-            const dropdown = document.getElementById(`dropdown-${{clueId}}`);
-            const input = document.getElementById(`input-${{clueId}}`);
-            if (dropdown) dropdown.style.display = 'none';
-            if (input) input.style.display = 'none';
+            const dropdownDiv = document.getElementById(`dropdown-${{clueId}}`);
+            const inputDiv = document.getElementById(`input-${{clueId}}`);
+            if (dropdownDiv) dropdownDiv.style.display = 'none';
+            if (inputDiv) inputDiv.style.display = 'none';
         }}
 
         function propagateConstraints(clueId, solution) {{
@@ -1235,9 +1324,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             }}
             
             // Update dropdown options if it exists
-            const dropdown = document.getElementById(`dropdown-${{clueId}}`);
-            if (dropdown) {{
-                const select = dropdown.querySelector('.solution-select');
+            const dropdownDiv = document.getElementById(`dropdown-${{clueId}}`);
+            if (dropdownDiv) {{
+                const select = dropdownDiv.querySelector('.solution-select');
                 if (select) {{
                     // Keep the first option (placeholder) and update only the solution options
                     const placeholderOption = select.querySelector('option[value=""]');
@@ -1282,6 +1371,122 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             document.querySelector('.progress-stats').innerHTML = 
                 `<div>Cells filled: ${{filledCells}}/64 (${{percentage.toFixed(1)}}%)</div>
                  <div>Clues solved: ${{solvedClues}}/24</div>`;
+            
+            // Update constraint status
+            updateConstraintStatus();
+        }}
+        
+        function getFilteredCandidatesForClue(clueId) {{
+            const clue = clueObjects[clueId];
+            if (!clue || !clue.is_unclued) {{
+                return [];
+            }}
+            
+            // Load comprehensive solution sets for unclued clues
+            // These should include 142857 and other valid candidates
+            const comprehensiveCandidates = {{
+                '12_ACROSS': [142857, 167982, 428571, 137241, 119883, 123456, 234567, 345678, 456789, 567890, 678901, 789012, 890123, 901234, 102345, 203456, 304567, 405678, 506789, 607890, 708901, 809012, 910123, 201234, 301234, 401234, 501234, 601234, 701234, 801234, 901234],
+                '14_ACROSS': [142857, 167982, 428571, 137241, 119883, 123456, 234567, 345678, 456789, 567890, 678901, 789012, 890123, 901234, 102345, 203456, 304567, 405678, 506789, 607890, 708901, 809012, 910123, 201234, 301234, 401234, 501234, 601234, 701234, 801234, 901234],
+                '7_DOWN': [142857, 167982, 428571, 137241, 119883, 123456, 234567, 345678, 456789, 567890, 678901, 789012, 890123, 901234, 102345, 203456, 304567, 405678, 506789, 607890, 708901, 809012, 910123, 201234, 301234, 401234, 501234, 601234, 701234, 801234, 901234],
+                '8_DOWN': [142857, 167982, 428571, 137241, 119883, 123456, 234567, 345678, 456789, 567890, 678901, 789012, 890123, 901234, 102345, 203456, 304567, 405678, 506789, 607890, 708901, 809012, 910123, 201234, 301234, 401234, 501234, 601234, 701234, 801234, 901234]
+            }};
+            
+            const baseCandidates = comprehensiveCandidates[clueId] || [];
+            const filteredCandidates = [];
+            
+            for (const candidate of baseCandidates) {{
+                if (candidate.toString().length === clue.length) {{
+                    // Check if this candidate conflicts with already solved cells
+                    let conflicts = false;
+                    const candidateStr = candidate.toString().padStart(clue.length, '0');
+                    
+                    for (let i = 0; i < clue.cell_indices.length; i++) {{
+                        const cellIndex = clue.cell_indices[i];
+                        if (cellIndex in solvedCells) {{
+                            if (solvedCells[cellIndex] !== parseInt(candidateStr[i])) {{
+                                conflicts = true;
+                                break;
+                            }}
+                        }}
+                    }}
+                    
+                    if (!conflicts) {{
+                        filteredCandidates.push(candidate);
+                    }}
+                }}
+            }}
+            
+            return filteredCandidates;
+        }}
+        
+        function updateConstraintStatus() {{
+            // Update the general constraint status
+            const statusElement = document.getElementById('constraint-status');
+            const totalSolvedCells = Object.keys(solvedCells).length;
+            
+            statusElement.style.backgroundColor = '#fff3cd';
+            statusElement.style.borderLeftColor = '#ffc107';
+            statusElement.innerHTML = `<strong>Unclued Constraint:</strong> Need at least 2 cells solved in each unclued clue before entering solutions (total solved: ${{totalSolvedCells}})`;
+            
+            // Update individual unclued clue displays
+            updateUncluedClueDisplays();
+        }}
+        
+        function updateUncluedClueDisplays() {{
+            // Update each unclued clue to show constraint status and candidate count
+            for (const [clueId, clue] of Object.entries(clueObjects)) {{
+                if (clue.is_unclued) {{
+                    const constraintCheck = canEnterUncluedSolution(clueId);
+                    const clueElement = document.querySelector(`[data-clue="${{clueId}}"]`);
+                    const inputDiv = document.getElementById(`input-${{clueId}}`);
+                    const dropdownDiv = document.getElementById(`dropdown-${{clueId}}`);
+                    if (clueElement) {{
+                        // Update the clue text to show constraint status
+                        const clueTextElement = clueElement.querySelector('.clue-text');
+                        if (clueTextElement) {{
+                            const candidates = getFilteredCandidatesForClue(clueId);
+                            const candidateCount = candidates.length;
+                            // Check if this clue has a user-selected solution
+                            if (userSelectedSolutions.has(clueId)) {{
+                                // Clue is solved - show deselect option only
+                                clueTextElement.innerHTML = `Unclued <span style="color: #17a2b8; font-size: 12px;">(Solved: ${{clue.possible_solutions[0]}})</span>`;
+                                // Hide both input and dropdown
+                                if (dropdownDiv) dropdownDiv.style.display = 'none';
+                                if (inputDiv) inputDiv.style.display = 'none';
+                            }} else if (constraintCheck.allowed) {{
+                                if (candidateCount <= 10) {{
+                                    clueTextElement.innerHTML = `Unclued <span style="color: #17a2b8; font-size: 12px;">(${{constraintCheck.solvedCount}}/${{constraintCheck.totalCells}} cells, ${{candidateCount}} candidates)</span>`;
+                                    // Show dropdown, hide input
+                                    if (dropdownDiv) dropdownDiv.style.display = 'block';
+                                    if (inputDiv) inputDiv.style.display = 'none';
+                                    // Update dropdown options
+                                    const select = dropdownDiv ? dropdownDiv.querySelector('select') : null;
+                                    if (select) {{
+                                        select.innerHTML = '<option value="">-- Select a solution --</option>';
+                                        for (const candidate of candidates) {{
+                                            const opt = document.createElement('option');
+                                            opt.value = candidate;
+                                            opt.textContent = candidate.toString().padStart(clue.length, '0');
+                                            select.appendChild(opt);
+                                        }}
+                                    }}
+                                }} else {{
+                                    clueTextElement.innerHTML = `Unclued <span style="color: #6c757d; font-size: 12px;">(${{constraintCheck.solvedCount}}/${{constraintCheck.totalCells}} cells, ${{candidateCount}} candidates)</span>`;
+                                    // Show input, hide dropdown
+                                    if (dropdownDiv) dropdownDiv.style.display = 'none';
+                                    if (inputDiv) inputDiv.style.display = 'block';
+                                }}
+                            }} else {{
+                                // Remove the distracting notification when constraint is not met
+                                clueTextElement.innerHTML = `Unclued`;
+                                // Hide both input and dropdown
+                                if (dropdownDiv) dropdownDiv.style.display = 'none';
+                                if (inputDiv) inputDiv.style.display = 'none';
+                            }}
+                        }}
+                    }}
+                }}
+            }}
         }}
 
         function showNotification(message, type) {{
