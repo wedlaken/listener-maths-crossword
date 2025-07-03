@@ -349,4 +349,109 @@ class ClueManager:
     
     def is_puzzle_solved(self) -> bool:
         """Check if all clues have been solved."""
-        return all(clue.is_solved() for clue in self.clues.values()) 
+        return all(clue.is_solved() for clue in self.clues.values())
+
+
+class AnagramClue(ListenerClue):
+    """
+    Extended ListenerClue class for anagram stage (Stage 2)
+    Handles anagram generation and validation for the second stage of the puzzle
+    """
+    
+    def __init__(self, original_clue: ListenerClue):
+        # Initialize with the same basic properties as the original clue
+        super().__init__(
+            number=original_clue.number,
+            direction=original_clue.direction,
+            cell_indices=original_clue.cell_indices,
+            parameters=original_clue.parameters
+        )
+        
+        # Store the original solution from Stage 1
+        if original_clue.is_solved():
+            self.original_solution = original_clue.get_solution()
+        else:
+            raise ValueError(f"Cannot create AnagramClue for unsolved clue {original_clue.number} {original_clue.direction}")
+        
+        # Generate anagram solutions
+        self.anagram_solutions = self._generate_anagram_solutions()
+        self.possible_solutions = set(self.anagram_solutions)  # Override parent's possible_solutions
+        self.original_solution_count = len(self.anagram_solutions)
+    
+    def _generate_anagram_solutions(self) -> List[int]:
+        """Generate all valid anagrams for this clue based on the original solution."""
+        if not hasattr(self, 'original_solution') or self.original_solution is None:
+            return []
+        
+        original_str = str(self.original_solution).zfill(self.length)
+        
+        if self.parameters.is_unclued:
+            # For unclued clues, anagrams must be multiples of the original
+            return self._generate_unclued_anagrams(original_str)
+        else:
+            # For clued clues, any anagram is valid (same digits, different order)
+            return self._generate_clued_anagrams(original_str)
+    
+    def _generate_unclued_anagrams(self, original_str: str) -> List[int]:
+        """Generate anagrams that are multiples of the original value."""
+        from itertools import permutations
+        
+        original_num = int(original_str)
+        anagrams = []
+        
+        # Generate all permutations of the digits
+        for perm in permutations(original_str):
+            anagram_str = ''.join(perm)
+            anagram_num = int(anagram_str)
+            
+            # Skip the original number itself
+            if anagram_num == original_num:
+                continue
+            
+            # Check if it's a multiple of the original
+            if anagram_num % original_num == 0:
+                # Additional constraint: must not start with 0
+                if anagram_str[0] != '0':
+                    anagrams.append(anagram_num)
+        
+        return sorted(anagrams)
+    
+    def _generate_clued_anagrams(self, original_str: str) -> List[int]:
+        """Generate all valid anagrams for clued clues."""
+        from itertools import permutations
+        
+        anagrams = []
+        
+        # Generate all permutations of the digits
+        for perm in permutations(original_str):
+            anagram_str = ''.join(perm)
+            anagram_num = int(anagram_str)
+            
+            # Skip the original number itself
+            if anagram_num == int(original_str):
+                continue
+            
+            # Check if it doesn't start with 0
+            if anagram_str[0] != '0':
+                anagrams.append(anagram_num)
+        
+        return sorted(anagrams)
+    
+    def __repr__(self):
+        original = getattr(self, 'original_solution', 'Unknown')
+        return f"AnagramClue {self.number} {self.direction}: {original} → {len(self.anagram_solutions)} anagrams"
+    
+    def __str__(self):
+        return self.__repr__()
+    
+    def get_original_solution(self) -> int:
+        """Get the original solution from Stage 1."""
+        return self.original_solution
+    
+    def get_anagram_solutions(self) -> List[int]:
+        """Get all valid anagram solutions."""
+        return list(self.anagram_solutions)
+    
+    def is_unclued(self) -> bool:
+        """Check if this was originally an unclued clue."""
+        return self.parameters.is_unclued 

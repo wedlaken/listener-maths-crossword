@@ -25,6 +25,7 @@ This document captures key Python programming concepts and learning points encou
 - [Constraint-Based Programming](#constraint-based-programming)
 - [State Management Patterns](#state-management-patterns)
 - [Puzzle Design Insights: Mathematical Keys and Constraint Propagation](#puzzle-design-insights-mathematical-keys-and-constraint-propagation)
+- [Anagram Grid Stage Implementation: Advanced UI/UX and State Management](#anagram-grid-stage-implementation-advanced-uiux-and-state-management)
 
 ---
 
@@ -3169,6 +3170,236 @@ clue_14a_cells = [33, 34, 35, 36, 37, 38]
 - Appreciating the difference between computational analysis and human insight
 - Designing puzzles that reward mathematical knowledge and pattern recognition
 - Creating elegant solving experiences through constraint cascades
+
+---
+
+## Anagram Grid Stage Implementation: Advanced UI/UX and State Management
+
+### Overview
+The anagram grid stage represents a significant evolution of the project, requiring sophisticated state management, UI/UX design, and technical problem-solving. This phase involves creating an interactive interface for the second major challenge of the Listener 4869 puzzle.
+
+### Key Technical Challenges and Solutions
+
+#### 1. **Class Extension and Inheritance**
+**Challenge**: Extend existing functionality without breaking current features
+**Solution**: Created `AnagramClue` subclass that inherits from `ListenerClue`
+
+```python
+class AnagramClue(ListenerClue):
+    """Extends ListenerClue with anagram generation capabilities."""
+    
+    def generate_anagram_solutions(self) -> List[int]:
+        """Generate valid anagram solutions for this clue."""
+        original_solution = self.get_valid_solutions()[0] if self.get_valid_solutions() else 0
+        
+        if not original_solution:
+            return []
+        
+        # Different logic for different clue types
+        if self.parameters.is_unclued and self.length == 6:
+            return self._find_anagram_multiples(original_solution)
+        else:
+            return self._generate_permutations(original_solution)
+    
+    def _find_anagram_multiples(self, original_number: int) -> List[int]:
+        """Find multiples that are anagrams of the original number."""
+        # Implementation for unclued 6-digit numbers
+        pass
+    
+    def _generate_permutations(self, original_number: int) -> List[int]:
+        """Generate all permutations except the original."""
+        # Implementation for regular clues
+        pass
+```
+
+**Learning Point**: Inheritance allows extending functionality while maintaining backward compatibility.
+
+#### 2. **Completion Detection and State Transitions**
+**Challenge**: Automatically detect when the initial puzzle is complete and trigger the anagram stage
+**Solution**: JavaScript-based completion detection with celebration modal
+
+```javascript
+function updateProgress() {
+    const filledCells = Object.keys(solvedCells).length;
+    const percentage = (filledCells / 64) * 100;
+    
+    // Count solved clues
+    let solvedClues = 0;
+    for (const clue of Object.values(clueObjects)) {
+        if (clue.possible_solutions.length === 1) {
+            solvedClues++;
+        }
+    }
+    
+    // Check for puzzle completion
+    if (filledCells === 64 && solvedClues === 24 && !window.puzzleCompleted) {
+        window.puzzleCompleted = true;
+        showCompletionCelebration();
+    }
+}
+```
+
+**Learning Point**: State management is crucial for complex UI workflows.
+
+#### 3. **Interactive Celebration Modal**
+**Challenge**: Create an engaging completion experience that introduces the anagram challenge
+**Solution**: Dynamic modal with animations, statistics, and clear next steps
+
+```javascript
+function showCompletionCelebration() {
+    // Create modal with gradient animations
+    const modal = document.createElement('div');
+    modal.id = 'completion-celebration';
+    
+    // Calculate solving statistics
+    const solvingTime = Math.round((Date.now() - window.solvingStartTime) / 1000);
+    const solutionsApplied = solutionHistory.filter(s => s.solution !== 'DESELECT').length;
+    
+    // Include official anagram challenge description
+    modal.innerHTML = `
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h1>🎉 Puzzle Complete! 🎉</h1>
+            <div class="statistics">
+                <div><strong>Time taken:</strong> ${Math.floor(solvingTime/60)}m ${solvingTime%60}s</div>
+                <div><strong>Solutions applied:</strong> ${solutionsApplied}</div>
+            </div>
+            <div class="anagram-challenge">
+                <strong>The Anagram Challenge:</strong><br>
+                "Solvers must submit a grid in which every entry is an anagram of its counterpart in the initial grid 
+                (same digits in a different order). For each of the unclued six-digit entries, the anagram is a multiple 
+                of its original value. The 48 numbers used (24 initial + 24 anagrams) are all different, and none start with zero."
+            </div>
+            <button onclick="showAnagramGridInline()">🧩 Show Anagram Grid</button>
+        </div>
+    `;
+    
+    // Add confetti effect
+    createConfetti();
+}
+```
+
+**Learning Point**: User experience design is as important as technical functionality.
+
+#### 4. **F-String Syntax Conflicts Resolution**
+**Challenge**: JavaScript comments (`//`) caused syntax errors in Python f-strings
+**Solution**: Removed JavaScript comments and documented the issue
+
+```python
+# PROBLEMATIC (causes Python f-string syntax error):
+html_content = f"""
+<script>
+    // This comment causes a syntax error!
+    let solvedCells = {{}};
+</script>
+"""
+
+# SOLUTION (remove JavaScript comments):
+html_content = f"""
+<script>
+    let solvedCells = {{}};
+</script>
+"""
+```
+
+**Learning Point**: Language syntax conflicts require careful consideration when embedding code.
+
+#### 5. **Two-Grid Layout Management**
+**Challenge**: Display both initial and anagram grids without overwhelming the user
+**Solution**: Conditional display with smooth transitions
+
+```javascript
+function showAnagramGridInline() {
+    // Hide celebration modal
+    hideCompletionCelebration();
+    
+    // Show anagram grid section (keep initial grid visible)
+    const anagramGridSection = document.getElementById('anagram-grid-section');
+    if (anagramGridSection) {
+        anagramGridSection.style.display = 'block';
+    }
+    
+    // Toggle clue displays
+    const initialCluesContainer = document.getElementById('initial-clues-container');
+    const anagramCluesContainer = document.getElementById('anagram-clues-container');
+    if (initialCluesContainer) {
+        initialCluesContainer.style.display = 'none';
+    }
+    if (anagramCluesContainer) {
+        anagramCluesContainer.style.display = 'block';
+    }
+    
+    // Smooth scroll to anagram section
+    if (anagramGridSection) {
+        anagramGridSection.scrollIntoView({{{{ behavior: 'smooth' }}}});
+    }
+}
+```
+
+**Learning Point**: UI state management requires careful coordination between multiple elements.
+
+#### 6. **Developer Tools for Testing**
+**Challenge**: Need efficient ways to test the anagram stage without completing the entire puzzle
+**Solution**: Developer shortcuts with known solutions
+
+```javascript
+function fillCompleteGrid() {
+    const knownSolutions = {
+        '1_ACROSS': '3375',
+        '1_DOWN': '3249',
+        '14_ACROSS': '142857',  // Famous cyclic number
+        // ... more solutions
+    };
+    
+    for (const [clueId, solution] of Object.entries(knownSolutions)) {
+        const clue = clueObjects[clueId];
+        if (clue && solution.length === clue.length) {
+            applySolutionToGrid(clueId, solution);
+        }
+    }
+}
+```
+
+**Learning Point**: Developer tools are essential for efficient testing and development.
+
+### Advanced Concepts Demonstrated
+
+#### 1. **State Management Patterns**
+- **Completion Detection**: Automatic state transition based on puzzle completion
+- **Modal Management**: Dynamic creation and removal of UI elements
+- **Grid Coordination**: Managing multiple interactive grids simultaneously
+
+#### 2. **User Experience Design**
+- **Progressive Disclosure**: Information revealed at appropriate times
+- **Visual Feedback**: Animations, confetti, and smooth transitions
+- **Clear Navigation**: Obvious next steps and call-to-action buttons
+
+#### 3. **Code Organization**
+- **Inheritance**: Extending existing classes without breaking functionality
+- **Separation of Concerns**: UI logic separated from business logic
+- **Modular Design**: Reusable components and functions
+
+#### 4. **Technical Problem Solving**
+- **Syntax Conflicts**: Resolving language-specific issues
+- **Cross-Platform Compatibility**: Ensuring consistent behavior
+- **Performance Optimization**: Efficient state updates and DOM manipulation
+
+### Outstanding Challenges
+
+1. **Interactive Anagram Grid**: Making anagram grid cells editable and interactive
+2. **Real-time Validation**: Validating anagram solutions as they're entered
+3. **Cross-Reference Validation**: Ensuring anagram solutions don't conflict
+4. **Final Submission**: Complete validation and submission interface
+
+### Learning Outcomes
+
+This phase demonstrates advanced software development concepts:
+- **Complex State Management**: Coordinating multiple UI states and transitions
+- **User Experience Design**: Creating engaging and intuitive interfaces
+- **Technical Problem Solving**: Addressing language conflicts and implementation challenges
+- **Code Architecture**: Extending existing systems without breaking changes
+- **Testing Strategy**: Developer tools for efficient development workflow
+
+The anagram grid stage represents a significant evolution from a basic puzzle solver to a comprehensive, interactive application with sophisticated UI/UX design and state management.
 
 ---
 
