@@ -9,7 +9,7 @@ from anagram_grid_solver import is_anagram
 class ForwardUncluedSolver:
     """Enhanced solver using forward-search unclued candidates."""
     
-    def __init__(self, candidate_file: str = 'data/enhanced_unclued_candidates.json'):
+    def __init__(self, candidate_file: str = None):
         """Initialize with forward-search candidates."""
         self.candidates = self.load_candidates(candidate_file)
         self.factor_sets = self.candidates.get('factor_sets', {})
@@ -17,6 +17,10 @@ class ForwardUncluedSolver:
         
     def load_candidates(self, filename: str) -> Dict:
         """Load candidate sets from file."""
+        if filename is None:
+            print("Note: Using embedded 305-candidate list instead of file")
+            return {'all_candidates': [], 'factor_sets': {}}
+        
         try:
             with open(filename, 'r') as f:
                 return json.load(f)

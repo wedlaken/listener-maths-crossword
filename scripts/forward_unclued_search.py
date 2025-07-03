@@ -58,17 +58,8 @@ def forward_search_unclued_candidates():
     for i, candidate in enumerate(candidates[:10]):
         print(f"{i+1}. {candidate['number']}: {candidate['multiples']}")
     
-    # Save to file
-    output_data = {
-        'total_candidates': len(candidates),
-        'factor_statistics': dict(factor_stats),
-        'candidates': candidates
-    }
-    
-    with open('data/forward_unclued_candidates.json', 'w') as f:
-        json.dump(output_data, f, indent=2)
-    
-    print(f"\nSaved {len(candidates)} candidates to data/forward_unclued_candidates.json")
+    # Note: Large candidate files removed - using embedded 305-candidate list instead
+    print(f"\nGenerated {len(candidates)} candidates (not saved - using embedded list)")
     
     return candidates
 
@@ -174,23 +165,13 @@ def create_enhanced_candidate_sets():
     for candidate in all_candidates:
         all_numbers.add(candidate['number'])
     
-    # Save enhanced sets
-    enhanced_sets = {
-        'all_candidates': list(all_numbers),
-        'factor_sets': {str(k): list(v) for k, v in factor_sets.items()},
-        'total_candidates': len(all_numbers),
-        'factor_statistics': {str(k): len(v) for k, v in factor_sets.items()}
-    }
-    
-    with open('data/enhanced_unclued_candidates.json', 'w') as f:
-        json.dump(enhanced_sets, f, indent=2)
-    
-    print(f"Created enhanced candidate sets:")
+    # Note: Large candidate files removed - using embedded 305-candidate list instead
+    print(f"Generated enhanced candidate sets:")
     print(f"  Total candidates: {len(all_numbers)}")
     for factor in sorted(factor_sets.keys()):
         print(f"  Factor {factor}: {len(factor_sets[factor])} candidates")
     
-    print(f"\nSaved to data/enhanced_unclued_candidates.json")
+    print(f"\nNot saved - using embedded 305-candidate list instead")
     
     return enhanced_sets
 
