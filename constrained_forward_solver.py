@@ -9,12 +9,28 @@ from anagram_grid_solver import is_anagram
 class ConstrainedForwardSolver:
     """Enhanced solver with constraints for unclued solutions."""
     
-    def __init__(self, candidate_file: str = 'data/enhanced_unclued_candidates.json', 
-                 min_solved_cells: int = 2):
+    def __init__(self, candidate_file: str = 'data/unclued_candidates.json', 
+                 min_solved_cells: int = 1):
         """Initialize with constraints."""
         self.candidates = self.load_candidates(candidate_file)
-        self.factor_sets = self.candidates.get('factor_sets', {})
-        self.all_candidates = set(self.candidates.get('all_candidates', []))
+        
+        # Handle different file formats
+        if 'all_candidates' in self.candidates:
+            # Enhanced format with all_candidates and factor_sets
+            self.factor_sets = self.candidates.get('factor_sets', {})
+            self.all_candidates = set(self.candidates.get('all_candidates', []))
+        else:
+            # Simple format with {number: [multiples]}
+            self.all_candidates = set(int(k) for k in self.candidates.keys())
+            # Create factor_sets from the multiples data
+            self.factor_sets = {}
+            for number, multiples in self.candidates.items():
+                for multiple in multiples:
+                    factor = multiple // int(number)
+                    if str(factor) not in self.factor_sets:
+                        self.factor_sets[str(factor)] = []
+                    self.factor_sets[str(factor)].append(int(number))
+        
         self.min_solved_cells = min_solved_cells
         
         # Track solved cells and their values

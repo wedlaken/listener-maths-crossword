@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Forward search for unclued solutions with anagram multiples"""
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from anagram_grid_solver import is_anagram
 import json
 from collections import defaultdict

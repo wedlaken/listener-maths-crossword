@@ -436,7 +436,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
     """Generate the complete interactive HTML interface with constrained unclued solving."""
     
     # Initialize constrained solver
-    constrained_solver = EnhancedConstrainedSolver(min_solved_cells=2)
+    constrained_solver = EnhancedConstrainedSolver(min_solved_cells=1)
     
     # Add clue cell mappings to the solver
     for (number, direction), clue in clue_objects.items():
@@ -1012,7 +1012,26 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 // Toggle this dropdown/input
                 if (dropdownDiv) {{
                     const isHidden = dropdownDiv.style.display === 'none' || dropdownDiv.style.display === '';
-                    dropdownDiv.style.display = isHidden ? 'block' : 'none';
+                    if (isHidden) {{
+                        // Show dropdown and populate it if it's an unclued clue
+                        const clue = clueObjects[clueId];
+                        if (clue && clue.is_unclued) {{
+                            const candidates = getFilteredCandidatesForClue(clueId);
+                            const select = dropdownDiv.querySelector('select');
+                            if (select) {{
+                                select.innerHTML = '<option value="">-- Select a solution --</option>';
+                                for (const candidate of candidates) {{
+                                    const opt = document.createElement('option');
+                                    opt.value = candidate;
+                                    opt.textContent = candidate.toString().padStart(clue.length, '0');
+                                    select.appendChild(opt);
+                                }}
+                            }}
+                        }}
+                        dropdownDiv.style.display = 'block';
+                    }} else {{
+                        dropdownDiv.style.display = 'none';
+                    }}
                     console.log('Toggled dropdown for', clueId, 'to', isHidden ? 'visible' : 'hidden');
                 }} else if (inputDiv) {{
                     const isHidden = inputDiv.style.display === 'none' || inputDiv.style.display === '';
@@ -1382,19 +1401,11 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 return [];
             }}
             
-            // Load comprehensive solution sets for unclued clues
-            // These should include 142857 and other valid candidates
-            const comprehensiveCandidates = {{
-                '12_ACROSS': [142857, 167982, 428571, 137241, 119883, 123456, 234567, 345678, 456789, 567890, 678901, 789012, 890123, 901234, 102345, 203456, 304567, 405678, 506789, 607890, 708901, 809012, 910123, 201234, 301234, 401234, 501234, 601234, 701234, 801234, 901234],
-                '14_ACROSS': [142857, 167982, 428571, 137241, 119883, 123456, 234567, 345678, 456789, 567890, 678901, 789012, 890123, 901234, 102345, 203456, 304567, 405678, 506789, 607890, 708901, 809012, 910123, 201234, 301234, 401234, 501234, 601234, 701234, 801234, 901234],
-                '7_DOWN': [142857, 167982, 428571, 137241, 119883, 123456, 234567, 345678, 456789, 567890, 678901, 789012, 890123, 901234, 102345, 203456, 304567, 405678, 506789, 607890, 708901, 809012, 910123, 201234, 301234, 401234, 501234, 601234, 701234, 801234, 901234],
-                '8_DOWN': [142857, 167982, 428571, 137241, 119883, 123456, 234567, 345678, 456789, 567890, 678901, 789012, 890123, 901234, 102345, 203456, 304567, 405678, 506789, 607890, 708901, 809012, 910123, 201234, 301234, 401234, 501234, 601234, 701234, 801234, 901234]
-            }};
-            
-            const baseCandidates = comprehensiveCandidates[clueId] || [];
+            // Use the embedded unclued candidates list (305 numbers that satisfy anagram/multiple constraint)
+            const uncluedCandidates = [100035, 100089, 100350, 100449, 100890, 100899, 100989, 102249, 102375, 102564, 103428, 103500, 103845, 104490, 104499, 104769, 104895, 105264, 106254, 106749, 106848, 107235, 107583, 107793, 107892, 108726, 108900, 108990, 108999, 109890, 109899, 109989, 111873, 113724, 113967, 114237, 114528, 116397, 116688, 116880, 116988, 118731, 118830, 118833, 119883, 120267, 123507, 123714, 123750, 123876, 123975, 124137, 124875, 125406, 125604, 125874, 126054, 126702, 126873, 126888, 127389, 128034, 128052, 128205, 128574, 129003, 129030, 129033, 129903, 130029, 130149, 130290, 130299, 130329, 130869, 132159, 132903, 133029, 133359, 133449, 133590, 133599, 133659, 134490, 134499, 134505, 134739, 135045, 135900, 135990, 135999, 136590, 136599, 136659, 137124, 137241, 137286, 138402, 138456, 138546, 138600, 138627, 139860, 139986, 140085, 140184, 140247, 140256, 140526, 140850, 140985, 141237, 141858, 142371, 142470, 142497, 142587, 142857, 143505, 143793, 143856, 145035, 145281, 145386, 147024, 147240, 148257, 148509, 148590, 148599, 149085, 149724, 149859, 150192, 150345, 150435, 151893, 151920, 151992, 153846, 154269, 154386, 154896, 156282, 156942, 157284, 158427, 158598, 159786, 166782, 167604, 167802, 167820, 167832, 167982, 168027, 169728, 169782, 170268, 172575, 172968, 174285, 174825, 175257, 175725, 176004, 176034, 176040, 176049, 176604, 178002, 178020, 178200, 178302, 178320, 178332, 178437, 179487, 179802, 179820, 179832, 179982, 180027, 180267, 180270, 180327, 182703, 182973, 183027, 188547, 189657, 190476, 194787, 196587, 196728, 197280, 197283, 197298, 197328, 197604, 197802, 197820, 197832, 197982, 198027, 199728, 199782, 200178, 201678, 201780, 201783, 201798, 201978, 205128, 206793, 206856, 207693, 212805, 215628, 216678, 216780, 216783, 216798, 216978, 217800, 217830, 217833, 217980, 217983, 217998, 219780, 219783, 219798, 219978, 230679, 230769, 230895, 233958, 235071, 235107, 237114, 237141, 237501, 237510, 238095, 238761, 239508, 239580, 239583, 239598, 239658, 239751, 239958, 240147, 241137, 241371, 241470, 241497, 242748, 247014, 247140, 247428, 247500, 248274, 248760, 248976, 249714, 249750, 249876, 249975, 251757, 257175, 257517, 258714, 258741, 271584, 274248, 274824, 275850, 275886, 275985, 276489, 280341, 281034, 282474, 284157, 285714, 285741, 285750, 285876, 285975, 287586, 287649, 288576, 297585, 298575, 306792, 307692, 314379, 320679, 320769, 412587, 412857, 425871, 428571];
             const filteredCandidates = [];
             
-            for (const candidate of baseCandidates) {{
+            for (const candidate of uncluedCandidates) {{
                 if (candidate.toString().length === clue.length) {{
                     // Check if this candidate conflicts with already solved cells
                     let conflicts = false;
@@ -1426,7 +1437,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             
             statusElement.style.backgroundColor = '#fff3cd';
             statusElement.style.borderLeftColor = '#ffc107';
-            statusElement.innerHTML = `<strong>Unclued Constraint:</strong> Need at least 2 cells solved in each unclued clue before entering solutions (total solved: ${{totalSolvedCells}})`;
+            statusElement.innerHTML = `<strong>Unclued Constraint:</strong> Need at least 1 cell solved in each unclued clue before entering solutions (total solved: ${{totalSolvedCells}})`;
             
             // Update individual unclued clue displays
             updateUncluedClueDisplays();
@@ -1454,30 +1465,17 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                                 if (dropdownDiv) dropdownDiv.style.display = 'none';
                                 if (inputDiv) inputDiv.style.display = 'none';
                             }} else if (constraintCheck.allowed) {{
-                                if (candidateCount <= 10) {{
+                                // Show candidate count in clue text, but don't show dropdown/input until clicked
+                                if (candidateCount <= 50) {{
                                     clueTextElement.innerHTML = `Unclued <span style="color: #17a2b8; font-size: 12px;">(${{constraintCheck.solvedCount}}/${{constraintCheck.totalCells}} cells, ${{candidateCount}} candidates)</span>`;
-                                    // Show dropdown, hide input
-                                    if (dropdownDiv) dropdownDiv.style.display = 'block';
-                                    if (inputDiv) inputDiv.style.display = 'none';
-                                    // Update dropdown options
-                                    const select = dropdownDiv ? dropdownDiv.querySelector('select') : null;
-                                    if (select) {{
-                                        select.innerHTML = '<option value="">-- Select a solution --</option>';
-                                        for (const candidate of candidates) {{
-                                            const opt = document.createElement('option');
-                                            opt.value = candidate;
-                                            opt.textContent = candidate.toString().padStart(clue.length, '0');
-                                            select.appendChild(opt);
-                                        }}
-                                    }}
                                 }} else {{
                                     clueTextElement.innerHTML = `Unclued <span style="color: #6c757d; font-size: 12px;">(${{constraintCheck.solvedCount}}/${{constraintCheck.totalCells}} cells, ${{candidateCount}} candidates)</span>`;
-                                    // Show input, hide dropdown
-                                    if (dropdownDiv) dropdownDiv.style.display = 'none';
-                                    if (inputDiv) inputDiv.style.display = 'block';
                                 }}
+                                // Hide both input and dropdown - they'll show when clicked
+                                if (dropdownDiv) dropdownDiv.style.display = 'none';
+                                if (inputDiv) inputDiv.style.display = 'none';
                             }} else {{
-                                // Remove the distracting notification when constraint is not met
+                                // Constraint not met - show just "Unclued"
                                 clueTextElement.innerHTML = `Unclued`;
                                 // Hide both input and dropdown
                                 if (dropdownDiv) dropdownDiv.style.display = 'none';

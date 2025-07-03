@@ -85,6 +85,12 @@ All test files have been organized into the tests folder:
 - **Forward Search**: Efficiently find all valid 6-digit candidates
 - **Mathematical Analysis**: Validate prime factor relationships
 
+### **Puzzle Design Insights Discovered**
+- **Mathematical Key Pattern**: The puzzle is designed around **142857** (the famous cyclic number 1/7)
+- **Constraint Cascade**: Solving 14a = 142857 dramatically reduces candidates for other unclued clues
+- **Elegant Complexity**: Large initial solution space (305 candidates) reduced through constraint propagation
+- **Knowledge-Based Solving**: Rewards mathematical insight and pattern recognition
+
 ## 📊 **PROJECT STATUS**
 
 - **Core Functionality**: ✅ 100% Complete
