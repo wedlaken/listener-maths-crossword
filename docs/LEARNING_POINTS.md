@@ -199,6 +199,69 @@ showNotification(`Solution: ${solution}`);
 const state = {...solvedCells};
 ```
 
+### Real-World Application: Interactive Solver Fix
+
+#### The Problem Encountered
+During development of `interactive_solver.py`, we encountered **recurring f-string syntax errors** when generating HTML/JavaScript code. The issue was particularly problematic because:
+
+1. **Hundreds of JavaScript blocks** needed proper escaping
+2. **CSS style rules** required double curly braces
+3. **JavaScript template literals** needed `${{variable}}` format
+4. **Object spread syntax** required `{{...obj}}` format
+
+#### The Systematic Solution
+We implemented a **comprehensive fix** across the entire `interactive_solver.py` file:
+
+```python
+# JavaScript variable declarations
+let solvedCells = {{}};
+let originalSolutions = {{}};
+
+# JavaScript function blocks
+function saveState(clueId, solution) {{
+    const state = {{
+        timestamp: new Date().toLocaleTimeString(),
+        clueId: clueId,
+        solution: solution,
+        solvedCells: {{...solvedCells}}
+    }};
+}}
+
+# JavaScript template literals
+showNotification(`Undid solution "${{lastState.solution}}" for clue ${{lastState.clueId}}`, 'info');
+
+# CSS style rules
+body {{
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f5f5f5;
+}}
+
+# Event handlers (no escaping needed for simple calls)
+onclick="handleClick()"
+```
+
+#### Impact and Results
+- **Files affected**: `interactive_solver.py` (primary)
+- **Lines fixed**: Hundreds of JavaScript blocks and CSS rules
+- **Result**: Clean, syntax-error-free code generation
+- **Commit**: Changes committed with descriptive message
+- **Learning**: Documented pattern for future similar situations
+
+#### Key Insights
+1. **Language Syntax Conflicts**: When generating code in one language (Python) that contains another language (JavaScript/CSS), syntax conflicts are inevitable
+2. **Systematic Approach**: The fix required a systematic approach across the entire file, not just isolated patches
+3. **Documentation Importance**: This pattern is now documented for future reference and team knowledge
+4. **Testing**: The fix was verified by successfully running the script and generating valid HTML/JavaScript output
+
+### Best Practices for Future Development
+
+1. **Plan for Escaping**: When designing f-strings that generate HTML/JavaScript, plan for double curly brace escaping from the start
+2. **Use Templates**: Consider using Jinja2 templates for complex HTML generation instead of f-strings
+3. **Test Output**: Always test the generated HTML/JavaScript to ensure proper escaping
+4. **Document Patterns**: Document escaping patterns for team knowledge and future reference
+5. **IDE Support**: Use IDEs that can highlight f-string syntax errors to catch issues early
+
 ### Common Patterns
 
 #### 1. **CSS Rules**

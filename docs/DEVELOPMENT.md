@@ -546,6 +546,87 @@ clue_14a_cells = [33, 34, 35, 36, 37, 38]
 - [Tesseract OCR Documentation](https://github.com/tesseract-ocr/tesseract)
 - [SymPy Documentation](https://docs.sympy.org/) 
 
+## Critical Issue Resolution: Python F-String Syntax Conflicts
+
+### The Problem
+During development of the interactive solver, a recurring issue emerged with **Python f-string syntax conflicts** when generating HTML/JavaScript code. The core problem was:
+
+- **Python f-strings** use single curly braces `{}` for variable interpolation
+- **JavaScript code** also uses curly braces `{}` for objects, blocks, and template literals `${}`
+- **CSS rules** use curly braces `{}` for style definitions
+- When JavaScript/CSS code was embedded in Python f-strings, Python would interpret the curly braces as f-string expressions, causing syntax errors
+
+### The Solution: Double Curly Brace Escaping
+The solution involved **escaping JavaScript/CSS curly braces** by doubling them:
+
+#### JavaScript Objects and Blocks
+```python
+# Before (causing syntax errors):
+html_content = f"""
+let solvedCells = {};
+const state = {{...solvedCells}};
+"""
+
+# After (correctly escaped):
+html_content = f"""
+let solvedCells = {{}};
+const state = {{...solvedCells}};
+"""
+```
+
+#### JavaScript Template Literals
+```python
+# Before (causing syntax errors):
+html_content = f"""
+showNotification(`Solution: ${{solution}}`);
+"""
+
+# After (correctly escaped):
+html_content = f"""
+showNotification(`Solution: ${{solution}}`);
+"""
+```
+
+#### CSS Rules
+```python
+# Before (causing syntax errors):
+html_content = f"""
+<style>
+    body {{
+        font-family: Arial, sans-serif;
+    }}
+</style>
+"""
+
+# After (correctly escaped):
+html_content = f"""
+<style>
+    body {{
+        font-family: Arial, sans-serif;
+    }}
+</style>
+"""
+```
+
+### Comprehensive Fix Applied
+The issue was systematically resolved across the entire `interactive_solver.py` file:
+
+1. **JavaScript variable declarations**: `let solvedCells = {{}};`
+2. **JavaScript object literals**: `const state = {{...solvedCells}};`
+3. **JavaScript template literals**: `${{variable}}`
+4. **JavaScript function blocks**: `function saveState() {{ ... }}`
+5. **CSS style rules**: `body {{ font-family: Arial; }}`
+6. **Event handlers**: `onclick="handleClick()"` (no escaping needed for simple calls)
+
+### Impact and Resolution
+- **Files affected**: `interactive_solver.py` (primary), any other files generating HTML/JS
+- **Lines fixed**: Hundreds of JavaScript blocks and CSS rules throughout the file
+- **Result**: Clean, syntax-error-free code generation
+- **Commit**: Changes committed with message "Fix f-string syntax errors in interactive_solver.py"
+
+### Key Learning
+This issue highlighted the importance of understanding **language syntax conflicts** when generating code in one language (Python) that contains another language (JavaScript/CSS). The double curly brace escaping pattern is now documented and can be applied to future similar situations.
+
 ## Note on JavaScript Comments in HTML/JS Blocks
 
 When embedding JavaScript code inside Python f-strings (as in `interactive_solver.py`), **do not use JavaScript-style `//` comments** inside the triple-quoted string. Python f-strings interpret `{}` as expressions, and lines starting with `//` can cause syntax errors because Python does not recognize them as valid syntax within a string.

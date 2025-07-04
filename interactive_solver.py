@@ -356,7 +356,9 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
         html.append(f'        <span class="clue-number">{clue.number}.</span>')
         html.append(f'        <span class="clue-text">{clue_text}</span>')
         if not clue.parameters.is_unclued:
-            html.append(f'        <span class="solution-count">({solution_count} solutions)</span>')
+            html.append(f'        <span class="solution-count">{solution_count} solutions</span>')
+        else:
+            html.append(f'        <span class="solution-count" id="unclued-count-{clue_id}"></span>')
         html.append('      </div>')
         if clue.parameters.is_unclued:
             html.append(f'      <div class="solution-input" id="input-{clue_id}" style="display: none;">')
@@ -402,7 +404,9 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
         html.append(f'        <span class="clue-number">{clue.number}.</span>')
         html.append(f'        <span class="clue-text">{clue_text}</span>')
         if not clue.parameters.is_unclued:
-            html.append(f'        <span class="solution-count">({solution_count} solutions)</span>')
+            html.append(f'        <span class="solution-count">{solution_count} solutions</span>')
+        else:
+            html.append(f'        <span class="solution-count" id="unclued-count-{clue_id}"></span>')
         html.append('      </div>')
         if clue.parameters.is_unclued:
             html.append(f'      <div class="solution-input" id="input-{clue_id}" style="display: none;">')
@@ -1078,47 +1082,47 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         }}
         
         /* Anagram grid styles */
-        .anagram-grid {
+        .anagram-grid {{
             border: 3px solid #28a745 !important;
             background-color: white !important;
-        }
-        .anagram-cell .cell-value {
+        }}
+        .anagram-cell .cell-value {{
             color: #333 !important;
-        }
-        .anagram-clues-section h3 {
+        }}
+        .anagram-clues-section h3 {{
             color: #28a745 !important;
             border-bottom: 2px solid #28a745 !important;
             background: none;
-        }
-        .anagram-clue {
+        }}
+        .anagram-clue {{
             background-color: #f9f9f9 !important;
             border-left: 4px solid #28a745 !important;
             color: #222 !important;
-        }
-        .anagram-solutions {
+        }}
+        .anagram-solutions {{
             margin-top: 8px;
             padding: 8px;
             background-color: #f8f9fa;
             border-radius: 4px;
-        }
-        .anagram-list {
+        }}
+        .anagram-list {{
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-        }
-        .anagram-solution {
+        }}
+        .anagram-solution {{
             background-color: #e9ecef;
             color: #333;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 12px;
             font-weight: bold;
-        }
-        .anagram-more {
+        }}
+        .anagram-more {{
             color: #666;
             font-style: italic;
             font-size: 12px;
-        }
+        }}
     </style>
 </head>
 <body>
@@ -1156,9 +1160,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                         <div>Cells filled: 0/64 (0.0%)</div>
                         <div>Clues solved: 0/24</div>
                     </div>
-                    <div class="constraint-status" id="constraint-status" style="margin-top: 10px; padding: 8px; background-color: #d4edda; border-radius: 4px; border-left: 4px solid #28a745;">
-                        <strong>Unclued Solutions:</strong> You can enter unclued solutions immediately - no constraints apply
-                    </div>
+
                 </div>
                 <div class="undo-section">
                     <h3>Solution History</h3>
@@ -1194,186 +1196,197 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
 
     <script>
         // Interactive functionality
-        let solvedCells = {};
+        let solvedCells = {{}};
         let clueObjects = {json.dumps(clue_data)};
         let solverStatus = {json.dumps(solver_status)};
         let minRequiredCells = {solver_status['min_required_cells']};
         let userSelectedSolutions = new Set();
-        let originalSolutionCounts = {};
-        let originalSolutions = {};
-        for (const [clueId, clue] of Object.entries(clueObjects)) {
+        let originalSolutionCounts = {{}};
+        let originalSolutions = {{}};
+        for (const [clueId, clue] of Object.entries(clueObjects)) {{
             originalSolutionCounts[clueId] = clue.possible_solutions.length;
             originalSolutions[clueId] = [...clue.possible_solutions];
-        }
+        }}
         let solutionHistory = [];
         let undoButton = null;
         let historyInfo = null;
-        function saveState(clueId, solution) {
-            const state = {
+        function saveState(clueId, solution) {{
+            const state = {{
                 timestamp: new Date().toLocaleTimeString(),
                 clueId: clueId,
                 solution: solution,
-                solvedCells: {...solvedCells},
+                solvedCells: {{...solvedCells}},
                 clueObjects: JSON.parse(JSON.stringify(clueObjects)),
                 userSelectedSolutions: new Set(userSelectedSolutions)
-            };
+            }};
             solutionHistory.push(state);
             updateUndoButton();
             console.log('Saved state:', state);
-        }
-        function undoLastSolution() {
+        }}
+        function undoLastSolution() {{
             if (solutionHistory.length === 0) return;
             const lastState = solutionHistory.pop();
             console.log('Undoing solution:', lastState);
-            solvedCells = {...lastState.solvedCells};
+            solvedCells = {{...lastState.solvedCells}};
             clueObjects = JSON.parse(JSON.stringify(lastState.clueObjects));
             userSelectedSolutions = new Set(lastState.userSelectedSolutions);
             updateGridDisplay();
             updateAllClueDisplays();
             updateProgress();
             updateUndoButton();
-            updateConstraintStatus();
-            if (lastState.solution === 'DESELECT') {
-                showNotification(`Undid deselect for clue ${lastState.clueId}`, 'info');
-            } else {
-                showNotification(`Undid solution "${lastState.solution}" for clue ${lastState.clueId}`, 'info');
-            }
-        }
-        function updateUndoButton() {
+            if (lastState.solution === 'DESELECT') {{
+                showNotification(`Undid deselect for clue ${{lastState.clueId}}`, 'info');
+            }} else {{
+                showNotification(`Undid solution "${{lastState.solution}}" for clue ${{lastState.clueId}}`, 'info');
+            }}
+        }}
+        function updateUndoButton() {{
             if (!undoButton) return;
             const canUndo = solutionHistory.length > 0;
             undoButton.disabled = !canUndo;
-            if (canUndo) {
+            if (canUndo) {{
                 const lastState = solutionHistory[solutionHistory.length - 1];
-                if (lastState.solution === 'DESELECT') {
-                    historyInfo.textContent = `Last action: Deselected clue ${lastState.clueId} at ${lastState.timestamp}`;
-                } else {
-                    historyInfo.textContent = `Last solution: ${lastState.solution} for ${lastState.clueId} at ${lastState.timestamp}`;
-                }
-            } else {
+                if (lastState.solution === 'DESELECT') {{
+                    historyInfo.textContent = `Last action: Deselected clue ${{lastState.clueId}} at ${{lastState.timestamp}}`;
+                }} else {{
+                    historyInfo.textContent = `Last solution: ${{lastState.solution}} for ${{lastState.clueId}} at ${{lastState.timestamp}}`;
+                }}
+            }} else {{
                 historyInfo.textContent = 'No solutions applied yet';
-            }
-        }
-        function updateGridDisplay() {
-            document.querySelectorAll('.cell-value').forEach(el => {
+            }}
+        }}
+        function updateGridDisplay() {{
+            document.querySelectorAll('.cell-value').forEach(el => {{
                 el.remove();
-            });
-            for (const [cellIndex, digit] of Object.entries(solvedCells)) {
+            }});
+            for (const [cellIndex, digit] of Object.entries(solvedCells)) {{
                 updateCellDisplay(parseInt(cellIndex), digit);
-            }
-        }
-        document.addEventListener('DOMContentLoaded', function() {
+            }}
+        }}
+        document.addEventListener('DOMContentLoaded', function() {{
             console.log('DOM loaded, setting up event listeners');
             window.solvingStartTime = Date.now();
             undoButton = document.getElementById('undo-button');
             historyInfo = document.getElementById('history-info');
             updateUndoButton();
-            updateConstraintStatus();
             undoButton.addEventListener('click', undoLastSolution);
             document.getElementById('dev-fill-14a').addEventListener('click', fill14A);
             document.getElementById('dev-fill-complete').addEventListener('click', fillCompleteGrid);
-            document.querySelector('.clues-section').addEventListener('click', function(e) {
+            document.querySelector('.clues-section').addEventListener('click', function(e) {{
                 const clueDiv = e.target.closest('.clue');
                 if (!clueDiv) return;
-                if (e.target.closest('.solution-dropdown') || e.target.closest('.solution-input') || e.target.closest('.deselect-dialog') || e.target.classList.contains('apply-solution') || e.target.classList.contains('deselect-solution')) {
+                if (e.target.closest('.solution-dropdown') || e.target.closest('.solution-input') || e.target.closest('.deselect-dialog') || e.target.classList.contains('apply-solution') || e.target.classList.contains('deselect-solution')) {{
                     return;
-                }
+                }}
                 const clueId = clueDiv.getAttribute('data-clue');
                 console.log('Clue clicked:', clueId);
-                if (userSelectedSolutions.has(clueId)) {
+                if (userSelectedSolutions.has(clueId)) {{
                     showDeselectDialog(clueId);
                     return;
-                }
-                const clueElement = document.querySelector(`[data-clue="${clueId}"]`);
-                const inputDiv = document.getElementById(`input-${clueId}`);
-                const dropdownDiv = document.getElementById(`dropdown-${clueId}`);
-                document.querySelectorAll('.solution-dropdown, .solution-input, .deselect-dialog').forEach(d => {
+                }}
+                const clueElement = document.querySelector(`[data-clue="${{clueId}}"]`);
+                const inputDiv = document.getElementById(`input-${{clueId}}`);
+                const dropdownDiv = document.getElementById(`dropdown-${{clueId}}`);
+                document.querySelectorAll('.solution-dropdown, .solution-input, .deselect-dialog').forEach(d => {{
                     if (d !== dropdownDiv && d !== inputDiv) d.style.display = 'none';
-                });
-                if (dropdownDiv) {
-                    const isHidden = dropdownDiv.style.display === 'none' || dropdownDiv.style.display === '';
-                    if (isHidden) {
-                        const clue = clueObjects[clueId];
-                        if (clue && clue.is_unclued) {
-                            const candidates = getFilteredCandidatesForClue(clueId);
+                }});
+                const clue = clueObjects[clueId];
+                if (clue && clue.is_unclued) {{
+                    // Handle unclued clues
+                    if (dropdownDiv && inputDiv) {{
+                        const candidates = getFilteredCandidatesForClue(clueId);
+                        const candidateCount = candidates.length;
+                        
+                        // Hide both initially
+                        dropdownDiv.style.display = 'none';
+                        inputDiv.style.display = 'none';
+                        
+                        // Show appropriate interface based on candidate count
+                        if (candidateCount <= 50) {{
+                            // Show dropdown with candidates
                             const select = dropdownDiv.querySelector('select');
-                            if (select) {
+                            if (select) {{
                                 select.innerHTML = '<option value="">-- Select a solution --</option>';
-                                for (const candidate of candidates) {
+                                for (const candidate of candidates) {{
                                     const opt = document.createElement('option');
                                     opt.value = candidate;
                                     opt.textContent = candidate.toString().padStart(clue.length, '0');
                                     select.appendChild(opt);
-                                }
-                            }
-                        }
-                        dropdownDiv.style.display = 'block';
-                    } else {
-                        dropdownDiv.style.display = 'none';
-                    }
-                    console.log('Toggled dropdown for', clueId, 'to', isHidden ? 'visible' : 'hidden');
-                } else if (inputDiv) {
-                    const isHidden = inputDiv.style.display === 'none' || inputDiv.style.display === '';
-                    inputDiv.style.display = isHidden ? 'block' : 'none';
-                    console.log('Toggled input for', clueId, 'to', isHidden ? 'visible' : 'hidden');
-                }
-            });
-            document.querySelector('.clues-section').addEventListener('click', function(e) {
-                if (e.target.classList.contains('apply-solution')) {
+                                }}
+                            }}
+                            dropdownDiv.style.display = 'block';
+                            console.log('Showing dropdown for', clueId, 'with', candidateCount, 'candidates');
+                        }} else {{
+                            // Show input box for manual entry
+                            inputDiv.style.display = 'block';
+                            console.log('Showing input box for', clueId, 'with', candidateCount, 'candidates');
+                        }}
+                    }}
+                }} else {{
+                    // Handle clued clues - show dropdown if it exists
+                    if (dropdownDiv) {{
+                        const isHidden = dropdownDiv.style.display === 'none' || dropdownDiv.style.display === '';
+                        dropdownDiv.style.display = isHidden ? 'block' : 'none';
+                        console.log('Toggled dropdown for', clueId, 'to', isHidden ? 'visible' : 'hidden');
+                    }}
+                }}
+            }});
+            document.querySelector('.clues-section').addEventListener('click', function(e) {{
+                if (e.target.classList.contains('apply-solution')) {{
                     e.stopPropagation();
                     const clueId = e.target.getAttribute('data-clue');
                     console.log('Apply button clicked for:', clueId);
                     const select = e.target.parentNode.querySelector('.solution-select');
                     const input = e.target.parentNode.querySelector('.solution-text-input');
                     let solution = '';
-                    if (select) {
+                    if (select) {{
                         solution = select.value;
                         console.log('Selected solution from dropdown:', solution);
-                    } else if (input) {
+                    }} else if (input) {{
                         solution = input.value;
                         console.log('Entered solution from input:', solution);
-                    }
-                    if (solution) {
+                    }}
+                    if (solution) {{
                         applySolutionToGrid(clueId, solution);
-                    } else {
+                    }} else {{
                         showNotification('Please select or enter a solution first', 'error');
-                    }
-                }
-            });
-        });
+                    }}
+                }}
+            }});
+        }});
 
-        function updateCellDisplay(cellIndex, digit) {
-            const cell = document.querySelector(`[data-cell="${cellIndex}"]`);
-            if (cell) {
+        function updateCellDisplay(cellIndex, digit) {{
+            const cell = document.querySelector(`[data-cell="${{cellIndex}}"]`);
+            if (cell) {{
                 let valueElement = cell.querySelector('.cell-value');
-                if (!valueElement) {
+                if (!valueElement) {{
                     // Create the cell-value element if it doesn't exist
                     valueElement = document.createElement('div');
                     valueElement.className = 'cell-value';
                     cell.appendChild(valueElement);
-                }
+                }}
                 valueElement.textContent = digit;
-            }
-        }
+            }}
+        }}
 
-        function canEnterUncluedSolution(clueId) {
+        function canEnterUncluedSolution(clueId) {{
             const clue = clueObjects[clueId];
-            if (!clue || !clue.is_unclued) {
-                return { allowed: false, reason: 'Not an unclued clue' };
-            }
+            if (!clue || !clue.is_unclued) {{
+                return {{ allowed: false, reason: 'Not an unclued clue' }};
+            }}
             
             // No constraint - allow entering unclued solutions immediately
-            return {
+            return {{
                 allowed: true,
                 solvedCount: 0,
                 requiredCount: 0,
                 totalCells: clue.cell_indices.length,
                 reason: ''
-            };
-        }
+            }};
+        }}
         
-        function applySolutionToGrid(clueId, solution) {
-            console.log(`Applying solution "${solution}" to clue ${clueId}`);
+        function applySolutionToGrid(clueId, solution) {{
+            console.log(`Applying solution "${{solution}}" to clue ${{clueId}}`);
             
             // Save current state before applying solution
             saveState(clueId, solution);
@@ -1383,100 +1396,100 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             const clueNumber = parseInt(number);
             
             // Validate solution format
-            if (!/^\\d+$/.test(solution)) {
+            if (!/^\\d+$/.test(solution)) {{
                 showNotification('Solution must be a number', 'error');
                 return;
-            }
+            }}
             
             // Get clue object
             const clue = clueObjects[clueId];
-            if (!clue) {
+            if (!clue) {{
                 showNotification('Clue not found', 'error');
                 return;
-            }
+            }}
             
             // Validate solution length
-            if (solution.length !== clue.length) {
-                showNotification(`Solution must be ${clue.length} digits long`, 'error');
+            if (solution.length !== clue.length) {{
+                showNotification(`Solution must be ${{clue.length}} digits long`, 'error');
                 return;
-            }
+            }}
             
             // For unclued clues, check constraints and conflicts
-            if (clue.is_unclued) {
+            if (clue.is_unclued) {{
                 // Check constraint requirement first
                 const constraintCheck = canEnterUncluedSolution(clueId);
-                if (!constraintCheck.allowed) {
+                if (!constraintCheck.allowed) {{
                     showNotification(constraintCheck.reason, 'error');
                     
                     // Show error in the unclued clue's error span
-                    const errorSpan = document.getElementById(`error-${clueId}`);
-                    if (errorSpan) {
+                    const errorSpan = document.getElementById(`error-${{clueId}}`);
+                    if (errorSpan) {{
                         errorSpan.textContent = constraintCheck.reason;
                         errorSpan.style.display = 'inline';
-                    }
+                    }}
                     return;
-                }
+                }}
                 
                 const solutionStr = solution.padStart(clue.length, '0');
                 const conflicts = [];
                 
                 // Check each cell position against already solved cells
-                for (let i = 0; i < clue.cell_indices.length; i++) {
+                for (let i = 0; i < clue.cell_indices.length; i++) {{
                     const cellIndex = clue.cell_indices[i];
                     const digit = parseInt(solutionStr[i]);
                     
                     // If this cell is already solved, check if it conflicts
-                    if (cellIndex in solvedCells) {
-                        if (solvedCells[cellIndex] !== digit) {
+                    if (cellIndex in solvedCells) {{
+                        if (solvedCells[cellIndex] !== digit) {{
                             // Find which clue this cell belongs to for better error message
                             let conflictingClue = '';
-                            for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {
-                                if (otherClue.cell_indices.includes(cellIndex)) {
+                            for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {{
+                                if (otherClue.cell_indices.includes(cellIndex)) {{
                                     conflictingClue = otherClueId;
                                     break;
-                                }
-                            }
-                            conflicts.push(`Cell ${cellIndex} (clue ${conflictingClue}) already has value ${solvedCells[cellIndex]}, but your solution has ${digit}`);
-                        }
-                    }
-                }
+                                }}
+                            }}
+                            conflicts.push(`Cell ${{cellIndex}} (clue ${{conflictingClue}}) already has value ${{solvedCells[cellIndex]}}, but your solution has ${{digit}}`);
+                        }}
+                    }}
+                }}
                 
-                if (conflicts.length > 0) {
-                    const errorMsg = `Solution conflicts with existing values:\\n${conflicts.join('\\n')}`;
+                if (conflicts.length > 0) {{
+                    const errorMsg = `Solution conflicts with existing values:\\n${{conflicts.join('\\n')}}`;
                     showNotification(errorMsg, 'error');
                     
                     // Show error in the unclued clue's error span
-                    const errorSpan = document.getElementById(`error-${clueId}`);
-                    if (errorSpan) {
+                    const errorSpan = document.getElementById(`error-${{clueId}}`);
+                    if (errorSpan) {{
                         errorSpan.textContent = 'Conflicts with existing solutions';
                         errorSpan.style.display = 'inline';
-                    }
+                    }}
                     return;
-                }
+                }}
                 
                 // Clear any previous error
-                const errorSpan = document.getElementById(`error-${clueId}`);
-                if (errorSpan) {
+                const errorSpan = document.getElementById(`error-${{clueId}}`);
+                if (errorSpan) {{
                     errorSpan.style.display = 'none';
-                }
-            } else {
+                }}
+            }} else {{
                 // For regular clues, check if solution is valid for this clue
-                if (!clue.possible_solutions.includes(parseInt(solution))) {
+                if (!clue.possible_solutions.includes(parseInt(solution))) {{
                     showNotification('This solution is not valid for this clue', 'error');
                     return;
-                }
-            }
+                }}
+            }}
             
             // Apply solution to grid cells
             const solutionStr = solution.padStart(clue.length, '0');
-            for (let i = 0; i < clue.cell_indices.length; i++) {
+            for (let i = 0; i < clue.cell_indices.length; i++) {{
                 const cellIndex = clue.cell_indices[i];
                 const digit = parseInt(solutionStr[i]);
                 solvedCells[cellIndex] = digit;
                 
                 // Update grid display
                 updateCellDisplay(cellIndex, digit);
-            }
+            }}
             
             // Mark clue as solved
             clue.possible_solutions = [parseInt(solution)];
@@ -1495,179 +1508,188 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             
             // Show success message
             const eliminatedCount = eliminatedSolutions.length;
-            if (eliminatedCount > 0) {
-                showNotification(`Solution applied! Eliminated ${eliminatedCount} incompatible solutions from crossing clues.`, 'success');
-            } else {
+            if (eliminatedCount > 0) {{
+                showNotification(`Solution applied! Eliminated ${{eliminatedCount}} incompatible solutions from crossing clues.`, 'success');
+            }} else {{
                 showNotification('Solution applied successfully!', 'success');
-            }
+            }}
             
-            // Update constraint status after applying solution
-            updateConstraintStatus();
+            // Update unclued clue displays after applying solution
+            updateUncluedClueDisplays();
             
             // Hide the dropdown/input
-            const dropdownDiv = document.getElementById(`dropdown-${clueId}`);
-            const inputDiv = document.getElementById(`input-${clueId}`);
+            const dropdownDiv = document.getElementById(`dropdown-${{clueId}}`);
+            const inputDiv = document.getElementById(`input-${{clueId}}`);
             if (dropdownDiv) dropdownDiv.style.display = 'none';
             if (inputDiv) inputDiv.style.display = 'none';
-        }
+        }}
 
-        function propagateConstraints(clueId, solution) {
+        function propagateConstraints(clueId, solution) {{
             const eliminatedSolutions = [];
             const clue = clueObjects[clueId];
             const solutionStr = solution.padStart(clue.length, '0');
             
             // Find all clues that share cells with this clue
             const crossingClues = [];
-            for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {
-                if (otherClueId !== clueId) {
+            for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {{
+                if (otherClueId !== clueId) {{
                     // Check if any cells overlap
                     const overlap = clue.cell_indices.filter(cell => 
                         otherClue.cell_indices.includes(cell)
                     );
-                    if (overlap.length > 0) {
+                    if (overlap.length > 0) {{
                         crossingClues.push(otherClueId);
-                    }
-                }
-            }
+                    }}
+                }}
+            }}
             
             // Eliminate incompatible solutions from crossing clues
-            for (const crossingClueId of crossingClues) {
+            for (const crossingClueId of crossingClues) {{
                 const crossingClue = clueObjects[crossingClueId];
                 const solutionsToRemove = [];
                 
-                for (const possibleSolution of crossingClue.possible_solutions) {
+                for (const possibleSolution of crossingClue.possible_solutions) {{
                     const possibleStr = possibleSolution.toString().padStart(crossingClue.length, '0');
                     let incompatible = false;
                     
                     // Check each cell position
-                    for (let i = 0; i < crossingClue.cell_indices.length; i++) {
+                    for (let i = 0; i < crossingClue.cell_indices.length; i++) {{
                         const cellIndex = crossingClue.cell_indices[i];
                         const digit = parseInt(possibleStr[i]);
                         
                         // If this cell is already solved, check compatibility
-                        if (cellIndex in solvedCells) {
-                            if (solvedCells[cellIndex] !== digit) {
+                        if (cellIndex in solvedCells) {{
+                            if (solvedCells[cellIndex] !== digit) {{
                                 incompatible = true;
                                 break;
-                            }
-                        }
-                    }
+                            }}
+                        }}
+                    }}
                     
-                    if (incompatible) {
+                    if (incompatible) {{
                         solutionsToRemove.push(possibleSolution);
-                    }
-                }
+                    }}
+                }}
                 
                 // Remove incompatible solutions
-                for (const solutionToRemove of solutionsToRemove) {
+                for (const solutionToRemove of solutionsToRemove) {{
                     crossingClue.possible_solutions = crossingClue.possible_solutions.filter(s => s !== solutionToRemove);
-                    eliminatedSolutions.push({clueId: crossingClueId, solution: solutionToRemove});
-                }
-            }
+                    eliminatedSolutions.push({{clueId: crossingClueId, solution: solutionToRemove}});
+                }}
+            }}
             
             return eliminatedSolutions;
-        }
+        }}
 
-        function updateAllClueDisplays() {
+        function updateAllClueDisplays() {{
             // Update each clue's display based on current state
-            for (const [clueId, clue] of Object.entries(clueObjects)) {
+            for (const [clueId, clue] of Object.entries(clueObjects)) {{
                 updateClueDisplay(clueId, clue);
-            }
-        }
+            }}
+        }}
 
-        function updateClueDisplay(clueId, clue) {
-            const clueElement = document.querySelector(`[data-clue="${clueId}"]`);
+        function updateClueDisplay(clueId, clue) {{
+            const clueElement = document.querySelector(`[data-clue="${{clueId}}"]`);
             if (!clueElement) return;
             
-            // Update solution count - show actual remaining solutions, not just "1" if user selected
+            // Update solution count - show count until committed, then show actual solution
             const countElement = clueElement.querySelector('.solution-count');
-            if (countElement) {
-                countElement.textContent = `${clue.possible_solutions.length} solutions`;
-            }
+            if (countElement) {{
+                if (!clue.is_unclued) {{
+                    if (clue.possible_solutions.length === 1 && userSelectedSolutions.has(clueId)) {{
+                        // User has committed the solution - show the actual solution
+                        countElement.textContent = `${{clue.possible_solutions[0]}}`;
+                    }} else {{
+                        // Show count of solutions
+                        countElement.textContent = `${{clue.possible_solutions.length}} solutions`;
+                    }}
+                }}
+                // For unclued clues, the count will be updated by updateUncluedClueDisplays()
+            }}
             
             // Update clue styling based on solution count and user selection
             clueElement.className = 'clue';
             
-            if (clue.possible_solutions.length === 1) {
-                if (userSelectedSolutions.has(clueId)) {
+            if (clue.possible_solutions.length === 1) {{
+                if (userSelectedSolutions.has(clueId)) {{
                     // User manually selected this solution
                     clueElement.classList.add('user-selected');
-                } else {
+                }} else {{
                     // Algorithm determined only one solution remains
                     clueElement.classList.add('algorithm-solved');
-                }
-            } else if (clue.possible_solutions.length > 1) {
-                if (userSelectedSolutions.has(clueId)) {
+                }}
+            }} else if (clue.possible_solutions.length > 1) {{
+                if (userSelectedSolutions.has(clueId)) {{
                     // User selected a solution but there are still other possibilities
                     clueElement.classList.add('user-selected');
-                } else {
+                }} else {{
                     // Multiple solutions available, no user selection
                     clueElement.classList.add('multiple');
-                }
-            } else if (clue.is_unclued) {
+                }}
+            }} else if (clue.is_unclued) {{
                 clueElement.classList.add('unclued');
-            }
+            }}
             
             // Update dropdown options if it exists
-            const dropdownDiv = document.getElementById(`dropdown-${clueId}`);
-            if (dropdownDiv) {
+            const dropdownDiv = document.getElementById(`dropdown-${{clueId}}`);
+            if (dropdownDiv) {{
                 const select = dropdownDiv.querySelector('.solution-select');
-                if (select) {
+                if (select) {{
                     // Keep the first option (placeholder) and update only the solution options
                     const placeholderOption = select.querySelector('option[value=""]');
                     select.innerHTML = '';
                     
                     // Restore the placeholder option
-                    if (placeholderOption) {
+                    if (placeholderOption) {{
                         select.appendChild(placeholderOption);
-                    } else {
+                    }} else {{
                         const newPlaceholder = document.createElement('option');
                         newPlaceholder.value = '';
                         newPlaceholder.textContent = '-- Select a solution --';
                         select.appendChild(newPlaceholder);
-                    }
+                    }}
                     
                     // Add the solution options
-                    for (const solution of clue.possible_solutions) {
+                    for (const solution of clue.possible_solutions) {{
                         const option = document.createElement('option');
                         option.value = solution;
                         option.textContent = solution.toString().padStart(clue.length, '0');
                         select.appendChild(option);
-                    }
+                    }}
                     
-                    console.log(`Updated dropdown for ${clueId} with ${clue.possible_solutions.length} solutions`);
-                }
-            }
-        }
+                    console.log(`Updated dropdown for ${{clueId}} with ${{clue.possible_solutions.length}} solutions`);
+                }}
+            }}
+        }}
 
-        function updateProgress() {
+        function updateProgress() {{
             const filledCells = Object.keys(solvedCells).length;
             const percentage = (filledCells / 64) * 100;
             
             // Count solved clues (both user-selected and algorithm-determined)
             let solvedClues = 0;
-            for (const clue of Object.values(clueObjects)) {
-                if (clue.possible_solutions.length === 1) {
+            for (const clue of Object.values(clueObjects)) {{
+                if (clue.possible_solutions.length === 1) {{
                     solvedClues++;
-                }
-            }
+                }}
+            }}
             
             document.querySelector('.progress-fill').style.width = percentage + '%';
             document.querySelector('.progress-stats').innerHTML = 
-                `<div>Cells filled: ${filledCells}/64 (${percentage.toFixed(1)}%)</div>
-                 <div>Clues solved: ${solvedClues}/24</div>`;
+                `<div>Cells filled: ${{filledCells}}/64 (${{percentage.toFixed(1)}}%)</div>
+                 <div>Clues solved: ${{solvedClues}}/24</div>`;
             
             // Check for puzzle completion
-            if (filledCells === 64 && solvedClues === 24 && !window.puzzleCompleted) {
+            if (filledCells === 64 && solvedClues === 24 && !window.puzzleCompleted) {{
                 window.puzzleCompleted = true;
                 showCompletionCelebration();
-            }
+            }}
             
-            // Update constraint status
-            updateConstraintStatus();
-        }
+            // Update unclued clue displays
+            updateUncluedClueDisplays();
+        }}
         
-        function showCompletionCelebration() {
+        function showCompletionCelebration() {{
             // Create celebration modal
             const modal = document.createElement('div');
             modal.id = 'completion-celebration';
@@ -1688,18 +1710,18 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             // Add CSS animation
             const style = document.createElement('style');
             style.textContent = `
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                @keyframes slideIn {
-                    from { transform: translateY(-50px); opacity: 0; }
-                    to { transform: translateY(0); opacity: 1; }
-                }
-                @keyframes confetti {
-                    0% { transform: translateY(-100vh) rotate(0deg); }
-                    100% { transform: translateY(100vh) rotate(360deg); }
-                }
+                @keyframes fadeIn {{
+                    from {{ opacity: 0; }}
+                    to {{ opacity: 1; }}
+                }}
+                @keyframes slideIn {{
+                    from {{ transform: translateY(-50px); opacity: 0; }}
+                    to {{ transform: translateY(0); opacity: 1; }}
+                }}
+                @keyframes confetti {{
+                    0% {{ transform: translateY(-100vh) rotate(0deg); }}
+                    100% {{ transform: translateY(100vh) rotate(360deg); }}
+                }}
             `;
             document.head.appendChild(style);
             
@@ -1748,9 +1770,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     ">
                         <h3 style="margin: 0 0 15px 0; color: #ffd700;">Solving Statistics</h3>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;">
-                            <div><strong>Time taken:</strong> ${Math.floor(solvingTime/60)}m ${solvingTime%60}s</div>
-                            <div><strong>Solutions applied:</strong> ${solutionsApplied}</div>
-                            <div><strong>Undo operations:</strong> ${undoOperations}</div>
+                            <div><strong>Time taken:</strong> ${{Math.floor(solvingTime/60)}}m ${{solvingTime%60}}s</div>
+                            <div><strong>Solutions applied:</strong> ${{solutionsApplied}}</div>
+                            <div><strong>Undo operations:</strong> ${{undoOperations}}</div>
                             <div><strong>Completion rate:</strong> 100%</div>
                         </div>
                     </div>
@@ -1817,11 +1839,11 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             // Add gradient animation
             const gradientStyle = document.createElement('style');
             gradientStyle.textContent = `
-                @keyframes gradientShift {
-                    0% { background-position: 0% 50%; }
-                    50% { background-position: 100% 50%; }
-                    100% { background-position: 0% 50%; }
-                }
+                @keyframes gradientShift {{
+                    0% {{ background-position: 0% 50%; }}
+                    50% {{ background-position: 100% 50%; }}
+                    100% {{ background-position: 0% 50%; }}
+                }}
             `;
             document.head.appendChild(gradientStyle);
             
@@ -1831,228 +1853,217 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             document.body.appendChild(modal);
             
             // Play celebration sound (if available)
-            try {
+            try {{
                 const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
                 audio.volume = 0.3;
-                audio.play().catch(() => {}); // Ignore errors if audio fails
-            } catch (e) {
+                audio.play().catch(() => {{}}); // Ignore errors if audio fails
+            }} catch (e) {{
                 // Ignore audio errors
-            }
-        }
+            }}
+        }}
         
-        function createConfetti() {
+        function createConfetti() {{
             const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3'];
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
+            for (let i = 0; i < 50; i++) {{
+                setTimeout(() => {{
                     const confetti = document.createElement('div');
                     confetti.style.cssText = `
                         position: fixed;
                         width: 10px;
                         height: 10px;
-                        background: $${colors[Math.floor(Math.random() * colors.length)]};
-                        left: $${Math.random() * 100}vw;
+                        background: ${{colors[Math.floor(Math.random() * colors.length)]}};
+                        left: ${{Math.random() * 100}}vw;
                         top: -10px;
                         z-index: 9999;
-                        animation: confetti $${2 + Math.random() * 3}s linear forwards;
+                        animation: confetti ${{2 + Math.random() * 3}}s linear forwards;
                         border-radius: 50%;
                     `;
                     document.body.appendChild(confetti);
                     
                     // Remove confetti after animation
-                    setTimeout(() => {
-                        if (confetti.parentNode) {
+                    setTimeout(() => {{
+                        if (confetti.parentNode) {{
                             confetti.remove();
-                        }
-                    }, 5000);
-                }, i * 100);
-            }
-        }
+                        }}
+                    }}, 5000);
+                }}, i * 100);
+            }}
+        }}
         
-        function hideCompletionCelebration() {
+        function hideCompletionCelebration() {{
             const modal = document.getElementById('completion-celebration');
-            if (modal) {
+            if (modal) {{
                 modal.style.animation = 'fadeIn 0.5s ease-in reverse';
-                setTimeout(() => {
-                    if (modal.parentNode) {
+                setTimeout(() => {{
+                    if (modal.parentNode) {{
                         modal.remove();
-                    }
-                }, 500);
-            }
-        }
+                    }}
+                }}, 500);
+            }}
+        }}
         
-        function showAnagramGridInline() {
+        function showAnagramGridInline() {{
             // Hide celebration modal
             hideCompletionCelebration();
             
             // Show anagram grid section (do not hide initial grid)
             const anagramGridSection = document.getElementById('anagram-grid-section');
-            if (anagramGridSection) {
+            if (anagramGridSection) {{
                 anagramGridSection.style.display = 'block';
-            }
+            }}
 
             
             // Hide original clues and show anagram clues
             const initialCluesContainer = document.getElementById('initial-clues-container');
             const anagramCluesContainer = document.getElementById('anagram-clues-container');
-            if (initialCluesContainer) {
+            if (initialCluesContainer) {{
                 initialCluesContainer.style.display = 'none';
-            }
-            if (anagramCluesContainer) {
+            }}
+            if (anagramCluesContainer) {{
                 anagramCluesContainer.style.display = 'block';
-            }
+            }}
             // Scroll to anagram grid section
-            if (anagramGridSection) {
-                anagramGridSection.scrollIntoView({{{{ behavior: 'smooth' }}}});
-            }
-        }
+            if (anagramGridSection) {{
+                anagramGridSection.scrollIntoView({{ behavior: 'smooth' }});
+            }}
+        }}
         
-        function hideAnagramGrid() {
+        function hideAnagramGrid() {{
             // Hide anagram clues, show initial clues
             const initialCluesContainer = document.getElementById('initial-clues-container');
             const anagramCluesContainer = document.getElementById('anagram-clues-container');
-            if (initialCluesContainer) {
+            if (initialCluesContainer) {{
                 initialCluesContainer.style.display = 'block';
-            }
-            if (anagramCluesContainer) {
+            }}
+            if (anagramCluesContainer) {{
                 anagramCluesContainer.style.display = 'none';
-            }
+            }}
             // Do NOT hide either grid
             // const anagramGridSection = document.getElementById('anagram-grid-section');
-            // if (anagramGridSection) {
+            // if (anagramGridSection) {{
             //     anagramGridSection.style.display = 'none';
-            // }
+            // }}
             // const initialGridSection = document.getElementById('initial-grid-section');
-            // if (initialGridSection) {
+            // if (initialGridSection) {{
             //     initialGridSection.style.display = 'block';
-            // }
-        }
+            // }}
+        }}
         
-        function getFilteredCandidatesForClue(clueId) {
+        function getFilteredCandidatesForClue(clueId) {{
             const clue = clueObjects[clueId];
-            if (!clue || !clue.is_unclued) {
+            if (!clue || !clue.is_unclued) {{
                 return [];
-            }
+            }}
             
             // Use the embedded unclued candidates list (305 numbers that satisfy anagram/multiple constraint)
             const uncluedCandidates = [100035, 100089, 100350, 100449, 100890, 100899, 100989, 102249, 102375, 102564, 103428, 103500, 103845, 104490, 104499, 104769, 104895, 105264, 106254, 106749, 106848, 107235, 107583, 107793, 107892, 108726, 108900, 108990, 108999, 109890, 109899, 109989, 111873, 113724, 113967, 114237, 114528, 116397, 116688, 116880, 116988, 118731, 118830, 118833, 119883, 120267, 123507, 123714, 123750, 123876, 123975, 124137, 124875, 125406, 125604, 125874, 126054, 126702, 126873, 126888, 127389, 128034, 128052, 128205, 128574, 129003, 129030, 129033, 129903, 130029, 130149, 130290, 130299, 130329, 130869, 132159, 132903, 133029, 133359, 133449, 133590, 133599, 133659, 134490, 134499, 134505, 134739, 135045, 135900, 135990, 135999, 136590, 136599, 136659, 137124, 137241, 137286, 138402, 138456, 138546, 138600, 138627, 139860, 139986, 140085, 140184, 140247, 140256, 140526, 140850, 140985, 141237, 141858, 142371, 142470, 142497, 142587, 142857, 143505, 143793, 143856, 145035, 145281, 145386, 147024, 147240, 148257, 148509, 148590, 148599, 149085, 149724, 149859, 150192, 150345, 150435, 151893, 151920, 151992, 153846, 154269, 154386, 154896, 156282, 156942, 157284, 158427, 158598, 159786, 166782, 167604, 167802, 167820, 167832, 167982, 168027, 169728, 169782, 170268, 172575, 172968, 174285, 174825, 175257, 175725, 176004, 176034, 176040, 176049, 176604, 178002, 178020, 178200, 178302, 178320, 178332, 178437, 179487, 179802, 179820, 179832, 179982, 180027, 180267, 180270, 180327, 182703, 182973, 183027, 188547, 189657, 190476, 194787, 196587, 196728, 197280, 197283, 197298, 197328, 197604, 197802, 197820, 197832, 197982, 198027, 199728, 199782, 200178, 201678, 201780, 201783, 201798, 201978, 205128, 206793, 206856, 207693, 212805, 215628, 216678, 216780, 216783, 216798, 216978, 217800, 217830, 217833, 217980, 217983, 217998, 219780, 219783, 219798, 219978, 230679, 230769, 230895, 233958, 235071, 235107, 237114, 237141, 237501, 237510, 238095, 238761, 239508, 239580, 239583, 239598, 239658, 239751, 239958, 240147, 241137, 241371, 241470, 241497, 242748, 247014, 247140, 247428, 247500, 248274, 248760, 248976, 249714, 249750, 249876, 249975, 251757, 257175, 257517, 258714, 258741, 271584, 274248, 274824, 275850, 275886, 275985, 276489, 280341, 281034, 282474, 284157, 285714, 285741, 285750, 285876, 285975, 287586, 287649, 288576, 297585, 298575, 306792, 307692, 314379, 320679, 320769, 412587, 412857, 425871, 428571];
             const filteredCandidates = [];
             
-            for (const candidate of uncluedCandidates) {
-                if (candidate.toString().length === clue.length) {
+            for (const candidate of uncluedCandidates) {{
+                if (candidate.toString().length === clue.length) {{
                     // Check if this candidate conflicts with already solved cells
                     let conflicts = false;
                     const candidateStr = candidate.toString().padStart(clue.length, '0');
                     
-                    for (let i = 0; i < clue.cell_indices.length; i++) {
+                    for (let i = 0; i < clue.cell_indices.length; i++) {{
                         const cellIndex = clue.cell_indices[i];
-                        if (cellIndex in solvedCells) {
-                            if (solvedCells[cellIndex] !== parseInt(candidateStr[i])) {
+                        if (cellIndex in solvedCells) {{
+                            if (solvedCells[cellIndex] !== parseInt(candidateStr[i])) {{
                                 conflicts = true;
                                 break;
-                            }
-                        }
-                    }
+                            }}
+                        }}
+                    }}
                     
-                    if (!conflicts) {
+                    if (!conflicts) {{
                         filteredCandidates.push(candidate);
-                    }
-                }
-            }
+                    }}
+                }}
+            }}
             
             return filteredCandidates;
-        }
+        }}
         
-        function updateConstraintStatus() {
-            // Update the general constraint status
-            const statusElement = document.getElementById('constraint-status');
-            const totalSolvedCells = Object.keys(solvedCells).length;
-            
-            statusElement.style.backgroundColor = '#d4edda';
-            statusElement.style.borderLeftColor = '#28a745';
-            statusElement.innerHTML = `<strong>Unclued Solutions:</strong> You can enter unclued solutions immediately - no constraints apply (total solved: ${totalSolvedCells})`;
-            
-            // Update individual unclued clue displays
-            updateUncluedClueDisplays();
-        }
-        
-        function updateUncluedClueDisplays() {
-            // Update each unclued clue to show candidate count
-            for (const [clueId, clue] of Object.entries(clueObjects)) {
-                if (clue.is_unclued) {
-                    const clueElement = document.querySelector(`[data-clue="${clueId}"]`);
-                    const inputDiv = document.getElementById(`input-${clueId}`);
-                    const dropdownDiv = document.getElementById(`dropdown-${clueId}`);
-                    if (clueElement) {
-                        // Update the clue text to show candidate count
-                        const clueTextElement = clueElement.querySelector('.clue-text');
-                        if (clueTextElement) {
-                            const candidates = getFilteredCandidatesForClue(clueId);
-                            const candidateCount = candidates.length;
-                            // Check if this clue has a user-selected solution
-                            if (userSelectedSolutions.has(clueId)) {
-                                // Clue is solved - show deselect option only
-                                clueTextElement.innerHTML = `Unclued <span style="color: #17a2b8; font-size: 12px;">(Solved: ${clue.possible_solutions[0]})</span>`;
-                                // Hide both input and dropdown
-                                if (dropdownDiv) dropdownDiv.style.display = 'none';
-                                if (inputDiv) inputDiv.style.display = 'none';
-                            } else {
-                                // Show candidate count in clue text, but don't show dropdown/input until clicked
-                                if (candidateCount <= 50) {
-                                    clueTextElement.innerHTML = `Unclued <span style="color: #17a2b8; font-size: 12px;">(${candidateCount} candidates)</span>`;
-                                } else {
-                                    clueTextElement.innerHTML = `Unclued <span style="color: #6c757d; font-size: 12px;">(${candidateCount} candidates)</span>`;
-                                }
-                                // Hide both input and dropdown - they'll show when clicked
-                                if (dropdownDiv) dropdownDiv.style.display = 'none';
-                                if (inputDiv) inputDiv.style.display = 'none';
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
-        function showNotification(message, type) {
+        
+        function updateUncluedClueDisplays() {{
+            // Update each unclued clue to show candidate count
+            for (const [clueId, clue] of Object.entries(clueObjects)) {{
+                if (clue.is_unclued) {{
+                    const clueElement = document.querySelector(`[data-clue="${{clueId}}"]`);
+                    const inputDiv = document.getElementById(`input-${{clueId}}`);
+                    const dropdownDiv = document.getElementById(`dropdown-${{clueId}}`);
+                    const countElement = document.getElementById(`unclued-count-${{clueId}}`);
+                    
+                    if (clueElement) {{
+                        const candidates = getFilteredCandidatesForClue(clueId);
+                        const candidateCount = candidates.length;
+                        
+                        // Update the count element (right-aligned, no parentheses, no italics)
+                        if (countElement) {{
+                            if (userSelectedSolutions.has(clueId)) {{
+                                countElement.textContent = `Solved: ${{clue.possible_solutions[0]}}`;
+                            }} else {{
+                                countElement.textContent = `${{candidateCount}} candidates`;
+                            }}
+                        }}
+                        
+                        // Check if this clue has a user-selected solution
+                        if (userSelectedSolutions.has(clueId)) {{
+                            // Clue is solved - hide both input and dropdown
+                            if (dropdownDiv) dropdownDiv.style.display = 'none';
+                            if (inputDiv) inputDiv.style.display = 'none';
+                        }} else {{
+                            // Hide both input and dropdown - they'll show when clicked
+                            if (dropdownDiv) dropdownDiv.style.display = 'none';
+                            if (inputDiv) inputDiv.style.display = 'none';
+                        }}
+                    }}
+                }}
+            }}
+        }}
+
+        function showNotification(message, type) {{
             // Remove existing notifications
             const existing = document.querySelector('.notification');
-            if (existing) {
+            if (existing) {{
                 existing.remove();
-            }
+            }}
             
             // Create new notification
             const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
+            notification.className = `notification ${{type}}`;
             notification.textContent = message;
             
             // Append to main-content instead of body
             const mainContent = document.querySelector('.main-content');
-            if (mainContent) {
+            if (mainContent) {{
                 mainContent.appendChild(notification);
-            } else {
+            }} else {{
                 document.body.appendChild(notification);
-            }
+            }}
             
             // Show notification
-            setTimeout(() => {
+            setTimeout(() => {{
                 notification.style.opacity = '1';
-            }, 10);
+            }}, 10);
             
             // Hide notification after 3 seconds
-            setTimeout(() => {
+            setTimeout(() => {{
                 notification.style.opacity = '0';
-                setTimeout(() => {
-                    if (notification.parentNode) {
+                setTimeout(() => {{
+                    if (notification.parentNode) {{
                         notification.remove();
-                    }
-                }, 300);
-            }, 3000);
-        }
+                    }}
+                }}, 300);
+            }}, 3000);
+        }}
 
-        function showDeselectDialog(clueId) {
+        function showDeselectDialog(clueId) {{
             // Hide any existing dialogs
-            document.querySelectorAll('.solution-dropdown, .solution-input, .deselect-dialog').forEach(d => {
+            document.querySelectorAll('.solution-dropdown, .solution-input, .deselect-dialog').forEach(d => {{
                 d.style.display = 'none';
-            });
+            }});
             
             const clue = clueObjects[clueId];
             const currentSolution = clue.possible_solutions[0];
@@ -2061,7 +2072,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             // Create deselect dialog
             const dialog = document.createElement('div');
             dialog.className = 'deselect-dialog';
-            dialog.id = `deselect-${clueId}`;
+            dialog.id = `deselect-${{clueId}}`;
             dialog.style.cssText = `
                 margin-top: 8px;
                 padding: 12px;
@@ -2073,12 +2084,12 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             
             dialog.innerHTML = `
                 <div style="margin-bottom: 8px; font-weight: bold; color: #856404;">
-                    Current solution: <span style="font-family: monospace;">${solutionStr}</span>
+                    Current solution: <span style="font-family: monospace;">${{solutionStr}}</span>
                 </div>
                 <div style="margin-bottom: 12px; color: #856404;">
                     Click "Deselect" to remove this solution and restore all possible solutions for this clue.
                 </div>
-                <button class="deselect-solution" data-clue="${clueId}" style="
+                <button class="deselect-solution" data-clue="${{clueId}}" style="
                     background-color: #dc3545;
                     color: white;
                     border: none;
@@ -2100,25 +2111,25 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             `;
             
             // Find the clue element and append the dialog
-            const clueElement = document.querySelector(`[data-clue="${clueId}"]`);
-            if (clueElement) {
+            const clueElement = document.querySelector(`[data-clue="${{clueId}}"]`);
+            if (clueElement) {{
                 clueElement.appendChild(dialog);
                 
                 // Add event listeners
-                dialog.querySelector('.deselect-solution').addEventListener('click', function(e) {
+                dialog.querySelector('.deselect-solution').addEventListener('click', function(e) {{
                     e.stopPropagation();
                     deselectSolution(clueId);
-                });
+                }});
                 
-                dialog.querySelector('.cancel-deselect').addEventListener('click', function(e) {
+                dialog.querySelector('.cancel-deselect').addEventListener('click', function(e) {{
                     e.stopPropagation();
                     dialog.style.display = 'none';
-                });
-            }
-        }
+                }});
+            }}
+        }}
 
-        function deselectSolution(clueId) {
-            console.log(`Deselecting solution for clue ${clueId}`);
+        function deselectSolution(clueId) {{
+            console.log(`Deselecting solution for clue ${{clueId}}`);
             
             // Save current state before deselecting
             saveState(clueId, 'DESELECT');
@@ -2128,49 +2139,49 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             
             // Remove the solution from the grid cells
             const solutionStr = currentSolution.toString().padStart(clue.length, '0');
-            for (let i = 0; i < clue.cell_indices.length; i++) {
+            for (let i = 0; i < clue.cell_indices.length; i++) {{
                 const cellIndex = clue.cell_indices[i];
                 
                 // Check if this cell is used by other user-selected clues
                 let canRemoveCell = true;
-                for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {
-                    if (otherClueId !== clueId && userSelectedSolutions.has(otherClueId)) {
-                        if (otherClue.cell_indices.includes(cellIndex)) {
+                for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {{
+                    if (otherClueId !== clueId && userSelectedSolutions.has(otherClueId)) {{
+                        if (otherClue.cell_indices.includes(cellIndex)) {{
                             canRemoveCell = false;
                             break;
-                        }
-                    }
-                }
+                        }}
+                    }}
+                }}
                 
-                if (canRemoveCell) {
+                if (canRemoveCell) {{
                     delete solvedCells[cellIndex];
                     
                     // Clear the cell display
-                    const cell = document.querySelector(`[data-cell="${cellIndex}"]`);
-                    if (cell) {
+                    const cell = document.querySelector(`[data-cell="${{cellIndex}}"]`);
+                    if (cell) {{
                         const valueElement = cell.querySelector('.cell-value');
-                        if (valueElement) {
+                        if (valueElement) {{
                             valueElement.remove();
-                        }
-                    }
-                }
-            }
+                        }}
+                    }}
+                }}
+            }}
             
             // Remove from user-selected solutions BEFORE recalculating constraints
             userSelectedSolutions.delete(clueId);
             
             // Explicitly restore original solutions for the deselected clue
             const originalCount = clue.original_solution_count || 0;
-            console.log(`Restoring original solutions for ${clueId}: original count = ${originalCount}`);
+            console.log(`Restoring original solutions for ${{clueId}}: original count = ${{originalCount}}`);
             
             // Restore from stored original solutions
-            if (originalSolutions[clueId]) {
+            if (originalSolutions[clueId]) {{
                 clue.possible_solutions = [...originalSolutions[clueId]]; // Deep copy
-                console.log(`Restored original solutions for ${clueId}:`, originalSolutions[clueId]);
-            } else {
-                console.log(`No original solutions found for ${clueId}`);
+                console.log(`Restored original solutions for ${{clueId}}:`, originalSolutions[clueId]);
+            }} else {{
+                console.log(`No original solutions found for ${{clueId}}`);
                 clue.possible_solutions = [];
-            }
+            }}
             
             // Recalculate constraints for all OTHER clues (not the deselected one)
             recalculateAllConstraintsExcept(clueId);
@@ -2182,19 +2193,19 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             updateProgress();
             
             // Hide the deselect dialog
-            const dialog = document.getElementById(`deselect-${clueId}`);
-            if (dialog) {
+            const dialog = document.getElementById(`deselect-${{clueId}}`);
+            if (dialog) {{
                 dialog.style.display = 'none';
-            }
+            }}
             
             // Show success message
             const restoredCount = clue.possible_solutions.length;
-            showNotification(`Deselected solution for clue ${clueId}. Restored ${restoredCount} possible solutions.`, 'success');
-        }
+            showNotification(`Deselected solution for clue ${{clueId}}. Restored ${{restoredCount}} possible solutions.`, 'success');
+        }}
 
-        function recalculateAllConstraintsExcept(excludeClueId) {
+        function recalculateAllConstraintsExcept(excludeClueId) {{
             // Recalculate constraints based on current solved cells, excluding the specified clue
-            for (const [clueId, clue] of Object.entries(clueObjects)) {
+            for (const [clueId, clue] of Object.entries(clueObjects)) {{
                 // Skip the excluded clue and clues that have user-selected solutions
                 if (clueId === excludeClueId || userSelectedSolutions.has(clueId)) continue;
                 
@@ -2203,38 +2214,38 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 const validSolutions = [];
                 
                 // Check each original solution against current grid state
-                for (const solution of clueOriginalSolutions) {
+                for (const solution of clueOriginalSolutions) {{
                     const solutionInt = parseInt(solution);
                     const solutionStr = solutionInt.toString().padStart(clue.length, '0');
                     let isValid = true;
                     
                     // Check each cell position
-                    for (let i = 0; i < clue.cell_indices.length; i++) {
+                    for (let i = 0; i < clue.cell_indices.length; i++) {{
                         const cellIndex = clue.cell_indices[i];
                         const digit = parseInt(solutionStr[i]);
                         
                         // If this cell is already solved, check compatibility
-                        if (cellIndex in solvedCells) {
-                            if (solvedCells[cellIndex] !== digit) {
+                        if (cellIndex in solvedCells) {{
+                            if (solvedCells[cellIndex] !== digit) {{
                                 isValid = false;
                                 break;
-                            }
-                        }
-                    }
+                            }}
+                        }}
+                    }}
                     
-                    if (isValid) {
+                    if (isValid) {{
                         validSolutions.push(solutionInt);
-                    }
-                }
+                    }}
+                }}
                 
                 // Update the clue's possible solutions
                 clue.possible_solutions = validSolutions;
-            }
-        }
+            }}
+        }}
 
-        function recalculateAllConstraints() {
+        function recalculateAllConstraints() {{
             // Recalculate constraints for all clues (used for undo operations)
-            for (const [clueId, clue] of Object.entries(clueObjects)) {
+            for (const [clueId, clue] of Object.entries(clueObjects)) {{
                 // Skip clues that have user-selected solutions
                 if (userSelectedSolutions.has(clueId)) continue;
                 
@@ -2243,46 +2254,46 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 const validSolutions = [];
                 
                 // Check each original solution against current grid state
-                for (const solution of clueOriginalSolutions) {
+                for (const solution of clueOriginalSolutions) {{
                     const solutionInt = parseInt(solution);
                     const solutionStr = solutionInt.toString().padStart(clue.length, '0');
                     let isValid = true;
                     
                     // Check each cell position
-                    for (let i = 0; i < clue.cell_indices.length; i++) {
+                    for (let i = 0; i < clue.cell_indices.length; i++) {{
                         const cellIndex = clue.cell_indices[i];
                         const digit = parseInt(solutionStr[i]);
                         
                         // If this cell is already solved, check compatibility
-                        if (cellIndex in solvedCells) {
-                            if (solvedCells[cellIndex] !== digit) {
+                        if (cellIndex in solvedCells) {{
+                            if (solvedCells[cellIndex] !== digit) {{
                                 isValid = false;
                                 break;
-                            }
-                        }
-                    }
+                            }}
+                        }}
+                    }}
                     
-                    if (isValid) {
+                    if (isValid) {{
                         validSolutions.push(solutionInt);
-                    }
-                }
+                    }}
+                }}
                 
                 // Update the clue's possible solutions
                 clue.possible_solutions = validSolutions;
-            }
-        }
+            }}
+        }}
         
         // Developer functions for quick testing
-        function fill14A() {
+        function fill14A() {{
             // Fill in clue 14A (unclued) with the known solution
             const solution = '142857';
             applySolutionToGrid('14_ACROSS', solution);
             showNotification('Filled 14A with solution 142857', 'success');
-        }
+        }}
         
-        function fillCompleteGrid() {
+        function fillCompleteGrid() {{
             // Fill the complete grid with actual known solutions for testing
-            const knownSolutions = {
+            const knownSolutions = {{
                 '1_ACROSS': '3375', // Known solution
                 '1_DOWN': '3249', // Known solution
                 '2_DOWN': '35', // Known solution
@@ -2307,18 +2318,18 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 '21_DOWN': '16', // Known solution
                 '22_ACROSS': '2858', // Known solution
                 '23_ACROSS': '9261', // Known solution
-            };
+            }};
             
             // Apply each solution
-            for (const [clueId, solution] of Object.entries(knownSolutions)) {
+            for (const [clueId, solution] of Object.entries(knownSolutions)) {{
                 const clue = clueObjects[clueId];
-                if (clue && solution.length === clue.length) {
+                if (clue && solution.length === clue.length) {{
                     applySolutionToGrid(clueId, solution);
-                }
-            }
+                }}
+            }}
             
             showNotification('Filled grid with actual known solutions only', 'success');
-        }
+        }}
     </script>
 </body>
 </html>"""
