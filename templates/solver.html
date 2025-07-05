@@ -142,44 +142,6 @@ function showNotification(message, type) {
     }, 3000);
 }
 
-// For unclued clues, check if the solution conflicts with already solved crossing clues
-if (clue.is_unclued) {
-    const solutionStr = solution.padStart(clue.length, '0');
-    const conflicts = [];
-    
-    // Check each cell position against already solved cells
-    for (let i = 0; i < clue.cell_indices.length; i++) {
-        const cellIndex = clue.cell_indices[i];
-        const digit = parseInt(solutionStr[i]);
-        
-        // If this cell is already solved, check if it conflicts
-        if (cellIndex in solvedCells) {
-            if (solvedCells[cellIndex] !== digit) {
-                // Find which clue this cell belongs to for better error message
-                let conflictingClue = '';
-                for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {
-                    if (otherClue.cell_indices.includes(cellIndex)) {
-                        conflictingClue = otherClueId;
-                        break;
-                    }
-                }
-                conflicts.push(`Cell ${cellIndex} (clue ${conflictingClue}) already has value ${solvedCells[cellIndex]}, but your solution has ${digit}`);
-            }
-        }
-    }
-    
-    if (conflicts.length > 0) {
-        const errorMsg = `Solution conflicts with existing values:\n${conflicts.join('\n')}`;
-        showNotification(errorMsg, 'error');
-        
-        // Show error in the unclued clue's error span
-        const errorSpan = document.getElementById(`error-${clueId}`);
-        if (errorSpan) {
-            errorSpan.textContent = 'Conflicts with existing solutions';
-            errorSpan.style.display = 'inline';
-        }
-        return;
-    }
-}
+
 </script>
 {% endblock %} 

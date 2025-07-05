@@ -49,6 +49,10 @@ class PuzzleSession(db.Model):
     solved_cells = db.Column(db.Text)  # JSON string
     user_selected_solutions = db.Column(db.Text)  # JSON string
     solution_history = db.Column(db.Text)  # JSON string
+    # Anagram state fields
+    anagram_solved_cells = db.Column(db.Text)  # JSON string
+    anagram_user_selected_solutions = db.Column(db.Text)  # JSON string
+    anagram_clue_objects = db.Column(db.Text)  # JSON string
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -69,6 +73,25 @@ class PuzzleSession(db.Model):
     
     def set_solution_history(self, history_list):
         self.solution_history = json.dumps(history_list)
+    
+    # Anagram state methods
+    def get_anagram_solved_cells(self):
+        return json.loads(self.anagram_solved_cells) if self.anagram_solved_cells else {}
+    
+    def set_anagram_solved_cells(self, cells_dict):
+        self.anagram_solved_cells = json.dumps(cells_dict)
+    
+    def get_anagram_user_selected_solutions(self):
+        return json.loads(self.anagram_user_selected_solutions) if self.anagram_user_selected_solutions else []
+    
+    def set_anagram_user_selected_solutions(self, solutions_list):
+        self.anagram_user_selected_solutions = json.dumps(solutions_list)
+    
+    def get_anagram_clue_objects(self):
+        return json.loads(self.anagram_clue_objects) if self.anagram_clue_objects else {}
+    
+    def set_anagram_clue_objects(self, clue_objects_dict):
+        self.anagram_clue_objects = json.dumps(clue_objects_dict)
 
 # Routes
 @app.route('/')
@@ -174,6 +197,10 @@ def save_state():
     puzzle_session.set_solved_cells(data.get('solved_cells', {}))
     puzzle_session.set_user_selected_solutions(data.get('user_selected_solutions', []))
     puzzle_session.set_solution_history(data.get('solution_history', []))
+    # Save anagram state
+    puzzle_session.set_anagram_solved_cells(data.get('anagram_solved_cells', {}))
+    puzzle_session.set_anagram_user_selected_solutions(data.get('anagram_user_selected_solutions', []))
+    puzzle_session.set_anagram_clue_objects(data.get('anagram_clue_objects', {}))
     
     print("About to commit to database...")
     try:
@@ -199,13 +226,19 @@ def load_state():
         return jsonify({
             'solved_cells': {},
             'user_selected_solutions': [],
-            'solution_history': []
+            'solution_history': [],
+            'anagram_solved_cells': {},
+            'anagram_user_selected_solutions': [],
+            'anagram_clue_objects': {}
         })
     
     return jsonify({
         'solved_cells': puzzle_session.get_solved_cells(),
         'user_selected_solutions': puzzle_session.get_user_selected_solutions(),
-        'solution_history': puzzle_session.get_solution_history()
+        'solution_history': puzzle_session.get_solution_history(),
+        'anagram_solved_cells': puzzle_session.get_anagram_solved_cells(),
+        'anagram_user_selected_solutions': puzzle_session.get_anagram_user_selected_solutions(),
+        'anagram_clue_objects': puzzle_session.get_anagram_clue_objects()
     })
 
 if __name__ == '__main__':
