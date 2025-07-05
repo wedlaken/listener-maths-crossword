@@ -33,6 +33,87 @@
 4. Push to GitHub
 5. On other machine, pull changes
 
+### Git Synchronization and Conflict Resolution
+
+#### Common Sync Issues and Solutions
+
+**Problem**: GitHub Desktop shows changes that need to be committed, but you know the other machine has the correct version.
+
+**Solution**: Force reset to match the correct version:
+```bash
+# On the machine that needs to be updated
+git fetch origin
+git reset --hard origin/main
+git clean -fd  # Remove any untracked files
+```
+
+**Problem**: Push rejected because remote has changes you don't have locally.
+
+**Solution**: 
+```bash
+# Option 1: Pull and merge (if you want to keep both changes)
+git pull origin main
+git push
+
+# Option 2: Force push (if you know your version is correct)
+git push --force-with-lease
+```
+
+**Problem**: Different machines show different file states or missing changes.
+
+**Solution**: Complete reset and sync:
+```bash
+# On the machine that needs updating
+git fetch origin
+git reset --hard origin/main
+git clean -fd
+```
+
+#### Best Practices for Multi-Machine Development
+
+1. **Always pull before starting work**:
+   ```bash
+   git pull origin main
+   ```
+
+2. **Use consistent Git clients**:
+   - Stick to either GitHub Desktop OR command line
+   - Or ensure both are properly synchronized
+
+3. **Check commit history before making changes**:
+   ```bash
+   git log --oneline -5
+   ```
+
+4. **Verify remote state**:
+   ```bash
+   git fetch origin
+   git status
+   ```
+
+5. **When in doubt, reset to known good state**:
+   ```bash
+   git reset --hard origin/main
+   ```
+
+#### Troubleshooting Checklist
+
+**Before making changes**:
+- [ ] `git pull origin main`
+- [ ] `git status` (should be clean)
+- [ ] `git log --oneline -3` (verify latest commit)
+
+**When sync issues occur**:
+- [ ] Identify which machine has the correct version
+- [ ] Use `git fetch origin` to get latest remote state
+- [ ] Use `git reset --hard origin/main` to match remote
+- [ ] Verify with `git log --oneline -3`
+
+**After resolving conflicts**:
+- [ ] Test the application functionality
+- [ ] Run any necessary scripts (e.g., `python interactive_solver.py`)
+- [ ] Verify changes are working as expected
+
 ### Package Management
 - When adding new packages:
   1. Install in venv: `pip install <package-name>`
