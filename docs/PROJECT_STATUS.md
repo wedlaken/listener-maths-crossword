@@ -148,6 +148,24 @@ This issue highlighted the importance of understanding **language syntax conflic
 - ✅ **Code Organization** - Extended existing clue classes with inheritance while maintaining backward compatibility
 - ✅ **Performance Optimization** - Efficient permutation algorithms and DOM manipulation for smooth user experience
 
+## 🧩 Anagram Validation & Session Progress (July 2025)
+
+### Anagram Validation Logic
+- Each anagram clue's possible solutions are dynamically filtered based on cross-clue digit constraints, so only valid anagrams appear in the dropdown and count.
+- For unclued clues (6-digit), only multiples of the original are allowed; for 2- and 4-digit clues, only valid digit permutations that fit crossing constraints are shown.
+- Validation is performed in real-time as the user selects solutions, and invalid choices are blocked.
+
+### Issues Solved in This Session
+- Unified and fixed the anagram clue validation logic so only valid solutions are selectable.
+- Fixed dropdowns and solution counts to reflect constraint elimination, not just validation on selection.
+- Allowed unclued anagram entries to be filled by the user (fixed 'Not an unclued clue' error).
+- Improved the code structure for validation and event handling, preventing UI lockups.
+- Preserved gameplay by allowing user choice where multiple valid anagrams remain.
+
+### Remaining TODOS
+- [ ] Fix CSS for anagram clues to match the initial grid for improved UI/UX.
+- [ ] Add a suitable celebration/animation at the end of the puzzle when both grids are complete.
+
 ## 🚀 **DEPLOYMENT READY**
 
 ### Local Development

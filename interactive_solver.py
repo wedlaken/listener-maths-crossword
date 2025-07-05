@@ -1506,8 +1506,8 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 return;
             }}
             
-            // For unclued clues, check constraints and conflicts
-            if (clue.is_unclued) {{
+            // For unclued clues, check constraints and conflicts (skip for anagram clues)
+            if (clue.is_unclued && !isAnagramClue) {{
                 // Check constraint requirement first
                 const constraintCheck = canEnterUncluedSolution(clueId);
                 if (!constraintCheck.allowed) {{
@@ -1564,6 +1564,12 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 if (errorSpan) {{
                     errorSpan.style.display = 'none';
                 }}
+            }} else if (isAnagramClue) {{
+                // For anagram clues, check if solution is valid for this clue
+                if (!clue.possible_solutions.includes(parseInt(solution))) {{
+                    showNotification('This anagram solution is not valid for this clue', 'error');
+                    return;
+                }}
             }} else {{
                 // For regular clues, check if solution is valid for this clue
                 if (!clue.possible_solutions.includes(parseInt(solution))) {{
@@ -1589,24 +1595,35 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 }}
             }}
             
-            // Mark clue as solved
+                        // Mark clue as solved
             clue.possible_solutions = [parseInt(solution)];
             
             // Mark this as a user-selected solution
             if (isAnagramClue) {{
                 anagramUserSelectedSolutions.add(clueId);
+                // Update the anagram clue data structure to reflect the selection
+                if (anagramClueObjects[clueId]) {{
+                    anagramClueObjects[clueId].possible_solutions = [parseInt(solution)];
+                }}
             }} else {{
-                userSelectedSolutions.add(clueId);
+            userSelectedSolutions.add(clueId);
             }}
             
-            // Propagate constraints to crossing clues (only for initial grid)
+            // Propagate constraints to crossing clues
             let eliminatedSolutions = [];
             if (!isAnagramClue) {{
                 eliminatedSolutions = propagateConstraints(clueId, solution);
+            }} else {{
+                eliminatedSolutions = propagateAnagramConstraints(clueId, solution);
             }}
             
             // Update all clue displays
             updateAllClueDisplays();
+            
+            // Update anagram clue displays if this was an anagram solution
+            if (isAnagramClue) {{
+                updateAnagramClueDisplays();
+            }}
             
             // Update progress
             updateProgress();
@@ -2068,8 +2085,11 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 }}
             }}
             
-            // Generate HTML for anagram clues
-            generateAnagramCluesHTML(solvedClues);
+            // Apply constraint elimination to anagram solutions
+            applyAnagramConstraints();
+            
+            // Generate HTML for anagram clues using the updated anagramClueObjects
+            generateAnagramCluesHTMLFromObjects();
         }}
         
         function generateAnagramSolutionsForClue(originalSolution, length, isUnclued) {{
@@ -2125,6 +2145,157 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             return perms;
         }}
         
+        function applyAnagramConstraints() {{
+            // Apply constraint elimination to anagram solutions
+            for (const [anagramClueId, anagramClue] of Object.entries(anagramClueObjects)) {{
+                const originalClueId = anagramClueId.replace('anagram_', '');
+                const originalClue = clueObjects[originalClueId];
+                
+                if (!originalClue) continue;
+                
+                // Get available digits from crossing clues
+                const availableDigits = getAvailableDigitsForAnagramClue(anagramClueId);
+                
+                // Filter anagram solutions based on available digits
+                const validAnagrams = [];
+                for (const anagram of anagramClue.anagram_solutions) {{
+                    if (isAnagramValidWithConstraints(anagram, anagramClue, availableDigits)) {{
+                        validAnagrams.push(anagram);
+                    }}
+                }}
+                
+                // Update the anagram clue with filtered solutions
+                anagramClue.anagram_solutions = validAnagrams;
+                anagramClue.possible_solutions = validAnagrams;
+                
+                console.log(`Anagram clue ${{anagramClueId}}: ${{anagramClue.original_solution_count}} -> ${{validAnagrams.length}} valid anagrams`);
+            }}
+        }}
+        
+        function getAvailableDigitsForAnagramClue(anagramClueId) {{
+            const originalClueId = anagramClueId.replace('anagram_', '');
+            const anagramClue = anagramClueObjects[anagramClueId];
+            const originalClue = clueObjects[originalClueId];
+            
+            if (!anagramClue || !originalClue) return {{}};
+            
+            const availableDigits = {{}};
+            
+            // For each cell position in the anagram clue
+            for (let i = 0; i < anagramClue.cell_indices.length; i++) {{
+                const cellIndex = anagramClue.cell_indices[i];
+                const availableDigitsForCell = new Set();
+                
+                // Find all clues that use this cell
+                for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {{
+                    if (otherClueId !== originalClueId && otherClue.cell_indices.includes(cellIndex)) {{
+                        // This is a crossing clue - get its anagram solutions
+                        const crossingAnagramClueId = `anagram_${{otherClueId}}`;
+                        const crossingAnagramClue = anagramClueObjects[crossingAnagramClueId];
+                        
+                        if (crossingAnagramClue) {{
+                            // Get all possible digits at this position from crossing anagram solutions
+                            for (const anagramSolution of crossingAnagramClue.anagram_solutions) {{
+                                const anagramStr = anagramSolution.toString().padStart(crossingAnagramClue.length, '0');
+                                const digitAtPosition = anagramStr[otherClue.cell_indices.indexOf(cellIndex)];
+                                availableDigitsForCell.add(parseInt(digitAtPosition));
+                            }}
+                        }}
+                    }}
+                }}
+                
+                // If no crossing clues found, all digits are available
+                if (availableDigitsForCell.size === 0) {{
+                    for (let digit = 0; digit <= 9; digit++) {{
+                        availableDigitsForCell.add(digit);
+                    }}
+                }}
+                
+                availableDigits[i] = Array.from(availableDigitsForCell);
+            }}
+            
+            return availableDigits;
+        }}
+        
+        function isAnagramValidWithConstraints(anagram, anagramClue, availableDigits) {{
+            const anagramStr = anagram.toString().padStart(anagramClue.length, '0');
+            
+            // Check each digit position
+            for (let i = 0; i < anagramClue.length; i++) {{
+                const digit = parseInt(anagramStr[i]);
+                const availableForPosition = availableDigits[i];
+                
+                if (!availableForPosition.includes(digit)) {{
+                    return false;
+                }}
+            }}
+            
+            return true;
+        }}
+        
+        function propagateAnagramConstraints(clueId, solution) {{
+            const eliminatedSolutions = [];
+            const anagramClue = anagramClueObjects[clueId];
+            const originalClueId = clueId.replace('anagram_', '');
+            const originalClue = clueObjects[originalClueId];
+            
+            if (!anagramClue || !originalClue) return eliminatedSolutions;
+            
+            const solutionStr = solution.toString().padStart(anagramClue.length, '0');
+            
+            // Find all anagram clues that share cells with this clue
+            const crossingAnagramClues = [];
+            for (const [otherAnagramClueId, otherAnagramClue] of Object.entries(anagramClueObjects)) {{
+                if (otherAnagramClueId !== clueId) {{
+                    // Check if any cells overlap
+                    const overlap = anagramClue.cell_indices.filter(cell => 
+                        otherAnagramClue.cell_indices.includes(cell)
+                    );
+                    if (overlap.length > 0) {{
+                        crossingAnagramClues.push(otherAnagramClueId);
+                    }}
+                }}
+            }}
+            
+            // Eliminate incompatible anagram solutions from crossing clues
+            for (const crossingAnagramClueId of crossingAnagramClues) {{
+                const crossingAnagramClue = anagramClueObjects[crossingAnagramClueId];
+                const solutionsToRemove = [];
+                
+                for (const possibleAnagram of crossingAnagramClue.anagram_solutions) {{
+                    const possibleStr = possibleAnagram.toString().padStart(crossingAnagramClue.length, '0');
+                    let incompatible = false;
+                    
+                    // Check each cell position
+                    for (let i = 0; i < crossingAnagramClue.cell_indices.length; i++) {{
+                        const cellIndex = crossingAnagramClue.cell_indices[i];
+                        const digit = parseInt(possibleStr[i]);
+                        
+                        // If this cell is already solved in the anagram grid, check compatibility
+                        if (cellIndex in anagramSolvedCells) {{
+                            if (anagramSolvedCells[cellIndex] !== digit) {{
+                                incompatible = true;
+                                break;
+                            }}
+                        }}
+                    }}
+                    
+                    if (incompatible) {{
+                        solutionsToRemove.push(possibleAnagram);
+                    }}
+                }}
+                
+                // Remove incompatible solutions
+                for (const solutionToRemove of solutionsToRemove) {{
+                    crossingAnagramClue.anagram_solutions = crossingAnagramClue.anagram_solutions.filter(s => s !== solutionToRemove);
+                    crossingAnagramClue.possible_solutions = crossingAnagramClue.possible_solutions.filter(s => s !== solutionToRemove);
+                    eliminatedSolutions.push({{clueId: crossingAnagramClueId, solution: solutionToRemove}});
+                }}
+            }}
+            
+            return eliminatedSolutions;
+        }}
+        
         function generateAnagramCluesHTML(solvedClues) {{
             // Separate clues by direction
             const acrossClues = solvedClues.filter(c => c.clueId.includes('_ACROSS'));
@@ -2137,12 +2308,23 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 for (const clue of acrossClues) {{
                     const clueId = `anagram_${{clue.clueId}}`;
                     const clueNumber = clue.clueId.split('_')[0];
+                    
+                    // Determine CSS class based on anagram count
+                    let statusClass = '';
+                    if (clue.anagramSolutions.length > 1) {{
+                        statusClass = 'multiple'; // Multiple anagrams available
+                    }} else if (clue.anagramSolutions.length === 1) {{
+                        statusClass = ''; // Default state
+                    }} else {{
+                        statusClass = 'unclued'; // No anagrams available
+                    }}
+                    
                     const clueHTML = `
-                        <div class="clue anagram-clue" data-clue="${{clueId}}" data-grid-type="anagram">
+                        <div class="clue anagram-clue ${{statusClass}}" data-clue="${{clueId}}" data-grid-type="anagram">
                             <div class="clue-header">
                                 <span class="clue-number">${{clueNumber}}.</span>
-                                <span class="clue-text">Original: ${{clue.originalSolution}}</span>
-                                <span class="solution-count">(${{clue.anagramSolutions.length}} anagrams)</span>
+                                <span class="clue-text">${{clue.originalSolution}}</span>
+                                <span class="solution-count">${{clue.anagramSolutions.length}} anagrams</span>
                             </div>
                             ${{clue.anagramSolutions.length > 0 ? `
                                 <div class="solution-dropdown" id="dropdown-${{clueId}}" style="display: none;">
@@ -2166,12 +2348,23 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 for (const clue of downClues) {{
                     const clueId = `anagram_${{clue.clueId}}`;
                     const clueNumber = clue.clueId.split('_')[0];
+                    
+                    // Determine CSS class based on anagram count
+                    let statusClass = '';
+                    if (clue.anagramSolutions.length > 1) {{
+                        statusClass = 'multiple'; // Multiple anagrams available
+                    }} else if (clue.anagramSolutions.length === 1) {{
+                        statusClass = ''; // Default state
+                    }} else {{
+                        statusClass = 'unclued'; // No anagrams available
+                    }}
+                    
                     const clueHTML = `
-                        <div class="clue anagram-clue" data-clue="${{clueId}}" data-grid-type="anagram">
+                        <div class="clue anagram-clue ${{statusClass}}" data-clue="${{clueId}}" data-grid-type="anagram">
                             <div class="clue-header">
                                 <span class="clue-number">${{clueNumber}}.</span>
-                                <span class="clue-text">Original: ${{clue.originalSolution}}</span>
-                                <span class="solution-count">(${{clue.anagramSolutions.length}} anagrams)</span>
+                                <span class="clue-text">${{clue.originalSolution}}</span>
+                                <span class="solution-count">${{clue.anagramSolutions.length}} anagrams</span>
                             </div>
                             ${{clue.anagramSolutions.length > 0 ? `
                                 <div class="solution-dropdown" id="dropdown-${{clueId}}" style="display: none;">
@@ -2181,6 +2374,102 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                                     </select>
                                     <button class="apply-solution" data-clue="${{clueId}}">Apply</button>
                                 </div>
+                            ` : ''}}
+                        </div>
+                    `;
+                    downContainer.innerHTML += clueHTML;
+                }}
+            }}
+        }}
+        
+        function generateAnagramCluesHTMLFromObjects() {{
+            // Generate HTML using the updated anagramClueObjects (after constraint elimination)
+            const acrossClues = [];
+            const downClues = [];
+            
+            for (const [clueId, clue] of Object.entries(anagramClueObjects)) {{
+                if (clue.direction === 'ACROSS') {{
+                    acrossClues.push({{clueId, clue}});
+                }} else {{
+                    downClues.push({{clueId, clue}});
+                }}
+            }}
+            
+            // Sort by clue number
+            acrossClues.sort((a, b) => a.clue.number - b.clue.number);
+            downClues.sort((a, b) => a.clue.number - b.clue.number);
+            
+            // Generate across clues HTML
+            const acrossContainer = document.getElementById('anagram-across-clues');
+            if (acrossContainer) {{
+                acrossContainer.innerHTML = '';
+                for (const {{clueId, clue}} of acrossClues) {{
+                    const clueNumber = clue.number;
+                    
+                    // Determine CSS class based on filtered anagram count
+                    let statusClass = '';
+                    if (clue.anagram_solutions.length > 1) {{
+                        statusClass = 'multiple'; // Multiple anagrams available
+                    }} else if (clue.anagram_solutions.length === 1) {{
+                        statusClass = ''; // Default state
+                    }} else {{
+                        statusClass = 'unclued'; // No anagrams available
+                    }}
+                    
+                    const clueHTML = `
+                        <div class="clue anagram-clue ${{statusClass}}" data-clue="${{clueId}}" data-grid-type="anagram">
+                            <div class="clue-header">
+                                <span class="clue-number">${{clueNumber}}.</span>
+                                <span class="clue-text">${{clue.original_solution}}</span>
+                                <span class="solution-count">${{clue.anagram_solutions.length}} anagrams</span>
+                            </div>
+                            ${{clue.anagram_solutions.length > 0 ? `
+                                <div class="solution-dropdown" id="dropdown-${{clueId}}" style="display: none;">
+                                    <select class="solution-select" data-clue="${{clueId}}">
+                                        <option value="">-- Select an anagram --</option>
+                                        ${{clue.anagram_solutions.map(anagram => `<option value="${{anagram}}">${{anagram}}</option>`).join('')}}
+                                    </select>
+                                    <button class="apply-solution" data-clue="${{clueId}}">Apply</button>
+                                </div>
+                            ` : ''}}
+                        </div>
+                    `;
+                    acrossContainer.innerHTML += clueHTML;
+                }}
+            }}
+            
+            // Generate down clues HTML
+            const downContainer = document.getElementById('anagram-down-clues');
+            if (downContainer) {{
+                downContainer.innerHTML = '';
+                for (const {{clueId, clue}} of downClues) {{
+                    const clueNumber = clue.number;
+                    
+                    // Determine CSS class based on filtered anagram count
+                    let statusClass = '';
+                    if (clue.anagram_solutions.length > 1) {{
+                        statusClass = 'multiple'; // Multiple anagrams available
+                    }} else if (clue.anagram_solutions.length === 1) {{
+                        statusClass = ''; // Default state
+                    }} else {{
+                        statusClass = 'unclued'; // No anagrams available
+                    }}
+                    
+                    const clueHTML = `
+                        <div class="clue anagram-clue ${{statusClass}}" data-clue="${{clueId}}" data-grid-type="anagram">
+                            <div class="clue-header">
+                                <span class="clue-number">${{clueNumber}}.</span>
+                                <span class="clue-text">${{clue.original_solution}}</span>
+                                <span class="solution-count">${{clue.anagram_solutions.length}} anagrams</span>
+                            </div>
+                            ${{clue.anagram_solutions.length > 0 ? `
+                                <div class="solution-dropdown" id="dropdown-${{clueId}}" style="display: none;">
+                                    <select class="solution-select" data-clue="${{clueId}}">
+                                        <option value="">-- Select an anagram --</option>
+                                        ${{clue.anagram_solutions.map(anagram => `<option value="${{anagram}}">${{anagram}}</option>`).join('')}}
+                                    </select>
+                                    <button class="apply-solution" data-clue="${{clueId}}">Apply</button>
+                                    </div>
                             ` : ''}}
                         </div>
                     `;
@@ -2619,6 +2908,48 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             }}
             
             showNotification('Filled grid with actual known solutions only', 'success');
+        }}
+
+        // Add this function after updateAllClueDisplays
+        function updateAnagramClueDisplays() {{
+            // Update each anagram clue's display based on current state
+            for (const [clueId, clue] of Object.entries(anagramClueObjects)) {{
+                const clueElement = document.querySelector(`[data-clue="${{clueId}}"]`);
+                if (!clueElement) continue;
+                
+                // Update the clue text to show selected solution or original
+                const textElement = clueElement.querySelector('.clue-text');
+                if (textElement) {{
+                    if (anagramUserSelectedSolutions.has(clueId)) {{
+                        // Show the selected anagram solution
+                        const selectedSolution = clue.possible_solutions[0];
+                        textElement.textContent = selectedSolution;
+                    }} else {{
+                        // Show the original solution
+                        textElement.textContent = clue.original_solution;
+                    }}
+                }}
+                
+                // Update the count text
+                const countElement = clueElement.querySelector('.solution-count');
+                if (countElement) {{
+                    if (anagramUserSelectedSolutions.has(clueId)) {{
+                        countElement.textContent = 'Selected';
+                    }} else {{
+                        countElement.textContent = `${{clue.anagram_solutions.length}} anagrams`;
+                    }}
+                }}
+                
+                // Remove all status classes and apply correct one
+                clueElement.className = 'clue anagram-clue';
+                if (anagramUserSelectedSolutions.has(clueId)) {{
+                    clueElement.classList.add('user-selected');
+                }} else if (clue.anagram_solutions && clue.anagram_solutions.length > 1) {{
+                    clueElement.classList.add('multiple');
+                }} else if (clue.anagram_solutions && clue.anagram_solutions.length === 0) {{
+                    clueElement.classList.add('unclued');
+                }}
+            }}
         }}
     </script>
 </body>
