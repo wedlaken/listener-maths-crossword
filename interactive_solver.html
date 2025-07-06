@@ -749,7 +749,7 @@
       <div class="clue-header">
         <span class="clue-number">18.</span>
         <span class="clue-text">10:0</span>
-        <span class="solution-count">1 solutions</span>
+        <span class="solution-count">1 solution</span>
       </div>
       <div class="solution-dropdown" id="dropdown-18_ACROSS" style="display: none;">
         <select class="solution-select" data-clue="18_ACROSS">
@@ -800,7 +800,7 @@
       <div class="clue-header">
         <span class="clue-number">20.</span>
         <span class="clue-text">5:0</span>
-        <span class="solution-count">1 solutions</span>
+        <span class="solution-count">1 solution</span>
       </div>
       <div class="solution-dropdown" id="dropdown-20_ACROSS" style="display: none;">
         <select class="solution-select" data-clue="20_ACROSS">
@@ -814,7 +814,7 @@
       <div class="clue-header">
         <span class="clue-number">22.</span>
         <span class="clue-text">2:1427</span>
-        <span class="solution-count">1 solutions</span>
+        <span class="solution-count">1 solution</span>
       </div>
       <div class="solution-dropdown" id="dropdown-22_ACROSS" style="display: none;">
         <select class="solution-select" data-clue="22_ACROSS">
@@ -917,7 +917,7 @@
       <div class="clue-header">
         <span class="clue-number">5.</span>
         <span class="clue-text">11:0</span>
-        <span class="solution-count">1 solutions</span>
+        <span class="solution-count">1 solution</span>
       </div>
       <div class="solution-dropdown" id="dropdown-5_DOWN" style="display: none;">
         <select class="solution-select" data-clue="5_DOWN">
@@ -1071,7 +1071,7 @@
       <div class="clue-header">
         <span class="clue-number">17.</span>
         <span class="clue-text">4:0</span>
-        <span class="solution-count">1 solutions</span>
+        <span class="solution-count">1 solution</span>
       </div>
       <div class="solution-dropdown" id="dropdown-17_DOWN" style="display: none;">
         <select class="solution-select" data-clue="17_DOWN">
@@ -1741,20 +1741,20 @@
             const clueElement = document.querySelector(`[data-clue="${clueId}"]`);
             if (!clueElement) return;
             
-            // Update solution count - show count until committed, then show actual solution
-            const countElement = clueElement.querySelector('.solution-count');
-            if (countElement) {
-                if (!clue.is_unclued) {
-                    if (clue.possible_solutions.length === 1 && userSelectedSolutions.has(clueId)) {
-                        // User has committed the solution - show the actual solution
-                        countElement.textContent = `${clue.possible_solutions[0]}`;
-                    } else {
-                        // Show count of solutions
-                        countElement.textContent = `${clue.possible_solutions.length} solutions`;
-                    }
+                    // Update solution count - show count until committed, then show actual solution
+        const countElement = clueElement.querySelector('.solution-count');
+        if (countElement) {
+            if (!clue.is_unclued) {
+                if (clue.possible_solutions.length === 1 && userSelectedSolutions.has(clueId)) {
+                    // User has committed the solution - show the actual solution
+                    countElement.textContent = `${clue.possible_solutions[0]}`;
+                } else {
+                    // Show count of solutions (singular when only one)
+                    countElement.textContent = `${clue.possible_solutions.length} ${clue.possible_solutions.length === 1 ? 'solution' : 'solutions'}`;
                 }
-                // For unclued clues, the count will be updated by updateUncluedClueDisplays()
             }
+            // For unclued clues, the count will be updated by updateUncluedClueDisplays()
+        }
             
             // Update clue styling based on solution count and user selection
             clueElement.className = 'clue';
@@ -2343,7 +2343,7 @@
                             <div class="clue-header">
                                 <span class="clue-number">${clueNumber}.</span>
                                 <span class="clue-text">${clue.originalSolution}</span>
-                                <span class="solution-count">${clue.anagramSolutions.length} anagrams</span>
+                                <span class="solution-count">${clue.anagramSolutions.length} ${clue.anagramSolutions.length === 1 ? 'anagram' : 'anagrams'}</span>
                             </div>
                             ${clue.anagramSolutions.length > 0 ? `
                                 <div class="solution-dropdown" id="dropdown-${clueId}" style="display: none;">
@@ -2383,7 +2383,7 @@
                             <div class="clue-header">
                                 <span class="clue-number">${clueNumber}.</span>
                                 <span class="clue-text">${clue.originalSolution}</span>
-                                <span class="solution-count">${clue.anagramSolutions.length} anagrams</span>
+                                <span class="solution-count">${clue.anagramSolutions.length} ${clue.anagramSolutions.length === 1 ? 'anagram' : 'anagrams'}</span>
                             </div>
                             ${clue.anagramSolutions.length > 0 ? `
                                 <div class="solution-dropdown" id="dropdown-${clueId}" style="display: none;">
@@ -2440,7 +2440,7 @@
                             <div class="clue-header">
                                 <span class="clue-number">${clueNumber}.</span>
                                 <span class="clue-text">${clue.original_solution}</span>
-                                <span class="solution-count">${clue.anagram_solutions.length} anagrams</span>
+                                <span class="solution-count">${clue.anagram_solutions.length} ${clue.anagram_solutions.length === 1 ? 'anagram' : 'anagrams'}</span>
                             </div>
                             ${clue.anagram_solutions.length > 0 ? `
                                 <div class="solution-dropdown" id="dropdown-${clueId}" style="display: none;">
@@ -2479,7 +2479,7 @@
                             <div class="clue-header">
                                 <span class="clue-number">${clueNumber}.</span>
                                 <span class="clue-text">${clue.original_solution}</span>
-                                <span class="solution-count">${clue.anagram_solutions.length} anagrams</span>
+                                <span class="solution-count">${clue.anagram_solutions.length} ${clue.anagram_solutions.length === 1 ? 'anagram' : 'anagrams'}</span>
                             </div>
                             ${clue.anagram_solutions.length > 0 ? `
                                 <div class="solution-dropdown" id="dropdown-${clueId}" style="display: none;">
@@ -2488,7 +2488,7 @@
                                         ${clue.anagram_solutions.map(anagram => `<option value="${anagram}">${anagram}</option>`).join('')}
                                     </select>
                                     <button class="apply-solution" data-clue="${clueId}">Apply</button>
-                                    </div>
+                                </div>
                             ` : ''}
                         </div>
                     `;
@@ -2533,6 +2533,8 @@
                     toggleButton.textContent = 'Toggle Anagram Mode';
                     toggleButton.style.backgroundColor = '#17a2b8';
                     showNotification('Switched to Initial Grid Mode', 'info');
+                    // Update progress for initial grid
+                    updateProgress();
                 } else {
                     // Switch to anagram mode
                     initialCluesContainer.style.display = 'none';
@@ -2540,6 +2542,11 @@
                     toggleButton.textContent = 'Toggle Initial Mode';
                     toggleButton.style.backgroundColor = '#28a745';
                     showNotification('Switched to Anagram Grid Mode', 'info');
+                    // Reset progress bar to zero for anagram grid
+                    document.querySelector('.progress-fill').style.width = '0%';
+                    document.querySelector('.progress-stats').innerHTML = 
+                        `<div>Cells filled: 0/64 (0.0%)</div>
+                         <div>Clues solved: 0/24</div>`;
                 }
             }
         }
@@ -2599,7 +2606,7 @@
                             if (userSelectedSolutions.has(clueId)) {
                                 countElement.textContent = `Solved: ${clue.possible_solutions[0]}`;
                             } else {
-                                countElement.textContent = `${candidateCount} candidates`;
+                                countElement.textContent = `${candidateCount} ${candidateCount === 1 ? 'candidate' : 'candidates'}`;
                             }
                         }
                         
@@ -2949,15 +2956,17 @@
                     }
                 }
                 
-                // Update the count text
-                const countElement = clueElement.querySelector('.solution-count');
-                if (countElement) {
-                    if (anagramUserSelectedSolutions.has(clueId)) {
-                        countElement.textContent = 'Selected';
-                    } else {
-                        countElement.textContent = `${clue.anagram_solutions.length} anagrams`;
-                    }
-                }
+                        // Update the count text
+        const countElement = clueElement.querySelector('.solution-count');
+        if (countElement) {
+            if (anagramUserSelectedSolutions.has(clueId)) {
+                countElement.textContent = 'Selected';
+            } else {
+                // Show count of anagrams (singular when only one)
+                const anagramText = clue.anagram_solutions.length === 1 ? 'anagram' : 'anagrams';
+                countElement.textContent = `${clue.anagram_solutions.length} ${anagramText}`;
+            }
+        }
                 
                 // Remove all status classes and apply correct one
                 clueElement.className = 'clue anagram-clue';

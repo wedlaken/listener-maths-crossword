@@ -357,7 +357,8 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
         html.append(f'        <span class="clue-number">{clue.number}.</span>')
         html.append(f'        <span class="clue-text">{clue_text}</span>')
         if not clue.parameters.is_unclued:
-            html.append(f'        <span class="solution-count">{solution_count} solutions</span>')
+            solution_word = 'solution' if solution_count == 1 else 'solutions'
+            html.append(f'        <span class="solution-count">{solution_count} {solution_word}</span>')
         else:
             html.append(f'        <span class="solution-count" id="unclued-count-{clue_id}"></span>')
         html.append('      </div>')
@@ -405,7 +406,8 @@ def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> st
         html.append(f'        <span class="clue-number">{clue.number}.</span>')
         html.append(f'        <span class="clue-text">{clue_text}</span>')
         if not clue.parameters.is_unclued:
-            html.append(f'        <span class="solution-count">{solution_count} solutions</span>')
+            solution_word = 'solution' if solution_count == 1 else 'solutions'
+            html.append(f'        <span class="solution-count">{solution_count} {solution_word}</span>')
         else:
             html.append(f'        <span class="solution-count" id="unclued-count-{clue_id}"></span>')
         html.append('      </div>')
@@ -1826,20 +1828,20 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             const clueElement = document.querySelector(`[data-clue="${{clueId}}"]`);
             if (!clueElement) return;
             
-            // Update solution count - show count until committed, then show actual solution
-            const countElement = clueElement.querySelector('.solution-count');
-            if (countElement) {{
-                if (!clue.is_unclued) {{
-                    if (clue.possible_solutions.length === 1 && userSelectedSolutions.has(clueId)) {{
-                        // User has committed the solution - show the actual solution
-                        countElement.textContent = `${{clue.possible_solutions[0]}}`;
-                    }} else {{
-                        // Show count of solutions
-                        countElement.textContent = `${{clue.possible_solutions.length}} solutions`;
-                    }}
+                    // Update solution count - show count until committed, then show actual solution
+        const countElement = clueElement.querySelector('.solution-count');
+        if (countElement) {{
+            if (!clue.is_unclued) {{
+                if (clue.possible_solutions.length === 1 && userSelectedSolutions.has(clueId)) {{
+                    // User has committed the solution - show the actual solution
+                    countElement.textContent = `${{clue.possible_solutions[0]}}`;
+                }} else {{
+                    // Show count of solutions (singular when only one)
+                    countElement.textContent = `${{clue.possible_solutions.length}} ${{clue.possible_solutions.length === 1 ? 'solution' : 'solutions'}}`;
                 }}
-                // For unclued clues, the count will be updated by updateUncluedClueDisplays()
             }}
+            // For unclued clues, the count will be updated by updateUncluedClueDisplays()
+        }}
             
             // Update clue styling based on solution count and user selection
             clueElement.className = 'clue';
@@ -2428,7 +2430,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                             <div class="clue-header">
                                 <span class="clue-number">${{clueNumber}}.</span>
                                 <span class="clue-text">${{clue.originalSolution}}</span>
-                                <span class="solution-count">${{clue.anagramSolutions.length}} anagrams</span>
+                                <span class="solution-count">${{clue.anagramSolutions.length}} ${{clue.anagramSolutions.length === 1 ? 'anagram' : 'anagrams'}}</span>
                             </div>
                             ${{clue.anagramSolutions.length > 0 ? `
                                 <div class="solution-dropdown" id="dropdown-${{clueId}}" style="display: none;">
@@ -2468,7 +2470,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                             <div class="clue-header">
                                 <span class="clue-number">${{clueNumber}}.</span>
                                 <span class="clue-text">${{clue.originalSolution}}</span>
-                                <span class="solution-count">${{clue.anagramSolutions.length}} anagrams</span>
+                                <span class="solution-count">${{clue.anagramSolutions.length}} ${{clue.anagramSolutions.length === 1 ? 'anagram' : 'anagrams'}}</span>
                             </div>
                             ${{clue.anagramSolutions.length > 0 ? `
                                 <div class="solution-dropdown" id="dropdown-${{clueId}}" style="display: none;">
@@ -2525,7 +2527,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                             <div class="clue-header">
                                 <span class="clue-number">${{clueNumber}}.</span>
                                 <span class="clue-text">${{clue.original_solution}}</span>
-                                <span class="solution-count">${{clue.anagram_solutions.length}} anagrams</span>
+                                <span class="solution-count">${{clue.anagram_solutions.length}} ${{clue.anagram_solutions.length === 1 ? 'anagram' : 'anagrams'}}</span>
                             </div>
                             ${{clue.anagram_solutions.length > 0 ? `
                                 <div class="solution-dropdown" id="dropdown-${{clueId}}" style="display: none;">
@@ -2564,7 +2566,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                             <div class="clue-header">
                                 <span class="clue-number">${{clueNumber}}.</span>
                                 <span class="clue-text">${{clue.original_solution}}</span>
-                                <span class="solution-count">${{clue.anagram_solutions.length}} anagrams</span>
+                                <span class="solution-count">${{clue.anagram_solutions.length}} ${{clue.anagram_solutions.length === 1 ? 'anagram' : 'anagrams'}}</span>
                             </div>
                             ${{clue.anagram_solutions.length > 0 ? `
                                 <div class="solution-dropdown" id="dropdown-${{clueId}}" style="display: none;">
@@ -2573,7 +2575,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                                         ${{clue.anagram_solutions.map(anagram => `<option value="${{anagram}}">${{anagram}}</option>`).join('')}}
                                     </select>
                                     <button class="apply-solution" data-clue="${{clueId}}">Apply</button>
-                                    </div>
+                                </div>
                             ` : ''}}
                         </div>
                     `;
@@ -2618,6 +2620,8 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     toggleButton.textContent = 'Toggle Anagram Mode';
                     toggleButton.style.backgroundColor = '#17a2b8';
                     showNotification('Switched to Initial Grid Mode', 'info');
+                    // Update progress for initial grid
+                    updateProgress();
                 }} else {{
                     // Switch to anagram mode
                     initialCluesContainer.style.display = 'none';
@@ -2625,6 +2629,11 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     toggleButton.textContent = 'Toggle Initial Mode';
                     toggleButton.style.backgroundColor = '#28a745';
                     showNotification('Switched to Anagram Grid Mode', 'info');
+                    // Reset progress bar to zero for anagram grid
+                    document.querySelector('.progress-fill').style.width = '0%';
+                    document.querySelector('.progress-stats').innerHTML = 
+                        `<div>Cells filled: 0/64 (0.0%)</div>
+                         <div>Clues solved: 0/24</div>`;
                 }}
             }}
         }}
@@ -2684,7 +2693,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                             if (userSelectedSolutions.has(clueId)) {{
                                 countElement.textContent = `Solved: ${{clue.possible_solutions[0]}}`;
                             }} else {{
-                                countElement.textContent = `${{candidateCount}} candidates`;
+                                countElement.textContent = `${{candidateCount}} ${{candidateCount === 1 ? 'candidate' : 'candidates'}}`;
                             }}
                         }}
                         
@@ -3034,15 +3043,17 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     }}
                 }}
                 
-                // Update the count text
-                const countElement = clueElement.querySelector('.solution-count');
-                if (countElement) {{
-                    if (anagramUserSelectedSolutions.has(clueId)) {{
-                        countElement.textContent = 'Selected';
-                    }} else {{
-                        countElement.textContent = `${{clue.anagram_solutions.length}} anagrams`;
-                    }}
-                }}
+                        // Update the count text
+        const countElement = clueElement.querySelector('.solution-count');
+        if (countElement) {{
+            if (anagramUserSelectedSolutions.has(clueId)) {{
+                countElement.textContent = 'Selected';
+            }} else {{
+                // Show count of anagrams (singular when only one)
+                const anagramText = clue.anagram_solutions.length === 1 ? 'anagram' : 'anagrams';
+                countElement.textContent = `${{clue.anagram_solutions.length}} ${{anagramText}}`;
+            }}
+        }}
                 
                 // Remove all status classes and apply correct one
                 clueElement.className = 'clue anagram-clue';
