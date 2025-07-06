@@ -18,6 +18,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from systematic_grid_parser import parse_grid, ClueTuple
 from clue_classes import ListenerClue, ClueFactory, ClueManager, ClueParameters, AnagramClue
 from enhanced_constrained_solver import EnhancedConstrainedSolver
+from listener import get_prime_factors_with_multiplicity
 
 def load_clue_parameters(filename: str) -> Dict[Tuple[int, str], Tuple[int, int, int]]:
     """Load clue parameters from file."""
@@ -1199,6 +1200,61 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                         </div>
                     </div>
                 </div>
+                <div class="prime-factor-workpad" style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 6px; border: 2px solid #dee2e6;">
+                    <h3 style="margin-top: 0; color: #495057; border-bottom: 2px solid #6c757d; padding-bottom: 8px;">🔢 Prime Factor Workpad</h3>
+                    <div style="margin-bottom: 15px;">
+                        <label for="workpad-number" style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">Enter a number to factorize:</label>
+                        <input type="number" id="workpad-number" placeholder="e.g., 142857" style="
+                            width: 100%;
+                            padding: 8px;
+                            border: 1px solid #ced4da;
+                            border-radius: 4px;
+                            font-size: 14px;
+                            margin-bottom: 10px;
+                        ">
+                        <button id="factorize-btn" style="
+                            background-color: #007bff;
+                            color: white;
+                            border: none;
+                            padding: 8px 16px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            margin-right: 10px;
+                        ">Factorize</button>
+                        <button id="clear-workpad" style="
+                            background-color: #6c757d;
+                            color: white;
+                            border: none;
+                            padding: 8px 16px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 14px;
+                        ">Clear</button>
+                    </div>
+                    <div id="factorization-result" style="
+                        background-color: white;
+                        border: 1px solid #dee2e6;
+                        border-radius: 4px;
+                        padding: 12px;
+                        min-height: 30px;
+                        font-family: 'Courier New', monospace;
+                        font-size: 14px;
+                        color: #495057;
+                    ">
+                        <div style="color: #6c757d; font-style: italic;">Enter a number above to see its prime factorization</div>
+                    </div>
+                    <div id="factorization-stats" style="
+                        margin-top: 10px;
+                        padding: 8px;
+                        background-color: #e9ecef;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        color: #495057;
+                        display: none;
+                    "></div>
+                </div>
+                
                 <div class="progress-section">
                     <h3>Progress</h3>
                     <div class="progress-bar">
@@ -1248,6 +1304,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     ">Toggle Anagram Mode</button>
                     <div class="dev-info" style="font-size: 12px; color: #666; margin-top: 5px;">Use these buttons to quickly test the anagram grid</div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -1334,6 +1391,13 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             document.getElementById('dev-fill-14a').addEventListener('click', fill14A);
             document.getElementById('dev-fill-complete').addEventListener('click', fillCompleteGrid);
             document.getElementById('dev-toggle-anagram').addEventListener('click', toggleAnagramMode);
+            document.getElementById('factorize-btn').addEventListener('click', factorizeNumber);
+            document.getElementById('clear-workpad').addEventListener('click', clearWorkpad);
+            document.getElementById('workpad-number').addEventListener('keypress', function(e) {{
+                if (e.key === 'Enter') {{
+                    factorizeNumber();
+                }}
+            }});
             
             // Show intro modal
             showIntroModal();
@@ -3323,6 +3387,115 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 }}, '*');
             }}
         }});
+
+        function factorizeNumber() {{
+            const input = document.getElementById('workpad-number');
+            const resultDiv = document.getElementById('factorization-result');
+            const statsDiv = document.getElementById('factorization-stats');
+            const number = parseInt(input.value);
+            if (!number || number <= 0) {{
+                resultDiv.innerHTML = '<div style="color: #dc3545;">Please enter a positive number</div>';
+                statsDiv.style.display = 'none';
+                return;
+            }}
+            const factorization = getPrimeFactorization(number);
+            const stats = getPrimeFactorStats(number);
+            resultDiv.innerHTML = `<div style="font-weight: bold; margin-bottom: 8px;">${{factorization}}</div>`;
+            statsDiv.innerHTML = `
+                <strong>Factors:</strong><br>
+                • Number of factors: ${{stats.count}}<br>
+                • Smallest factor: ${{stats.min_factor}}<br>
+                • Largest factor: ${{stats.max_factor}}<br>
+                • Difference: ${{stats.difference}}<br>
+                <br>
+                <strong>Clue:</strong> <strong>${{stats.count}}:${{stats.difference}}</strong>
+            `;
+            statsDiv.style.display = 'block';
+        }}
+
+        function clearWorkpad() {{
+            document.getElementById('workpad-number').value = '';
+            document.getElementById('factorization-result').innerHTML = '<div style="color: #6c757d; font-style: italic;">Enter a number above to see its prime factorization</div>';
+            document.getElementById('factorization-stats').style.display = 'none';
+        }}
+
+        function getPrimeFactorization(number) {{
+            if (number <= 1) return `${{number}} (no prime factors)`;
+            const factors = [];
+            let n = number;
+            while (n % 2 === 0) {{
+                factors.push(2);
+                n = n / 2;
+            }}
+            for (let i = 3; i <= Math.sqrt(n); i += 2) {{
+                while (n % i === 0) {{
+                    factors.push(i);
+                    n = n / i;
+                }}
+            }}
+            if (n > 2) {{
+                factors.push(n);
+            }}
+            if (factors.length === 0) {{
+                return `${{number}} (prime)`;
+            }}
+            const factorCounts = {{}};
+            for (const factor of factors) {{
+                factorCounts[factor] = (factorCounts[factor] || 0) + 1;
+            }}
+            const factorParts = [];
+            for (const [factor, count] of Object.entries(factorCounts).sort((a, b) => parseInt(a[0]) - parseInt(b[0]))) {{
+                if (count === 1) {{
+                    factorParts.push(factor);
+                }} else {{
+                    factorParts.push(`${{factor}}^${{count}}`);
+                }}
+            }}
+            return `${{number}} = ${{factorParts.join(' × ')}}`;
+        }}
+
+        function getPrimeFactorStats(number) {{
+            if (number <= 1) {{
+                return {{
+                    count: 0,
+                    min_factor: null,
+                    max_factor: null,
+                    difference: null,
+                    is_prime: number > 1
+                }};
+            }}
+            const factors = [];
+            let n = number;
+            while (n % 2 === 0) {{
+                factors.push(2);
+                n = n / 2;
+            }}
+            for (let i = 3; i <= Math.sqrt(n); i += 2) {{
+                while (n % i === 0) {{
+                    factors.push(i);
+                    n = n / i;
+                }}
+            }}
+            if (n > 2) {{
+                factors.push(n);
+            }}
+            if (factors.length === 0) {{
+                return {{
+                    count: 0,
+                    min_factor: number,
+                    max_factor: number,
+                    difference: 0,
+                    is_prime: true
+                }};
+            }}
+            return {{
+                count: factors.length,
+                min_factor: Math.min(...factors),
+                max_factor: Math.max(...factors),
+                difference: Math.max(...factors) - Math.min(...factors),
+                is_prime: false
+            }};
+        }}
     </script>
 </body>
 </html>"""

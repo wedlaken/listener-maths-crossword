@@ -124,8 +124,12 @@ git clean -fd
 ## Project Context
 
 ### Key Components
-1. `listener.py`: Core number-finding module
+1. `listener.py`: Core number-finding module with prime factorization utilities
 2. `interactive_solver.py`: **MAIN INTERACTIVE SOLVER** (successfully used to complete puzzle)
+   - Features unified grid interface with toggle between initial and anagram stages
+   - Includes prime factorization workpad for mathematical experimentation
+   - Supports constraint propagation and solution validation
+   - Provides undo/redo functionality and solution history
 3. `systematic_grid_parser.py`: Grid structure parsing (uses ground truth data)
 4. `app.py`: Flask web application (production deployment)
 5. `clue_classes.py`: Clue object definitions and management
@@ -196,6 +200,64 @@ enhanced_solver = EnhancedConstrainedSolver(min_solved_cells=2)
 enhanced_solver.add_clue_cells("12_ACROSS", [0, 1, 2, 3])
 result = enhanced_solver.apply_solution("12_ACROSS", 167982)
 ```
+
+#### Integration with Interactive Solver
+
+## Recent Major Improvements (December 2024)
+
+### Interactive Solver Enhancements
+
+#### Prime Factorization Workpad
+- **Purpose**: Provides mathematical experimentation tools for users
+- **Features**:
+  - Real-time prime factorization of any number
+  - Display of factor statistics (count, min/max factors, difference)
+  - Clue format calculation (count:difference) for puzzle solving
+  - Positioned logically between clue list and progress tracking
+- **Implementation**: JavaScript functions integrated with Python f-string HTML generation
+- **User Experience**: Significantly improves puzzle-solving experience by enabling mathematical discovery
+
+#### Unified Grid Interface
+- **Purpose**: Seamless transition between initial puzzle and anagram challenge
+- **Features**:
+  - Single interface supporting both puzzle stages
+  - Toggle functionality between initial and anagram grids
+  - Separate state management for each grid type
+  - Dynamic anagram clue generation when initial grid is completed
+- **Technical Implementation**:
+  - Separate `solvedCells` and `anagramSolvedCells` state objects
+  - Dynamic `AnagramClue` object creation from completed initial clues
+  - Constraint propagation for anagram solutions
+  - Unified event handling with grid-type detection
+
+#### Enhanced User Experience
+- **Solution History**: Undo/redo functionality with timestamp tracking
+- **Constraint Propagation**: Real-time elimination of incompatible solutions
+- **Visual Feedback**: Color-coded clue states (solved, multiple solutions, unclued)
+- **Developer Tools**: Quick test buttons for rapid development and testing
+- **Responsive Design**: Clean, modern interface with intuitive navigation
+
+#### Code Organization Improvements
+- **Test File Organization**: Moved `test_anagram_fix.py` and `test_anagram_clue.py` to `tests/` directory
+- **F-String Syntax**: Resolved JavaScript/CSS escaping issues in Python f-strings
+- **Modular Design**: Clear separation between grid generation, clue management, and UI logic
+
+### Technical Challenges Resolved
+
+#### F-String JavaScript Integration
+- **Problem**: JavaScript code with curly braces and template literals caused Python f-string syntax errors
+- **Solution**: Proper escaping of JavaScript code within Python f-strings
+- **Impact**: Enables complex JavaScript functionality in generated HTML
+
+#### Anagram Grid State Management
+- **Problem**: Shared clue IDs between initial and anagram grids caused conflicts
+- **Solution**: Separate state objects and unique clue ID prefixes (`anagram_`)
+- **Impact**: Independent operation of both puzzle stages
+
+#### Dynamic Anagram Generation
+- **Problem**: Anagram clues needed to be generated only after initial grid completion
+- **Solution**: Dynamic creation of `AnagramClue` objects when initial grid is solved
+- **Impact**: Proper constraint application and solution validation
 
 #### Integration with Interactive Solver
 The `interactive_solver.py` uses `EnhancedConstrainedSolver` as its constraint engine:
