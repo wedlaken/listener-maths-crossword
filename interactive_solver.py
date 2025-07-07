@@ -2161,6 +2161,13 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             if (anagramCluesContainer) {{
                 anagramCluesContainer.style.display = 'block';
             }}
+            
+            // Reset progress bar to zero for anagram grid
+            document.querySelector('.progress-fill').style.width = '0%';
+            document.querySelector('.progress-stats').innerHTML = 
+                `<div>Cells filled: 0/64 (0.0%)</div>
+                 <div>Clues solved: 0/24</div>`;
+            
             // Scroll to anagram grid section
             if (anagramGridSection) {{
                 anagramGridSection.scrollIntoView({{ behavior: 'smooth' }});
