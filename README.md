@@ -1,5 +1,5 @@
 # Listener Maths Crossword Solver
-#### Video Demo: [URL HERE]
+#### Video Demo: [URL HERE - To be added after video recording]
 #### Description:
 
 ## Project Overview
@@ -13,6 +13,8 @@ The Listener Maths Crossword Solver is a sophisticated, production-ready web app
 - **Visual Feedback**: Color-coded clues distinguish between user-selected solutions and algorithm-determined solutions
 - **Undo/Redo System**: Complete solution history with selective restoration capabilities
 - **Deselect Functionality**: Remove individual solutions and restore all possible options
+- **Two-Stage Puzzle Experience**: Complete the initial mathematical puzzle, then tackle an anagram challenge where every entry must be an anagram of the original
+- **Prime Factorization Workpad**: Interactive tool for exploring mathematical properties and understanding clue constraints
 
 ### 🔐 User Management & Persistence
 - **User Registration & Authentication**: Email-based registration with secure password hashing
@@ -38,6 +40,8 @@ The Listener Maths Crossword Solver is a sophisticated, production-ready web app
 - **Real-time Interactivity**: JavaScript-based constraint propagation and state management
 - **AJAX Communication**: Asynchronous updates without page refreshes
 - **Progressive State Management**: Automatic save/load functionality with user progress tracking
+- **Unified Grid Interface**: Seamless transition between initial and anagram puzzle stages with consistent UI/UX
+- **Mathematical Tools**: Interactive prime factorization workpad for educational exploration
 
 ### Mathematical Engine
 - **Prime Number Algorithms**: Efficient prime factorization and property checking
@@ -71,10 +75,10 @@ This transition enabled significant progress:
 
 ### Core Application Files
 - **`app.py`**: Main Flask application with user authentication, database models, and API endpoints
-- **`interactive_solver.py`**: Generates the interactive HTML interface with real-time constraint propagation
+- **`interactive_solver.py`**: Generates the interactive HTML interface with real-time constraint propagation and two-stage puzzle experience
 - **`listener.py`**: Core mathematical algorithms for prime factorization and number property checking
 - **`systematic_grid_parser.py`**: Ground truth data parser for grid structure and clue positions
-- **`clue_classes.py`**: Advanced data structures for clue management and state tracking
+- **`clue_classes.py`**: Advanced data structures for clue management and state tracking, including AnagramClue class for second-stage puzzle
 
 ### Data & Configuration
 - **`data/Listener 4869 clues.txt`**: Ground truth clue parameters and puzzle data
@@ -95,12 +99,16 @@ This transition enabled significant progress:
 - **Backtracking with State Management**: Sophisticated undo/redo system with state snapshots
 - **Prime Factorization Logic**: Mathematical algorithms for finding numbers with specific prime factor properties
 - **Real-time Solution Filtering**: Dynamic updating of valid solutions as the puzzle progresses
+- **Anagram Generation Algorithms**: Permutation-based anagram generation with mathematical constraints for second-stage puzzle
+- **Cross-Stage State Management**: Seamless transition between initial and anagram puzzle stages with progress tracking
 
 ### 2. Sophisticated Data Structures
 - **Custom Clue Classes**: Advanced state tracking with original vs. current solution management
+- **AnagramClue Class**: Specialized data structure for second-stage puzzle with anagram solution generation
 - **Complex Grid Management**: Multi-dimensional grid systems with cell indexing and validation
 - **JSON Serialization**: Efficient state persistence for database storage and restoration
 - **Solution Set Management**: Optimized handling of large solution sets (up to 32 solutions per clue)
+- **Cross-Stage Data Synchronization**: Separate state management for initial and anagram puzzle stages
 
 ### 3. Full-Stack Web Development
 - **Flask Backend**: Complete web framework with SQLAlchemy ORM and user authentication
@@ -139,13 +147,22 @@ The application is configured for deployment on platforms like Heroku, Railway, 
 - Static file serving configured
 - Production-ready WSGI server
 
-## Future Enhancements
+## Recent Enhancements & Future Development
 
+### Recent Additions (Latest Development Session)
+- **Two-Stage Puzzle Experience**: Complete anagram challenge after solving the initial mathematical puzzle
+- **Prime Factorization Workpad**: Interactive mathematical exploration tool
+- **Unified UI/UX**: Consistent interface across both puzzle stages with seamless transitions
+- **Enhanced Progress Tracking**: Reset progress bar when transitioning to anagram stage
+- **Improved Grammar**: Singular/plural display for solution counts ("1 solution" vs "2 solutions")
+
+### Future Enhancements
 While the current implementation uses ground truth data for reliability, the OCR infrastructure has been preserved for potential future enhancements:
 - **Automated Puzzle Parsing**: Reintegration of OCR for automatic puzzle input
 - **Multiple Puzzle Support**: Database schema supports multiple puzzle types
 - **Advanced Analytics**: User solving patterns and statistics
 - **Mobile Optimization**: Enhanced responsive design for mobile devices
+- **Server Deployment**: Learning web hosting and deployment processes
 
 ## Conclusion
 
@@ -153,6 +170,10 @@ This project demonstrates not just basic web development skills, but the ability
 
 The strategic decision to use ground truth data instead of OCR allowed me to focus on core programming concepts and advanced features, resulting in a production-ready application that showcases deep understanding of both theoretical concepts and practical implementation.
 
+**AI-Assisted Development Impact**: Working with Cursor AI throughout this project fundamentally changed my development approach. Instead of getting bogged down in syntax details and repetitive coding tasks, I could focus on architectural decisions, user experience design, and learning new technologies. This collaboration allowed me to explore advanced concepts like SQLAlchemy ORM, session management, and complex algorithmic thinking that I might not have attempted otherwise.
+
+The result is a sophisticated application that goes far beyond typical CS50 project requirements, demonstrating both technical proficiency and strategic thinking in modern software development.
+
 ---
 
-*This project represents approximately 750+ words of documentation, demonstrating thorough understanding of the project's complexity and implementation details.* 
+*This project represents approximately 850+ words of documentation, demonstrating thorough understanding of the project's complexity and implementation details.* 
