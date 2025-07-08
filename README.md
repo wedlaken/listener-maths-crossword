@@ -4,7 +4,11 @@
 
 ## Project Overview
 
-The Listener Maths Crossword Solver is a sophisticated, production-ready web application that solves mathematical crossword puzzles using constraint satisfaction algorithms and real-time interactivity. What began as a command-line puzzle solver evolved into a full-stack web application demonstrating advanced programming concepts well beyond typical CS50 requirements.
+The Listener Maths Crossword Solver is a sophisticated, production-ready web application that solves mathematical crossword puzzles using constraint satisfaction algorithms and real-time interactivity. What began as a command-line puzzle solver evolved into a full-stack web application demonstrating advanced programming concepts.
+
+I've spoken about the benefits of working with AI tools in the video recorded for this submission and please read the VIDEO_SCRIPT.md in the root of this project in conjunction with this required file. I've allowed Cursor to put the bulk of this README together so as not to overlook some of the programming paradigms and frameworks we've used and many of the advanced programmatic techniques – especially in Pyhton and JavaScript – that I've wanted to explore and implement. I was keen that the fundamental structure of the programming had class objects at its heart and used multiple techniques to manipulate those objects and their states to meet the challenge of a quite sophisiticated puzzle posed by a human (Listener Crossword no.4869).
+
+You will find a lot more detail about the challenges, changes to development direction and TODOs for future enhancements in the mutiple .md files in the document folders. 
 
 ## Key Features
 
@@ -168,12 +172,10 @@ While the current implementation uses ground truth data for reliability, the OCR
 
 This project demonstrates not just basic web development skills, but the ability to build complex, real-world applications that combine multiple programming paradigms, mathematical problem-solving, and modern web technologies. It also shows **strategic thinking and adaptability** - the ability to recognize when initial approaches aren't working and pivot to more effective solutions.
 
-The strategic decision to use ground truth data instead of OCR allowed me to focus on core programming concepts and advanced features, resulting in a production-ready application that showcases deep understanding of both theoretical concepts and practical implementation.
+The decision to input grid structure and clue data instead of OCR was a major change to the original concept but it allowed me to focus on core programming concepts and advanced features, resulting in an application that shows understanding of both theoretical concepts and practical implementation, and with greater attention to UX and game play.
 
-**AI-Assisted Development Impact**: Working with Cursor AI throughout this project fundamentally changed my development approach. Instead of getting bogged down in syntax details and repetitive coding tasks, I could focus on architectural decisions, user experience design, and learning new technologies. This collaboration allowed me to explore advanced concepts like SQLAlchemy ORM, session management, and complex algorithmic thinking that I might not have attempted otherwise.
+**AI-Assisted Development Impact**: Working with Cursor on this project fundamentally changed my development approach and resulted in me thinking extensively about how I am likely to program 'in the wild' and therefore on how I want this graduation project to reflect realities that have changed dramatically even over the time since I started CS50 in 2023. I am not a dedicated programmer; I started an Edx course for some education in computer science while working on a startup venture)with the idea that I should at least understand what is possible, and have a better idea if someone I might hire knew what they were doing! I've seen how LLMs changed a lot in how people work and write from 2022's launch of ChatGPT and through the last year or so began to see the integration of those tools in programming. Arguably, the impact is even greater in programming than in natural human language, as its so much more about syntax and less about semantics and the available, contextual codebase is enormous. So, I scrapped my earlier attempts at my final project and started this. Instead of getting bogged down in syntax details and repetitive coding tasks, I saw that I could focus on architectural decisions, user experience design, and learning new technologies and programming techniques. I could explore advanced concepts like SQLAlchemy ORM, session management, and complex algorithmic thinking that I might not have attempted otherwise. Please look at the VIDEO_SCRIPT.md for some more thoughts on this.
 
-The result is a sophisticated application that goes far beyond typical CS50 project requirements, demonstrating both technical proficiency and strategic thinking in modern software development.
+The result of my time over the last couple of weeks is a sophisticated application that goes far beyond my initial intention, demonstrating both technical proficiency and strategic thinking in the 'new paradigm' of software development. I've learnt a huge amount and am glad that I prompted my development partner (Cursor) to document everything as we went along and update my learning points, so that I'll continue to learn from this project for weeks and months to come and to be inspired for even longer.
 
 ---
-
-*This project represents approximately 850+ words of documentation, demonstrating thorough understanding of the project's complexity and implementation details.* 
