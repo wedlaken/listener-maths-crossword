@@ -26,13 +26,14 @@ What started as a simple puzzle solver became a full-stack web application with 
 
 "Let me first show you the original newspaper puzzle that gave me the inspiration, and then demonstrate the solver in action.
 
-The 'Listener Crossword' has a long and rich history in the Times newspaper – the London version! – and is known to always be very challenging. I did not realise at first that the nature of the puzzle is different each time it is published every 3 months, and so my original idea, which was to design an application to recognise the puzzle grid and clues from camera shots, became redendant. I stopped trying to make OCR – visual recognition – work and expanded the work on the core logic and user interface.
+The 'Listener Crossword' has a long and celebrated history in the Times newspaper – the London publication – and is known to be extremely challenging. I did not realise that the puzzle's format is different each time it is published, every 3 months, and so my original idea to build an app to recognise the puzzle grid and clues from camera shots, became redendant. I stopped trying to make OCR (visual parsing) work, and switched effort to the core logic and user experience.
+*[Show screenshots of original puzzle grid and clue list – with inset video of me?]*
 
-The clues to the first stage of the puzzle come as 2 numbers, the first being the number of prime factors in the solution, and the second is the difference between the largest and the smallest values of those factors. This can produce a large solution set for each clue, although some turn out to be simply quadratics or factors or two, for example. I developed algorithms to constrain solution sets to account for clues/solutions that cross each other.
+The clues to the first stage of the puzzle come as two numbers, the first being the number of prime factors in the solution, and the second is the difference between the largest and the smallest values of those factors. This can produce a large solution set for each clue, although some turn out to be simply quadratics or powers of a prime, for example. I built algorithms to constrain solution sets to account for clues/solutions that cross each other.
 
 Four 'unclued clues' in the centre of the grid do not have the same clue type, but are numbers that are both multiples and anagrams of themselves. The final stage of the puzzle is to produce a grid that contains the digits in each initial grid solution in a different order (i.e. anagrams) with no conflicts where clues meet."
 
-"Here's the interactive interface where users can:
+"Here is the interactive interface where users can:
 
 1. **Select solutions** from computed possibilities
 2. **See real-time constraint propagation** - when I choose a solution, incompatible options are automatically filtered out
