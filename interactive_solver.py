@@ -3211,6 +3211,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         function showIntroModal() {{
             const title = '🧩 Welcome to the Listener Crossword Solver 🧩';
             const content = `
+                <div style="background: rgba(255,255,255,0.1);padding: 20px;border-radius: 15px;margin: 20px 0;backdrop-filter: blur(5px);">
                     <h3 style="margin: 0 0 15px 0; color: #ffd700;">The Prime Factoring Challenge</h3>
                     <p style="margin: 0 0 15px 0; line-height: 1.6;">
                         Welcome to the first stage of this mathematical crossword puzzle! 
@@ -3218,15 +3219,19 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     </p>
                     <div style="background: rgba(255,255,255,0.2);padding: 15px;border-radius: 10px;border-left: 4px solid #ffd700;text-align: left;font-style: italic;">
                         <strong>How to Play:</strong><br>
+                        • <strong>Clued entries</strong> in "a:b" format where a= no. of prime factors of solution and b= difference between largest and smallest factor<br>
+                        • <strong>Unclued entries</strong> (marked "Unclued") form an anagram of themselves in the final grid when multiplied by an integer<br>
                         • <strong>Mathematical Key:</strong> Look for patterns in the unclued entries - there's a special cyclic number that will be key in solving the puzzle!
                     </div>
                 </div>
+                <div style="background: rgba(255,255,255,0.1);padding: 20px;border-radius: 15px;margin: 20px 0;backdrop-filter: blur(5px);">
                     <h3 style="margin: 0 0 15px 0; color: #ffd700;">Tips for Success</h3>
                     <ul style="text-align: left; margin: 0; padding-left: 20px;">
                         <li>Start with the clued entries to establish some constraints</li>
                         <li>Pay special attention to the unclued six-digit entries</li>
                         <li>Look for the mathematical key - a special number with unique properties</li>
                         <li>Use the constraint propagation to eliminate impossible solutions</li>
+                        <li>Make use of the factoring notepad (and the undo feature if you make mistakes!</li>
                     </ul>
                 </div>
             `;
@@ -3239,12 +3244,14 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         function showAnagramCompletionCelebration() {{
             const title = '🏆 Master Puzzle Solver! 🏆';
             const content = `
+                <div style="background: rgba(255,255,255,0.1);padding: 20px;border-radius: 15px;margin: 20px 0;backdrop-filter: blur(5px);">
                     <h3 style="margin: 0 0 15px 0; color: #ffd700;">Congratulations!</h3>
                     <p style="margin: 0 0 15px 0; line-height: 1.6;">
                         You have successfully completed both stages of this ingenious mathematical puzzle! 
                         This is no small feat - it takes mathematical insight and logical perseverence to solve.
                     </p>
                 </div>
+                <div style="background: rgba(255,255,255,0.1);padding: 20px;border-radius: 15px;margin: 20px 0;backdrop-filter: blur(5px);">
                     <h3 style="margin: 0 0 15px 0; color: #ffd700;">The Mathematical Key...</h3>
                     <p style="margin: 0 0 15px 0; line-height: 1.6;">
                         Did you discover the special cyclic number <strong>142857</strong>? This remarkable number is a helpful key to the puzzle:
@@ -3261,9 +3268,11 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                         This cyclic property makes it a perfect fit for the initial puzzle and the anagram challenge.
                     </div>
                 </div>
+                <div style="background: rgba(255,255,255,0.1);padding: 20px;border-radius: 15px;margin: 20px 0;backdrop-filter: blur(5px);">
                     <h3 style="margin: 0 0 15px 0; color: #ffd700;">Your Solving Journey</h3>
                     <p style="margin: 0 0 15px 0; line-height: 1.6;">
                         Whether you found this through mathematical insight, systematic trial and error, or a bit of luck, 
+                        you've demonstrated tenacity and strong problem-solving skills.
                     </p>
                     <p style="margin: 0 0 15px 0; line-height: 1.6; font-style: italic;">
                         "The value of a problem is not so much coming up with the answer as in the ideas it forces on the solver." - Andrew Wiles
