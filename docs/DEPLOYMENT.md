@@ -20,7 +20,7 @@ pip install -r requirements.txt
 ```bash
 python app.py
 ```
-The application will be available at `http://localhost:5000`
+The application will be available at `http://localhost:5001`
 
 ## Deployment Options
 

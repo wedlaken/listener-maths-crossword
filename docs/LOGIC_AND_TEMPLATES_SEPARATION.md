@@ -24,7 +24,7 @@ This document explains how the Flask application separates logic from display, a
 
 ### **Request Flow:**
 ```
-User visits localhost:5000/solver
+User visits localhost:5001/solver
     ↓
 Flask serves templates/solver.html
     ↓
@@ -170,7 +170,7 @@ The solution selection popup appears above the clue list and looks messy.
 
 ### **For Display Changes:**
 1. Edit `static/interactive_solver.html`
-2. Refresh browser at `localhost:5000/solver`
+2. Refresh browser at `localhost:5001/solver`
 3. Changes appear immediately
 
 ### **For Logic Changes:**

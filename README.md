@@ -142,7 +142,7 @@ This transition enabled significant progress:
 1. Clone the repository: `git clone [repository-url]`
 2. Install dependencies: `pip install -r requirements.txt`
 3. Run the development server: `python dev_server.py`
-4. Open `http://localhost:5000` in your browser
+4. Open `http://localhost:5001` in your browser
 
 ### Production Deployment
 The application is configured for deployment on platforms like Heroku, Railway, or Render:

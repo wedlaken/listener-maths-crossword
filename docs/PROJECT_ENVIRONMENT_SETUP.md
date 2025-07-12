@@ -330,8 +330,8 @@ python dev_server.py
 
 **Server won't start:**
 ```bash
-# Check if port 5000 is in use
-netstat -ano | findstr :5000
+# Check if port 5001 is in use
+netstat -ano | findstr :5001
 
 # Kill process if needed
 taskkill /PID <process_id> /F

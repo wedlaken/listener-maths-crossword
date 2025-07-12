@@ -168,6 +168,13 @@ This issue highlighted the importance of understanding **language syntax conflic
 - Improved the code structure for validation and event handling, preventing UI lockups.
 - Preserved gameplay by allowing user choice where multiple valid anagrams remain.
 
+### Recent Improvements (July 2025)
+- **Enhanced Undo Functionality**: Fixed undo issues in anagram grid where undoing removed all entries but clue lists were not updated. Enhanced `saveState` and `undoLastSolution` functions to save and restore both initial and anagram grid states, including user-selected solutions and clue objects.
+- **State Persistence**: Added `updateAnagramGridDisplay` function to refresh the anagram grid display after undo operations. Updated `deselectSolution` function to handle anagram clues properly, removing anagram solutions and updating displays.
+- **UI/UX Improvements**: Renamed initial grid fill button to "Fill Initial Grid", hid anagram fill button when in initial grid mode, increased developer section height, and updated toggle buttons to show/hide the anagram fill button appropriately.
+- **Flask Integration**: Ensured Flask server version incorporates anagram grid state save/load changes and updated the HTML served to be consistent with the Python-generated HTML. Confirmed Flask app's database model and API routes support the anagram state fields.
+- **Database Migration**: Ran database migration script to ensure anagram state columns exist in the database for proper state persistence.
+
 ### Remaining TODOS
 - [ ] Fix CSS for anagram clues to match the initial grid for improved UI/UX.
 - [ ] Add a suitable celebration/animation at the end of the puzzle when both grids are complete.
@@ -184,7 +191,7 @@ source venv/bin/activate # macOS/Linux
 pip install -r requirements.txt
 
 # Run development server (port 5001 to avoid AirPlay conflict on macOS)
-python -c "from app import app; app.run(debug=True, port=5001)"
+python dev_server.py
 
 # Access at http://localhost:5001
 ```

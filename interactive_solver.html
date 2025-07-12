@@ -1186,7 +1186,7 @@
                     <button class="undo-button" id="undo-button" disabled>Undo Last Solution</button>
                     <div class="history-info" id="history-info">No solutions applied yet</div>
                 </div>
-                <div class="developer-section" style="margin-top: 15px; padding: 10px; background-color: #e9ecef; border-radius: 6px; text-align: center;">
+                <div class="developer-section" style="margin-top: 15px; padding: 15px; background-color: #e9ecef; border-radius: 6px; text-align: center; min-height: 120px;">
                     <h3>Developer Tools</h3>
                     <button class="dev-button" id="dev-fill-14a" style="
                         background-color: #28a745;
@@ -1207,7 +1207,18 @@
                         cursor: pointer;
                         font-size: 14px;
                         margin-right: 10px;
-                    ">Fill Complete Grid</button>
+                    ">Fill Initial Grid</button>
+                    <button class="dev-button" id="dev-fill-anagram" style="
+                        background-color: #ffc107;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        margin-right: 10px;
+                        display: none;
+                    ">Fill Anagram Grid</button>
                     <button class="dev-button" id="dev-toggle-anagram" style="
                         background-color: #17a2b8;
                         color: white;
@@ -1216,7 +1227,17 @@
                         border-radius: 4px;
                         cursor: pointer;
                         font-size: 14px;
+                        margin-right: 10px;
                     ">Toggle Anagram Mode</button>
+                    <button class="dev-button" id="dev-toggle-constraints" style="
+                        background-color: #6f42c1;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 14px;
+                    ">Toggle Constraints</button>
                     <div class="dev-info" style="font-size: 12px; color: #666; margin-top: 5px;">Use these buttons to quickly test the anagram grid</div>
                 </div>
 
@@ -1236,6 +1257,7 @@
         let anagramUserSelectedSolutions = new Set();  // Separate tracking for anagram solutions
         let originalSolutionCounts = {};
         let originalSolutions = {};
+        let anagramConstraintsEnabled = true;  // Global flag to control constraint level
         for (const [clueId, clue] of Object.entries(clueObjects)) {
             originalSolutionCounts[clueId] = clue.possible_solutions.length;
             originalSolutions[clueId] = [...clue.possible_solutions];
@@ -1244,13 +1266,21 @@
         let undoButton = null;
         let historyInfo = null;
         function saveState(clueId, solution) {
+            // Determine if this is an anagram solution
+            const isAnagramSolution = clueId.startsWith('anagram_');
+            
             const state = {
                 timestamp: new Date().toLocaleTimeString(),
                 clueId: clueId,
                 solution: solution,
+                isAnagramSolution: isAnagramSolution,
                 solvedCells: {...solvedCells},
                 clueObjects: JSON.parse(JSON.stringify(clueObjects)),
-                userSelectedSolutions: new Set(userSelectedSolutions)
+                userSelectedSolutions: new Set(userSelectedSolutions),
+                // Add anagram state to the saved state
+                anagramSolvedCells: {...anagramSolvedCells},
+                anagramClueObjects: JSON.parse(JSON.stringify(anagramClueObjects)),
+                anagramUserSelectedSolutions: new Set(anagramUserSelectedSolutions)
             };
             solutionHistory.push(state);
             updateUndoButton();
@@ -1260,17 +1290,41 @@
             if (solutionHistory.length === 0) return;
             const lastState = solutionHistory.pop();
             console.log('Undoing solution:', lastState);
+            
+            // Restore initial grid state
             solvedCells = {...lastState.solvedCells};
             clueObjects = JSON.parse(JSON.stringify(lastState.clueObjects));
             userSelectedSolutions = new Set(lastState.userSelectedSolutions);
+            
+            // Restore anagram grid state (if it exists in the saved state)
+            if (lastState.anagramSolvedCells) {
+                anagramSolvedCells = {...lastState.anagramSolvedCells};
+            }
+            if (lastState.anagramClueObjects) {
+                anagramClueObjects = JSON.parse(JSON.stringify(lastState.anagramClueObjects));
+            }
+            if (lastState.anagramUserSelectedSolutions) {
+                anagramUserSelectedSolutions = new Set(lastState.anagramUserSelectedSolutions);
+            }
+            
+            // Update displays
             updateGridDisplay();
             updateAllClueDisplays();
+            
+            // Update anagram grid display if anagram state exists
+            if (lastState.anagramSolvedCells && Object.keys(lastState.anagramSolvedCells).length > 0) {
+                updateAnagramGridDisplay();
+                updateAnagramClueDisplays();
+            }
+            
             updateProgress();
             updateUndoButton();
+            
             if (lastState.solution === 'DESELECT') {
                 showNotification(`Undid deselect for clue ${lastState.clueId}`, 'info');
             } else {
-                showNotification(`Undid solution "${lastState.solution}" for clue ${lastState.clueId}`, 'info');
+                const gridType = lastState.isAnagramSolution ? 'anagram grid' : 'initial grid';
+                showNotification(`Undid solution "${lastState.solution}" for clue ${lastState.clueId} (${gridType})`, 'info');
             }
         }
         function updateUndoButton() {
@@ -1282,7 +1336,8 @@
                 if (lastState.solution === 'DESELECT') {
                     historyInfo.textContent = `Last action: Deselected clue ${lastState.clueId} at ${lastState.timestamp}`;
                 } else {
-                    historyInfo.textContent = `Last solution: ${lastState.solution} for ${lastState.clueId} at ${lastState.timestamp}`;
+                    const gridType = lastState.isAnagramSolution ? 'anagram' : 'initial';
+                    historyInfo.textContent = `Last solution: ${lastState.solution} for ${lastState.clueId} (${gridType}) at ${lastState.timestamp}`;
                 }
             } else {
                 historyInfo.textContent = 'No solutions applied yet';
@@ -1296,6 +1351,17 @@
                 updateCellDisplay(parseInt(cellIndex), digit);
             }
         }
+        
+        function updateAnagramGridDisplay() {
+            // Clear all anagram cell values
+            document.querySelectorAll('[data-anagram="true"] .cell-value').forEach(el => {
+                el.remove();
+            });
+            // Update anagram grid with current anagramSolvedCells
+            for (const [cellIndex, digit] of Object.entries(anagramSolvedCells)) {
+                updateAnagramCellDisplay(parseInt(cellIndex), digit);
+            }
+        }
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, setting up event listeners');
             window.solvingStartTime = Date.now();
@@ -1305,7 +1371,9 @@
             undoButton.addEventListener('click', undoLastSolution);
             document.getElementById('dev-fill-14a').addEventListener('click', fill14A);
             document.getElementById('dev-fill-complete').addEventListener('click', fillCompleteGrid);
+            document.getElementById('dev-fill-anagram').addEventListener('click', fillAnagramGrid);
             document.getElementById('dev-toggle-anagram').addEventListener('click', toggleAnagramMode);
+            document.getElementById('dev-toggle-constraints').addEventListener('click', toggleConstraints);
             document.getElementById('factorize-btn').addEventListener('click', factorizeNumber);
             document.getElementById('clear-workpad').addEventListener('click', clearWorkpad);
             document.getElementById('workpad-number').addEventListener('keypress', function(e) {
@@ -1348,7 +1416,8 @@
                 const gridType = clueDiv.getAttribute('data-grid-type');
                 console.log('Clue clicked:', clueId, 'grid type:', gridType);
                 
-                if (userSelectedSolutions.has(clueId)) {
+                // Check if this clue has a user-selected solution (either initial or anagram)
+                if (userSelectedSolutions.has(clueId) || anagramUserSelectedSolutions.has(clueId)) {
                     showDeselectDialog(clueId);
                     return;
                 }
@@ -1881,10 +1950,10 @@
             
             modal.innerHTML = `
                 <div style="
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
                     color: white;
                     padding: 40px;
-                    border-radius: 20px;
+                    border-radius: 12px;
                     text-align: center;
                     max-width: 600px;
                     margin: 20px;
@@ -1892,61 +1961,60 @@
                     animation: slideIn 0.6s ease-out;
                     position: relative;
                     overflow: hidden;
+                    border: 1px solid #495057;
                 ">
                     <div style="
                         position: absolute;
-                        top: -10px;
-                        left: -10px;
-                        right: -10px;
-                        bottom: -10px;
-                        background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
-                        background-size: 400% 400%;
-                        animation: gradientShift 3s ease infinite;
-                        z-index: -1;
-                        border-radius: 20px;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 4px;
+                        background: linear-gradient(90deg, #28a745, #17a2b8, #007bff);
+                        z-index: 1;
                     "></div>
                     
-                    <h1 style="font-size: 2.5em; margin: 0 0 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                    <h1 style="font-size: 2.2em; margin: 0 0 20px 0; color: #e9ecef; font-weight: 300; letter-spacing: 1px;">
                         🎉 Puzzle Complete! 🎉
                     </h1>
                     
                     <div style="
-                        background: rgba(255,255,255,0.1);
+                        background: rgba(255,255,255,0.08);
                         padding: 20px;
-                        border-radius: 15px;
+                        border-radius: 8px;
                         margin: 20px 0;
-                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255,255,255,0.1);
                     ">
-                        <h3 style="margin: 0 0 15px 0; color: #ffd700;">Solving Statistics</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;">
-                            <div><strong>Time taken:</strong> ${Math.floor(solvingTime/60)}m ${solvingTime%60}s</div>
-                            <div><strong>Solutions applied:</strong> ${solutionsApplied}</div>
-                            <div><strong>Undo operations:</strong> ${undoOperations}</div>
-                            <div><strong>Completion rate:</strong> 100%</div>
+                        <h3 style="margin: 0 0 15px 0; color: #28a745; font-weight: 500; font-size: 1.3em;">Solving Statistics</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; color: #e9ecef;">
+                            <div><strong style="color: #17a2b8;">Time taken:</strong> ${Math.floor(solvingTime/60)}m ${solvingTime%60}s</div>
+                            <div><strong style="color: #17a2b8;">Solutions applied:</strong> ${solutionsApplied}</div>
+                            <div><strong style="color: #17a2b8;">Undo operations:</strong> ${undoOperations}</div>
+                            <div><strong style="color: #17a2b8;">Completion rate:</strong> 100%</div>
                         </div>
                     </div>
                     
                     <div style="
-                        background: rgba(255,255,255,0.1);
+                        background: rgba(255,255,255,0.08);
                         padding: 20px;
-                        border-radius: 15px;
+                        border-radius: 8px;
                         margin: 20px 0;
-                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255,255,255,0.1);
                     ">
-                        <h3 style="margin: 0 0 15px 0; color: #ffd700;">Ready for the Real Challenge?</h3>
-                        <p style="margin: 0 0 15px 0; line-height: 1.6;">
+                        <h3 style="margin: 0 0 15px 0; color: #17a2b8; font-weight: 500; font-size: 1.3em;">Ready for the Next Challenge?</h3>
+                        <p style="margin: 0 0 15px 0; line-height: 1.6; color: #e9ecef;">
                             Congratulations! You've successfully completed the first stage of the puzzle. 
-                            But the true challenge lies ahead...
+                            But a new challenge lies ahead...
                         </p>
                         <div style="
-                            background: rgba(255,255,255,0.2);
+                            background: rgba(23, 162, 184, 0.15);
                             padding: 15px;
-                            border-radius: 10px;
-                            border-left: 4px solid #ffd700;
-                            text-align: left;
-                            font-style: italic;
+                            border-radius: 8px;
+                            border-left: 4px solid #17a2b8;
+                            text-align: center;
+                            font-style: normal;
+                            color: #e9ecef;
                         ">
-                            <strong>The Anagram Challenge:</strong><br>
+                            <strong style="color: #17a2b8;">The Anagram Challenge:</strong><br>
                             "Solvers must submit a grid in which every entry is an anagram of its counterpart in the initial grid 
                             (same digits in a different order). For each of the unclued six-digit entries, the anagram is a multiple 
                             of its original value. The 48 numbers used (24 initial + 24 anagrams) are all different, and none start with zero."
@@ -1955,30 +2023,30 @@
                     
                     <div style="margin-top: 30px;">
                         <button onclick="showAnagramGridInline()" style="
-                            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+                            background: linear-gradient(135deg, #28a745, #20c997);
                             color: white;
                             border: none;
                             padding: 15px 30px;
-                            border-radius: 25px;
-                            font-size: 1.2em;
-                            font-weight: bold;
+                            border-radius: 8px;
+                            font-size: 1.1em;
+                            font-weight: 500;
                             cursor: pointer;
                             margin-right: 15px;
-                            transition: transform 0.2s;
-                            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-                        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            transition: all 0.3s ease;
+                            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+                        " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(40, 167, 69, 0.4)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(40, 167, 69, 0.3)'">
                             🧩 Show Anagram Grid
                         </button>
                         <button onclick="hideCompletionCelebration()" style="
-                            background: rgba(255,255,255,0.2);
+                            background: rgba(255,255,255,0.1);
                             color: white;
-                            border: 2px solid rgba(255,255,255,0.3);
+                            border: 1px solid rgba(255,255,255,0.2);
                             padding: 15px 30px;
-                            border-radius: 25px;
-                            font-size: 1.2em;
+                            border-radius: 8px;
+                            font-size: 1.1em;
                             cursor: pointer;
-                            transition: all 0.2s;
-                        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                            transition: all 0.3s ease;
+                        " onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
                             Continue Solving
                         </button>
                     </div>
@@ -1996,47 +2064,16 @@
             `;
             document.head.appendChild(gradientStyle);
             
-            // Create confetti effect
-            createConfetti();
+            // Add subtle glow animation for celebrations
+            const modalContent = modal.querySelector('div');
+            modalContent.style.animation = 'slideIn 0.6s ease-out, subtleGlow 3s ease-in-out infinite';
             
             document.body.appendChild(modal);
-            
-            // Play celebration sound (if available)
-            try {
-                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
-                audio.volume = 0.3;
-                audio.play().catch(() => {}); // Ignore errors if audio fails
-            } catch (e) {
-                // Ignore audio errors
-            }
         }
         
         function createConfetti() {
-            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3'];
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.style.cssText = `
-                        position: fixed;
-                        width: 10px;
-                        height: 10px;
-                        background: ${colors[Math.floor(Math.random() * colors.length)]};
-                        left: ${Math.random() * 100}vw;
-                        top: -10px;
-                        z-index: 9999;
-                        animation: confetti ${2 + Math.random() * 3}s linear forwards;
-                        border-radius: 50%;
-                    `;
-                    document.body.appendChild(confetti);
-                    
-                    // Remove confetti after animation
-                    setTimeout(() => {
-                        if (confetti.parentNode) {
-                            confetti.remove();
-                        }
-                    }, 5000);
-                }, i * 100);
-            }
+            // Removed confetti for sophisticated design
+            // The subtle glow animation provides sufficient celebration effect
         }
         
         function hideCompletionCelebration() {
@@ -2080,6 +2117,9 @@
             document.querySelector('.progress-stats').innerHTML = 
                 `<div>Cells filled: 0/64 (0.0%)</div>
                  <div>Clues solved: 0/24</div>`;
+            
+            // Show anagram fill button
+            document.getElementById('dev-fill-anagram').style.display = 'inline-block';
             
             // Scroll to anagram grid section
             if (anagramGridSection) {
@@ -2172,29 +2212,41 @@
         }
         
         function applyAnagramConstraints() {
-            // Apply constraint elimination to anagram solutions
+            // Apply constraint elimination to anagram solutions with a more balanced approach
             for (const [anagramClueId, anagramClue] of Object.entries(anagramClueObjects)) {
                 const originalClueId = anagramClueId.replace('anagram_', '');
                 const originalClue = clueObjects[originalClueId];
                 
                 if (!originalClue) continue;
                 
-                // Get available digits from crossing clues
-                const availableDigits = getAvailableDigitsForAnagramClue(anagramClueId);
+                // For the anagram stage, we want to provide more choice to the user
+                // Only apply constraints if there are already solved cells in the anagram grid AND constraints are enabled
+                const hasSolvedAnagramCells = Object.keys(anagramSolvedCells).length > 0;
                 
-                // Filter anagram solutions based on available digits
-                const validAnagrams = [];
-                for (const anagram of anagramClue.anagram_solutions) {
-                    if (isAnagramValidWithConstraints(anagram, anagramClue, availableDigits)) {
-                        validAnagrams.push(anagram);
+                if (hasSolvedAnagramCells && anagramConstraintsEnabled) {
+                    // Get available digits from crossing clues that are already solved
+                    const availableDigits = getAvailableDigitsForAnagramClue(anagramClueId);
+                    
+                    // Filter anagram solutions based on available digits
+                    const validAnagrams = [];
+                    for (const anagram of anagramClue.anagram_solutions) {
+                        if (isAnagramValidWithConstraints(anagram, anagramClue, availableDigits)) {
+                            validAnagrams.push(anagram);
+                        }
                     }
+                    
+                    // Update the anagram clue with filtered solutions
+                    anagramClue.anagram_solutions = validAnagrams;
+                    anagramClue.possible_solutions = validAnagrams;
+                    
+                    console.log(`Anagram clue ${anagramClueId}: ${anagramClue.original_solution_count} -> ${validAnagrams.length} valid anagrams (with constraints)`);
+                } else {
+                    // No solved cells yet - show all anagram solutions to give user choice
+                    anagramClue.anagram_solutions = anagramClue.anagram_solutions || [];
+                    anagramClue.possible_solutions = anagramClue.anagram_solutions;
+                    
+                    console.log(`Anagram clue ${anagramClueId}: ${anagramClue.anagram_solutions.length} anagrams available (no constraints yet)`);
                 }
-                
-                // Update the anagram clue with filtered solutions
-                anagramClue.anagram_solutions = validAnagrams;
-                anagramClue.possible_solutions = validAnagrams;
-                
-                console.log(`Anagram clue ${anagramClueId}: ${anagramClue.original_solution_count} -> ${validAnagrams.length} valid anagrams`);
             }
         }
         
@@ -2539,6 +2591,8 @@
                     anagramCluesContainer.style.display = 'none';
                     toggleButton.textContent = 'Toggle Anagram Mode';
                     toggleButton.style.backgroundColor = '#17a2b8';
+                    // Hide anagram fill button
+                    document.getElementById('dev-fill-anagram').style.display = 'none';
                     showNotification('Switched to Initial Grid Mode', 'info');
                     // Update progress for initial grid
                     updateProgress();
@@ -2548,6 +2602,8 @@
                     anagramCluesContainer.style.display = 'block';
                     toggleButton.textContent = 'Toggle Initial Mode';
                     toggleButton.style.backgroundColor = '#28a745';
+                    // Show anagram fill button
+                    document.getElementById('dev-fill-anagram').style.display = 'inline-block';
                     showNotification('Switched to Anagram Grid Mode', 'info');
                     // Reset progress bar to zero for anagram grid
                     document.querySelector('.progress-fill').style.width = '0%';
@@ -2555,6 +2611,27 @@
                         `<div>Cells filled: 0/64 (0.0%)</div>
                          <div>Clues solved: 0/24</div>`;
                 }
+            }
+        }
+        
+        function toggleConstraints() {
+            anagramConstraintsEnabled = !anagramConstraintsEnabled;
+            const toggleButton = document.getElementById('dev-toggle-constraints');
+            
+            if (anagramConstraintsEnabled) {
+                toggleButton.textContent = 'Constraints: ON';
+                toggleButton.style.backgroundColor = '#6f42c1';
+                showNotification('Anagram constraints enabled - solutions will be filtered based on crossing clues', 'info');
+            } else {
+                toggleButton.textContent = 'Constraints: OFF';
+                toggleButton.style.backgroundColor = '#dc3545';
+                showNotification('Anagram constraints disabled - all anagram solutions will be shown', 'info');
+            }
+            
+            // Regenerate anagram clues with new constraint setting
+            if (Object.keys(anagramClueObjects).length > 0) {
+                applyAnagramConstraints();
+                generateAnagramCluesHTMLFromObjects();
             }
         }
         
@@ -2743,60 +2820,124 @@
             // Save current state before deselecting
             saveState(clueId, 'DESELECT');
             
-            const clue = clueObjects[clueId];
-            const currentSolution = clue.possible_solutions[0];
+            // Check if this is an anagram clue
+            const isAnagramClue = clueId.startsWith('anagram_');
             
-            // Remove the solution from the grid cells
-            const solutionStr = currentSolution.toString().padStart(clue.length, '0');
-            for (let i = 0; i < clue.cell_indices.length; i++) {
-                const cellIndex = clue.cell_indices[i];
-                
-                // Check if this cell is used by other user-selected clues
-                let canRemoveCell = true;
-                for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {
-                    if (otherClueId !== clueId && userSelectedSolutions.has(otherClueId)) {
-                        if (otherClue.cell_indices.includes(cellIndex)) {
-                            canRemoveCell = false;
-                            break;
-                        }
-                    }
+            if (isAnagramClue) {
+                // Handle anagram clue deselection
+                const anagramClue = anagramClueObjects[clueId];
+                if (!anagramClue) {
+                    showNotification('Anagram clue not found', 'error');
+                    return;
                 }
                 
-                if (canRemoveCell) {
-                    delete solvedCells[cellIndex];
+                const currentSolution = anagramClue.possible_solutions[0];
+                const solutionStr = currentSolution.toString().padStart(anagramClue.length, '0');
+                
+                // Remove the solution from the anagram grid cells
+                for (let i = 0; i < anagramClue.cell_indices.length; i++) {
+                    const cellIndex = anagramClue.cell_indices[i];
                     
-                    // Clear the cell display
-                    const cell = document.querySelector(`[data-cell="${cellIndex}"]`);
-                    if (cell) {
-                        const valueElement = cell.querySelector('.cell-value');
-                        if (valueElement) {
-                            valueElement.remove();
+                    // Check if this cell is used by other user-selected anagram clues
+                    let canRemoveCell = true;
+                    for (const [otherClueId, otherClue] of Object.entries(anagramClueObjects)) {
+                        if (otherClueId !== clueId && anagramUserSelectedSolutions.has(otherClueId)) {
+                            if (otherClue.cell_indices.includes(cellIndex)) {
+                                canRemoveCell = false;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (canRemoveCell) {
+                        delete anagramSolvedCells[cellIndex];
+                        
+                        // Clear the anagram cell display
+                        const cell = document.querySelector(`[data-cell="${cellIndex}"][data-anagram="true"]`);
+                        if (cell) {
+                            const valueElement = cell.querySelector('.cell-value');
+                            if (valueElement) {
+                                valueElement.remove();
+                            }
                         }
                     }
                 }
-            }
-            
-            // Remove from user-selected solutions BEFORE recalculating constraints
-            userSelectedSolutions.delete(clueId);
-            
-            // Explicitly restore original solutions for the deselected clue
-            const originalCount = clue.original_solution_count || 0;
-            console.log(`Restoring original solutions for ${clueId}: original count = ${originalCount}`);
-            
-            // Restore from stored original solutions
-            if (originalSolutions[clueId]) {
-                clue.possible_solutions = [...originalSolutions[clueId]]; // Deep copy
-                console.log(`Restored original solutions for ${clueId}:`, originalSolutions[clueId]);
+                
+                // Remove from anagram user-selected solutions
+                anagramUserSelectedSolutions.delete(clueId);
+                
+                // Restore original anagram solutions for the deselected clue
+                const originalAnagramSolutions = anagramClue.anagram_solutions || [];
+                anagramClue.possible_solutions = [...originalAnagramSolutions];
+                
+                // Update anagram clue displays
+                updateAnagramClueDisplays();
+                
+                // Show success message
+                const restoredCount = anagramClue.possible_solutions.length;
+                showNotification(`Deselected anagram solution for clue ${clueId}. Restored ${restoredCount} possible anagrams.`, 'success');
+                
             } else {
-                console.log(`No original solutions found for ${clueId}`);
-                clue.possible_solutions = [];
+                // Handle initial clue deselection (existing logic)
+                const clue = clueObjects[clueId];
+                const currentSolution = clue.possible_solutions[0];
+                
+                // Remove the solution from the grid cells
+                const solutionStr = currentSolution.toString().padStart(clue.length, '0');
+                for (let i = 0; i < clue.cell_indices.length; i++) {
+                    const cellIndex = clue.cell_indices[i];
+                    
+                    // Check if this cell is used by other user-selected clues
+                    let canRemoveCell = true;
+                    for (const [otherClueId, otherClue] of Object.entries(clueObjects)) {
+                        if (otherClueId !== clueId && userSelectedSolutions.has(otherClueId)) {
+                            if (otherClue.cell_indices.includes(cellIndex)) {
+                                canRemoveCell = false;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (canRemoveCell) {
+                        delete solvedCells[cellIndex];
+                        
+                        // Clear the cell display
+                        const cell = document.querySelector(`[data-cell="${cellIndex}"]`);
+                        if (cell) {
+                            const valueElement = cell.querySelector('.cell-value');
+                            if (valueElement) {
+                                valueElement.remove();
+                            }
+                        }
+                    }
+                }
+                
+                // Remove from user-selected solutions BEFORE recalculating constraints
+                userSelectedSolutions.delete(clueId);
+                
+                // Explicitly restore original solutions for the deselected clue
+                const originalCount = clue.original_solution_count || 0;
+                console.log(`Restoring original solutions for ${clueId}: original count = ${originalCount}`);
+                
+                // Restore from stored original solutions
+                if (originalSolutions[clueId]) {
+                    clue.possible_solutions = [...originalSolutions[clueId]]; // Deep copy
+                    console.log(`Restored original solutions for ${clueId}:`, originalSolutions[clueId]);
+                } else {
+                    console.log(`No original solutions found for ${clueId}`);
+                    clue.possible_solutions = [];
+                }
+                
+                // Recalculate constraints for all OTHER clues (not the deselected one)
+                recalculateAllConstraintsExcept(clueId);
+                
+                // Update all clue displays
+                updateAllClueDisplays();
+                
+                // Show success message
+                const restoredCount = clue.possible_solutions.length;
+                showNotification(`Deselected solution for clue ${clueId}. Restored ${restoredCount} possible solutions.`, 'success');
             }
-            
-            // Recalculate constraints for all OTHER clues (not the deselected one)
-            recalculateAllConstraintsExcept(clueId);
-            
-            // Update all clue displays
-            updateAllClueDisplays();
             
             // Update progress
             updateProgress();
@@ -2806,10 +2947,6 @@
             if (dialog) {
                 dialog.style.display = 'none';
             }
-            
-            // Show success message
-            const restoredCount = clue.possible_solutions.length;
-            showNotification(`Deselected solution for clue ${clueId}. Restored ${restoredCount} possible solutions.`, 'success');
         }
 
         function recalculateAllConstraintsExcept(excludeClueId) {
@@ -2942,6 +3079,54 @@
             
             showNotification('Filled grid with actual known solutions only', 'success');
         }
+        
+        function fillAnagramGrid() {
+            // Fill the anagram grid with known anagram solutions for testing
+            const knownAnagramSolutions = {
+                'anagram_1_ACROSS': '3573', // Anagram of 3375
+                'anagram_1_DOWN': '3942', // Anagram of 3249
+                'anagram_2_DOWN': '53', // Anagram of 35
+                'anagram_3_DOWN': '7677', // Anagram of 7776
+                'anagram_4_ACROSS': '5452', // Anagram of 5254
+                'anagram_5_DOWN': '4802', // Anagram of 2048
+                'anagram_6_DOWN': '2740', // Anagram of 4207
+                'anagram_7_DOWN': '411723', // Anagram of 137241 (multiple of original)
+                'anagram_8_DOWN': '839181', // Anagram of 119883
+                'anagram_9_ACROSS': '27', // Anagram of 72
+                'anagram_10_ACROSS': '4371', // Anagram of 4173
+                'anagram_11_ACROSS': '3014', // Anagram of 1430
+                'anagram_12_ACROSS': '671928', // Anagram of 167982
+                'anagram_13_DOWN': '3125', // Anagram of 5132
+                'anagram_14_ACROSS': '857142', // Anagram of 142857 (multiple of original)
+                'anagram_15_DOWN': '5422', // Anagram of 4225
+                'anagram_16_DOWN': '4256', // Anagram of 5642
+                'anagram_17_DOWN': '1402', // Anagram of 2401 (same)
+                'anagram_18_ACROSS': '1042', // Anagram of 1024 (same)
+                'anagram_19_ACROSS': '8264', // Anagram of 8624
+                'anagram_20_ACROSS': '23', // Anagram of 32
+                'anagram_21_DOWN': '61', // Anagram of 16
+                'anagram_22_ACROSS': '5828', // Anagram of 2858 (same)
+                'anagram_23_ACROSS': '9612', // Anagram of 9261
+            };
+            
+            // First, make sure we have anagram clues generated
+            if (Object.keys(anagramClueObjects).length === 0) {
+                generateAnagramClues();
+            }
+            
+            // Apply each anagram solution
+            for (const [clueId, solution] of Object.entries(knownAnagramSolutions)) {
+                const anagramClue = anagramClueObjects[clueId];
+                if (anagramClue && solution.length === anagramClue.length) {
+                    console.log(`Applying anagram solution ${solution} to clue ${clueId}`);
+                    applySolutionToGrid(clueId, solution);
+                } else {
+                    console.log(`Skipping anagram clue ${clueId} - not found or length mismatch`);
+                }
+            }
+            
+            showNotification('Filled anagram grid with known anagram solutions', 'success');
+        }
 
         // Add this function after updateAllClueDisplays
         function updateAnagramClueDisplays() {
@@ -3051,24 +3236,20 @@
                         from { transform: translateY(-50px); opacity: 0; }
                         to { transform: translateY(0); opacity: 1; }
                     }
-                    @keyframes confetti {
-                        0% { transform: translateY(-100vh) rotate(0deg); }
-                        100% { transform: translateY(100vh) rotate(360deg); }
-                    }
-                    @keyframes gradientShift {
-                        0% { background-position: 0% 50%; }
-                        50% { background-position: 100% 50%; }
-                        100% { background-position: 0% 50%; }
+                    @keyframes subtleGlow {
+                        0% { box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+                        50% { box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 30px rgba(40, 167, 69, 0.3); }
+                        100% { box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
                     }
                 `;
                 document.head.appendChild(style);
             }
             modal.innerHTML = `
                 <div style="
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
                     color: white;
                     padding: 40px;
-                    border-radius: 20px;
+                    border-radius: 12px;
                     text-align: center;
                     max-width: 600px;
                     margin: 20px;
@@ -3076,20 +3257,18 @@
                     animation: slideIn 0.6s ease-out;
                     position: relative;
                     overflow: hidden;
+                    border: 1px solid #495057;
                 ">
                     <div style="
                         position: absolute;
-                        top: -10px;
-                        left: -10px;
-                        right: -10px;
-                        bottom: -10px;
-                        background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
-                        background-size: 400% 400%;
-                        animation: gradientShift 3s ease infinite;
-                        z-index: -1;
-                        border-radius: 20px;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 4px;
+                        background: linear-gradient(90deg, #28a745, #17a2b8, #007bff);
+                        z-index: 1;
                     "></div>
-                    <h1 style="font-size: 2.5em; margin: 0 0 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                    <h1 style="font-size: 2.2em; margin: 0 0 20px 0; color: #e9ecef; font-weight: 300; letter-spacing: 1px;">
                         ${title}
                     </h1>
                     ${content}
@@ -3100,12 +3279,9 @@
             `;
             document.body.appendChild(modal);
             if (id.includes('celebration')) {
-                try {
-                    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
-                    audio.volume = 0.3;
-                    audio.play().catch(() => {});
-                } catch (e) {}
-                createConfetti();
+                // Add subtle glow animation for celebrations
+                const modalContent = modal.querySelector('div');
+                modalContent.style.animation = 'slideIn 0.6s ease-out, subtleGlow 3s ease-in-out infinite';
             }
         }
 
@@ -3124,106 +3300,82 @@
         function showIntroModal() {
             const title = '🧩 Welcome to the Listener Crossword Solver 🧩';
             const content = `
-                <div style="background: rgba(255,255,255,0.1);padding: 20px;border-radius: 15px;margin: 20px 0;backdrop-filter: blur(5px);">
-                    <h3 style="margin: 0 0 15px 0; color: #ffd700;">The Prime Factoring Challenge</h3>
-                    <p style="margin: 0 0 15px 0; line-height: 1.6;">
-                        Welcome to the first stage of this mathematical crossword puzzle! 
+                <div style="background: rgba(255,255,255,0.08);padding: 20px;border-radius: 8px;margin: 20px 0;border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="margin: 0 0 15px 0; color: #28a745; font-weight: 500; font-size: 1.3em;">The Prime Factor Challenge</h3>
+                    <p style="margin: 0 0 15px 0; line-height: 1.6; color: #e9ecef;">
+                        Welcome to the first stage of this mathematical crossword puzzle. 
                         Your goal is to fill in the grid with numbers that satisfy specific mathematical constraints.
                     </p>
-                    <div style="background: rgba(255,255,255,0.2);padding: 15px;border-radius: 10px;border-left: 4px solid #ffd700;text-align: left;font-style: italic;">
-                        <strong>How to Play:</strong><br>
+                    <div style="background: rgba(40, 167, 69, 0.15);padding: 15px;border-radius: 8px;border-left: 4px solid #28a745;text-align: center;font-style: normal;color: #e9ecef;">
+                        <strong style="color: #28a745;">How to Play:</strong><br>
                         • <strong>Clued entries</strong> in "a:b" format where a= no. of prime factors of solution and b= difference between largest and smallest factor<br>
-                        • <strong>Unclued entries</strong> (marked "Unclued") form an anagram of themselves in the final grid when multiplied by an integer<br>
-                        • <strong>Mathematical Key:</strong> Look for patterns in the unclued entries - there's a special cyclic number that will be key in solving the puzzle!
+                        • <strong>Unclued entries</strong> form an anagram of themselves in the final grid when multiplied by an integer<br>
+                        • <strong>Mathematical Key:</strong> Look a key among the unclued entries - there's a special cyclic number that could be key to solving the puzzle
                     </div>
                 </div>
-                <div style="background: rgba(255,255,255,0.1);padding: 20px;border-radius: 15px;margin: 20px 0;backdrop-filter: blur(5px);">
-                    <h3 style="margin: 0 0 15px 0; color: #ffd700;">Tips for Success</h3>
-                    <ul style="text-align: left; margin: 0; padding-left: 20px;">
-                        <li>Start with the clued entries to establish some constraints</li>
-                        <li>Pay special attention to the unclued six-digit entries</li>
-                        <li>Look for the mathematical key - a special number with unique properties</li>
-                        <li>Use the constraint propagation to eliminate impossible solutions</li>
-                        <li>Make use of the factoring notepad (and the undo feature if you make mistakes!</li>
+                <div style="background: rgba(255,255,255,0.08);padding: 20px;border-radius: 8px;margin: 20px 0;border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="margin: 0 0 15px 0; color: #17a2b8; font-weight: 500; font-size: 1.3em;">Playing Tips</h3>
+                    <ul style="margin: 0; padding-left: 0; list-style: none;">
+                        <li style="text-align: center; margin-bottom: 8px; color: #e9ecef;">• Start with the clued entries to establish some constraints</li>
+                        <li style="text-align: center; margin-bottom: 8px; color: #e9ecef;">• 'Think ahead' for the unclued entries</li>
+                        <li style="text-align: center; margin-bottom: 8px; color: #e9ecef;">• Look for the mathematical key - a number with unique properties</li>
+                        <li style="text-align: center; margin-bottom: 8px; color: #e9ecef;">• Use the factoring notepad (and the undo feature for mistakes...</li>
                     </ul>
                 </div>
             `;
             const buttons = `
-                <button onclick="hideModal('intro-modal')" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4);color: white;border: none;padding: 15px 30px;border-radius: 25px;font-size: 1.2em;font-weight: bold;cursor: pointer;transition: transform 0.2s;box-shadow: 0 5px 15px rgba(0,0,0,0.2);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🚀 Start Solving!</button>
+                <button onclick="hideModal('intro-modal')" style="background: linear-gradient(135deg, #28a745, #20c997);color: white;border: none;padding: 15px 30px;border-radius: 8px;font-size: 1.1em;font-weight: 500;cursor: pointer;transition: all 0.3s ease;box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(40, 167, 69, 0.4)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(40, 167, 69, 0.3)'">🚀 Start Solving</button>
             `;
             createModal('intro-modal', title, content, buttons);
         }
 
         function showAnagramCompletionCelebration() {
-            const title = '🏆 Master Puzzle Solver! 🏆';
+            const title = '🏆 Listener 4869 Completed 🏆';
             const content = `
-                <div style="background: rgba(255,255,255,0.1);padding: 20px;border-radius: 15px;margin: 20px 0;backdrop-filter: blur(5px);">
-                    <h3 style="margin: 0 0 15px 0; color: #ffd700;">Congratulations!</h3>
-                    <p style="margin: 0 0 15px 0; line-height: 1.6;">
-                        You have successfully completed both stages of this ingenious mathematical puzzle! 
-                        This is no small feat - it takes mathematical insight and logical perseverence to solve.
+                <div style="background: rgba(255,255,255,0.08);padding: 20px;border-radius: 8px;margin: 20px 0;border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="margin: 0 0 15px 0; color: #28a745; font-weight: 500; font-size: 1.3em;">Congratulations!</h3>
+                    <p style="margin: 0 0 15px 0; line-height: 1.6; color: #e9ecef;">
+                        You have successfully completed both stages of this ingenious mathematical puzzle. 
+                        This is no small feat - it takes mathematical and logical insight to solve.
                     </p>
                 </div>
-                <div style="background: rgba(255,255,255,0.1);padding: 20px;border-radius: 15px;margin: 20px 0;backdrop-filter: blur(5px);">
-                    <h3 style="margin: 0 0 15px 0; color: #ffd700;">The Mathematical Key...</h3>
-                    <p style="margin: 0 0 15px 0; line-height: 1.6;">
-                        Did you discover the special cyclic number <strong>142857</strong>? This remarkable number is a helpful key to the puzzle:
+                <div style="background: rgba(255,255,255,0.08);padding: 20px;border-radius: 8px;margin: 20px 0;border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="margin: 0 0 15px 0; color: #17a2b8; font-weight: 500; font-size: 1.3em;">The Mathematical Key...</h3>
+                    <p style="margin: 0 0 15px 0; line-height: 1.6; color: #e9ecef;">
+                        Did you discover the special cyclic number <strong style="color: #28a745;">142857</strong>? This remarkable number is a helpful key to the puzzle:
                     </p>
-                    <div style="background: rgba(255,255,255,0.2);padding: 15px;border-radius: 10px;border-left: 4px solid #ffd700;text-align: left;font-style: italic;">
-                        <strong>The Magic of 142857:</strong><br>
+                    <div style="background: rgba(23, 162, 184, 0.15);padding: 15px;border-radius: 8px;border-left: 4px solid #17a2b8;text-align: center;font-style: normal;color: #e9ecef;">
+                        <strong style="color: #17a2b8;">The Magic of 142857:</strong><br>
                         • 142857 × 1 = 142857<br>
-                        • 142857 × 2 = 285714 (anagram)<br>
-                        • 142857 × 3 = 428571 (anagram)<br>
-                        • 142857 × 4 = 571428 (anagram)<br>
-                        • 142857 × 5 = 714285 (anagram)<br>
-                        • 142857 × 6 = 857142 (anagram)<br>
+                        • 142857 × 2 = 285714<br>
+                        • 142857 × 3 = 428571<br>
+                        • 142857 × 5 = 714285<br>
+                        • 142857 × 6 = 857142<br>
+                        • 142857 × 4 = 571428<br>
                         <br>
-                        This cyclic property makes it a perfect fit for the initial puzzle and the anagram challenge.
+                        This cyclic property makes it perfect for the initial puzzle and the anagram grid.
                     </div>
                 </div>
-                <div style="background: rgba(255,255,255,0.1);padding: 20px;border-radius: 15px;margin: 20px 0;backdrop-filter: blur(5px);">
-                    <h3 style="margin: 0 0 15px 0; color: #ffd700;">Your Solving Journey</h3>
-                    <p style="margin: 0 0 15px 0; line-height: 1.6;">
+                <div style="background: rgba(255,255,255,0.08);padding: 20px;border-radius: 8px;margin: 20px 0;border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="margin: 0 0 15px 0; color: #6c757d; font-weight: 500; font-size: 1.3em;">Your Solving Journey</h3>
+                    <p style="margin: 0 0 15px 0; line-height: 1.6; color: #e9ecef;">
                         Whether you found this through mathematical insight, systematic trial and error, or a bit of luck, 
                         you've demonstrated tenacity and strong problem-solving skills.
                     </p>
-                    <p style="margin: 0 0 15px 0; line-height: 1.6; font-style: italic;">
+                    <p style="margin: 0 0 15px 0; line-height: 1.6; font-style: italic; color: #adb5bd;">
                         "The value of a problem is not so much coming up with the answer as in the ideas it forces on the solver." - Andrew Wiles
                     </p>
                 </div>
             `;
             const buttons = `
-                <button onclick="hideModal('anagram-completion-celebration')" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4);color: white;border: none;padding: 15px 30px;border-radius: 25px;font-size: 1.2em;font-weight: bold;cursor: pointer;transition: transform 0.2s;box-shadow: 0 5px 15px rgba(0,0,0,0.2);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🎉 Celebrate Victory! 🎉</button>
+                <button onclick="hideModal('anagram-completion-celebration')" style="background: linear-gradient(135deg, #6c757d, #495057);color: white;border: none;padding: 15px 30px;border-radius: 8px;font-size: 1.1em;font-weight: 500;cursor: pointer;transition: all 0.3s ease;box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(108, 117, 125, 0.4)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(108, 117, 125, 0.3)'">🎉 Now take a break! 🎉</button>
             `;
             createModal('anagram-completion-celebration', title, content, buttons);
         }
 
         function createConfetti() {
-            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3'];
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.style.cssText = `
-                        position: fixed;
-                        width: 10px;
-                        height: 10px;
-                        background: ${colors[Math.floor(Math.random() * colors.length)]};
-                        left: ${Math.random() * 100}vw;
-                        top: -10px;
-                        z-index: 9999;
-                        animation: confetti ${2 + Math.random() * 3}s linear forwards;
-                        border-radius: 50%;
-                    `;
-                    document.body.appendChild(confetti);
-                    
-                    // Remove confetti after animation
-                    setTimeout(() => {
-                        if (confetti.parentNode) {
-                            confetti.remove();
-                        }
-                    }, 5000);
-                }, i * 100);
-            }
+            // Removed confetti for sophisticated design
+            // The subtle glow animation provides sufficient celebration effect
         }
         
         // Iframe communication for Flask app integration

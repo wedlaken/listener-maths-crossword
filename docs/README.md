@@ -92,7 +92,7 @@ This project demonstrates advanced web development concepts including:
    ```
 
 5. **Access the Application**
-   - Open your browser and go to `http://localhost:5000`
+   - Open your browser and go to `http://localhost:5001`
    - Register a new account or log in
    - Start solving the crossword!
 
