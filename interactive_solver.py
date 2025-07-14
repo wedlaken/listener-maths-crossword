@@ -19,28 +19,8 @@ from systematic_grid_parser import parse_grid, ClueTuple
 from clue_classes import ListenerClue, ClueFactory, ClueManager, ClueParameters, AnagramClue
 from listener import get_prime_factors_with_multiplicity
 
-def load_clue_parameters(filename: str) -> Dict[Tuple[int, str], Tuple[int, int, int]]:
-    """Load clue parameters from file."""
-    clue_params = {}
-    try:
-        # Update path to data directory
-        data_path = os.path.join('data', filename)
-        with open(data_path, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if not line or not line[0].isdigit():
-                    continue  # Skip headers, comments, or blank lines
-                parts = line.split()
-                if len(parts) >= 4:
-                    number = int(parts[0])
-                    direction = parts[1]
-                    a = int(parts[2])
-                    b = int(parts[3])
-                    c = int(parts[4]) if len(parts) > 4 else 0
-                    clue_params[(number, direction)] = (a, b, c)
-    except FileNotFoundError:
-        print(f"Warning: Could not find clue parameters file {filename}")
-    return clue_params
+# Removed load_clue_parameters function - no longer needed
+# All clue data is now loaded from Listener 4869 clues.txt
 
 def load_clues_from_file(filename: str = "Listener 4869 clues.txt") -> Dict[Tuple[int, str], str]:
     """Load actual clue text from the clues file."""
@@ -93,96 +73,56 @@ def load_clue_objects() -> Tuple[List[Tuple[int, str, Tuple[int, ...]]], Dict[Tu
     # Create clue manager
     clue_manager = ClueManager()
     
-    # Load clue parameters
-    clue_params = load_clue_parameters("clue_parameters_4869.txt")
+    # Load clue data from the single source of truth
+    clues_text = load_clues_from_file()
     
     # Create ListenerClue objects
     clue_objects = {}
     
     for number, direction, cell_indices in grid_clues:
-        # Get parameters for this clue
-        if (number, direction) in clue_params:
-            a, b, c = clue_params[(number, direction)]
-            is_unclued = False
-        else:
-            # Try to get from clue text
-            clues_text = load_clues_from_file()
-            clue_key = (number, direction)
-            if clue_key in clues_text:
-                text = clues_text[clue_key]
-                if text.lower() == 'unclued':
-                    b = None
-                    c = None
-                    is_unclued = True
-                else:
-                    try:
-                        b_c_parts = text.split(':')
-                        if len(b_c_parts) == 2:
-                            b = int(b_c_parts[0])
-                            c = int(b_c_parts[1])
-                            is_unclued = False
-                        else:
-                            b = 1
-                            c = 0
-                            is_unclued = False
-                    except ValueError:
-                        b = 1
-                        c = 0
-                        is_unclued = False
-            else:
-                b = 1
-                c = 0
-                is_unclued = False
-            a = len(cell_indices)
-        # Create clue object
-        if is_unclued:
-            clue = ListenerClue(
-                number=number,
-                direction=direction,
-                cell_indices=cell_indices,
-                parameters=ClueParameters(a=len(cell_indices), b=1, c=0, is_unclued=True)
-            )
-        else:
-            clue = ClueFactory.from_tuple_and_parameters(
-                ClueTuple(number=number, direction=direction, cell_indices=cell_indices, length=len(cell_indices), parameters=(len(cell_indices), b, c)),
-                b, c
-            )
-        clue_objects[(number, direction)] = clue
-        clue_manager.add_clue(clue)
-    
-    # Load clue text and update parameters
-    clues_text = load_clues_from_file()
-    
-    for (number, direction), text in clues_text.items():
-        if (number, direction) in clue_objects:
-            clue = clue_objects[(number, direction)]
-            
-            # Update clue parameters based on text
+        clue_key = (number, direction)
+        
+        # Get clue parameters from the clues file
+        if clue_key in clues_text:
+            text = clues_text[clue_key]
             if text.lower() == 'unclued':
                 # Create unclued clue
-                new_clue = ClueFactory.from_tuple_and_parameters(
-                    ClueTuple(number=number, direction=direction, cell_indices=clue.cell_indices, length=clue.length, parameters=(clue.length, -1, -1)),
+                clue = ClueFactory.from_tuple_and_parameters(
+                    ClueTuple(number=number, direction=direction, cell_indices=cell_indices, length=len(cell_indices), parameters=(len(cell_indices), -1, -1)),
                     -1, -1  # Unclued parameters
                 )
             else:
-                # Parse "b:c" format
+                # Parse "b:c" format for clued clues
                 try:
                     b_c_parts = text.split(':')
                     if len(b_c_parts) == 2:
                         b = int(b_c_parts[0])
                         c = int(b_c_parts[1])
-                        new_clue = ClueFactory.from_tuple_and_parameters(
-                            ClueTuple(number=number, direction=direction, cell_indices=clue.cell_indices, length=clue.length, parameters=(clue.length, b, c)),
+                        clue = ClueFactory.from_tuple_and_parameters(
+                            ClueTuple(number=number, direction=direction, cell_indices=cell_indices, length=len(cell_indices), parameters=(len(cell_indices), b, c)),
                             b, c
                         )
                     else:
-                        new_clue = clue  # Keep original if parsing fails
+                        # Fallback for malformed clue text
+                        clue = ClueFactory.from_tuple_and_parameters(
+                            ClueTuple(number=number, direction=direction, cell_indices=cell_indices, length=len(cell_indices), parameters=(len(cell_indices), 1, 0)),
+                            1, 0
+                        )
                 except ValueError:
-                    new_clue = clue  # Keep original if parsing fails
-            
-            # Update the clue object
-            clue_objects[(number, direction)] = new_clue
-            clue_manager.clues[number] = new_clue
+                    # Fallback for parsing errors
+                    clue = ClueFactory.from_tuple_and_parameters(
+                        ClueTuple(number=number, direction=direction, cell_indices=cell_indices, length=len(cell_indices), parameters=(len(cell_indices), 1, 0)),
+                        1, 0
+                    )
+        else:
+            # Fallback for missing clue data
+            clue = ClueFactory.from_tuple_and_parameters(
+                ClueTuple(number=number, direction=direction, cell_indices=cell_indices, length=len(cell_indices), parameters=(len(cell_indices), 1, 0)),
+                1, 0
+            )
+        
+        clue_objects[(number, direction)] = clue
+        clue_manager.add_clue(clue)
     
     return grid_clues, clue_objects, clue_manager
 
