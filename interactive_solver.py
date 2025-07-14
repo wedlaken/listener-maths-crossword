@@ -17,7 +17,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from systematic_grid_parser import parse_grid, ClueTuple
 from clue_classes import ListenerClue, ClueFactory, ClueManager, ClueParameters, AnagramClue
-from enhanced_constrained_solver import EnhancedConstrainedSolver
 from listener import get_prime_factors_with_multiplicity
 
 def load_clue_parameters(filename: str) -> Dict[Tuple[int, str], Tuple[int, int, int]]:
@@ -721,14 +720,6 @@ def create_anagram_clue_objects(clue_objects: Dict[Tuple[int, str], ListenerClue
 def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> str:
     """Generate the complete interactive HTML interface with constrained unclued solving."""
     
-    # Initialize constrained solver
-    constrained_solver = EnhancedConstrainedSolver(min_solved_cells=1)
-    
-    # Add clue cell mappings to the solver
-    for (number, direction), clue in clue_objects.items():
-        clue_id = f"{number}_{direction}"
-        constrained_solver.add_clue_cells(clue_id, list(clue.cell_indices))
-    
     # Convert clue objects to JSON for JavaScript
     clue_data = {}
     for (number, direction), clue in clue_objects.items():
@@ -745,8 +736,16 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
     # Initialize empty anagram clue data - will be populated dynamically
     anagram_clue_data = {}
     
-    # Get constrained solver status
-    solver_status = constrained_solver.get_solver_status()
+    # Simple solver status (constraints are handled in JavaScript)
+    solver_status = {
+        'solved_cells': 0,
+        'solved_clues': 0,
+        'min_required_cells': 0,  # No constraint in current implementation
+        'can_enter_unclued': True,
+        'constraint_message': '',
+        'total_candidates': 0,
+        'available_factors': []
+    }
     
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
@@ -1120,6 +1119,14 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             background-color: #f9f9f9 !important;
             border-left: 4px solid #28a745 !important;
             color: #222 !important;
+        }}
+        
+        /* Ensure user-selected anagram clues override the default anagram styling */
+        .anagram-clue.user-selected {{
+            background-color: #cce5ff !important;
+            color: #004085 !important;
+            font-weight: bold !important;
+            border-left: 4px solid #007bff !important;
         }}
         .anagram-solutions {{
             margin-top: 8px;

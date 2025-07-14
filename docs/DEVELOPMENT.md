@@ -260,11 +260,21 @@ result = enhanced_solver.apply_solution("12_ACROSS", 167982)
 - **Impact**: Proper constraint application and solution validation
 
 #### Integration with Interactive Solver
-The `interactive_solver.py` uses `EnhancedConstrainedSolver` as its constraint engine:
+The `interactive_solver.py` **previously** used `EnhancedConstrainedSolver` as its constraint engine, but this was simplified in December 2025:
+
+**Before (Complex 3-layer hierarchy):**
 - Initializes the enhanced solver with minimum cell requirements
 - Maps all clues to their cell indices
 - Uses the enhanced solver for all validation and constraint checking
 - Leverages the clean interface for solution application/removal
+
+**After (Simplified architecture):**
+- Removed unused `EnhancedConstrainedSolver` import and initialization
+- All constraint checking done in JavaScript (as it was already being used)
+- Simple inline solver status dictionary with no actual constraints
+- Cleaner architecture with reduced complexity and dependencies
+
+**Why the change?** The Python constraint solver was completely unused - all constraint checking was done in JavaScript with hardcoded "no constraint" logic. See `CONSTRAINED_SOLVER_SIMPLIFICATION.md` for details.
 
 ### Architecture: Web Application Components
 

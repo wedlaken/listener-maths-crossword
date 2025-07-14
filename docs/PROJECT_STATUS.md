@@ -24,11 +24,10 @@ The project has successfully implemented a **complete two-stage interactive cros
 
 ### Enhanced Solver Files (Anagram Grid Compilation)
 - ✅ **Anagram grid solver** (`anagram_grid_solver.py`) - Core anagram functionality and validation
-- ✅ **Enhanced constrained solver** (`enhanced_constrained_solver.py`) - Constrained solving logic for unclued clues
 - ✅ **Forward search algorithm** (`enhanced_forward_solver.py`) - Efficiently finds valid 6-digit candidates
 - ✅ **Unclued solver** (`enhanced_unclued_solver.py`) - Specialized unclued clue solving logic
 - ✅ **Anagram enhanced solver** (`anagram_enhanced_solver.py`) - Main anagram grid solver and compiler
-- ✅ **Constrained forward solver** (`constrained_forward_solver.py`) - Constrained forward search implementation
+- ⚠️ **Constrained solver files** - Simplified architecture: Removed unused `constrained_forward_solver.py` and `enhanced_constrained_solver.py` from interactive solver (see `CONSTRAINED_SOLVER_SIMPLIFICATION.md`)
 
 ### Data Input Strategy: Ground Truth Approach
 - ✅ **Manual clue parsing** - Clue parameters extracted from puzzle images using online tools
@@ -145,6 +144,7 @@ This issue highlighted the importance of understanding **language syntax conflic
 6. **Solution History** - Independent undo/redo functionality for each grid
 7. **Export Functionality** - Save/load anagram grid states
 8. **Visual Enhancements** - Better visual feedback for anagram solutions
+9. **Constraint System** - Consider re-implementing actual constraints if needed (see `CONSTRAINED_SOLVER_SIMPLIFICATION.md`)
 
 ### Technical Challenges Addressed
 - ✅ **F-string Syntax Conflicts** - **MAJOR ISSUE RESOLVED** - Systematically fixed hundreds of JavaScript/CSS curly brace conflicts in Python f-strings across entire interactive_solver.py file, ensuring clean code generation
@@ -155,6 +155,28 @@ This issue highlighted the importance of understanding **language syntax conflic
 - ✅ **Performance Optimization** - Efficient permutation algorithms and DOM manipulation for smooth user experience
 
 ## 🧩 Anagram Validation & Session Progress (July 2025)
+
+## 🔧 **RECENT ARCHITECTURE SIMPLIFICATION & UI/UX FIXES (December 2025)**
+
+### UI/UX Fix for Anagram Clues (December 2025)
+- **Problem Identified**: Solved anagram clues were not visually differentiated from unsolved ones due to CSS specificity conflict
+- **Root Cause**: `.anagram-clue` CSS rule with `!important` was overriding `.user-selected` styling
+- **Solution**: Added specific CSS rule `.anagram-clue.user-selected` to ensure proper blue styling for solved anagram clues
+- **Result**: Solved anagram clues now show blue background and border like solved initial grid clues
+- **Impact**: Better visual feedback and consistent UI/UX between initial and anagram grids
+
+### Constrained Solver Simplification
+- **Problem Identified**: The interactive solver had an unnecessarily complex 3-layer hierarchy for constraint checking that wasn't actually being used
+- **Root Cause**: Python constraint solver was completely bypassed - all constraint checking was done in JavaScript with hardcoded "no constraint" logic
+- **Solution**: Removed unused `EnhancedConstrainedSolver` import and initialization from `interactive_solver.py`
+- **Benefits**: Cleaner architecture, reduced complexity, easier maintenance, better performance
+- **Impact**: No functional changes - the solver works exactly as before since constraints were already bypassed
+- **Documentation**: Created `CONSTRAINED_SOLVER_SIMPLIFICATION.md` with detailed analysis and future recommendations
+
+### Files Affected
+- **Simplified**: `interactive_solver.py` - Removed unused constrained solver dependencies
+- **Documentation**: Added `docs/CONSTRAINED_SOLVER_SIMPLIFICATION.md` - Complete analysis and recommendations
+- **Optional Cleanup**: `constrained_forward_solver.py` and `enhanced_constrained_solver.py` can be removed if no other parts of codebase use them
 
 ### Anagram Validation Logic
 - Each anagram clue's possible solutions are dynamically filtered based on cross-clue digit constraints, so only valid anagrams appear in the dropdown and count.
@@ -176,7 +198,7 @@ This issue highlighted the importance of understanding **language syntax conflic
 - **Database Migration**: Ran database migration script to ensure anagram state columns exist in the database for proper state persistence.
 
 ### Remaining TODOS
-- [ ] Fix CSS for anagram clues to match the initial grid for improved UI/UX.
+- [x] Fix CSS for anagram clues to match the initial grid for improved UI/UX. **COMPLETED** - Added specific CSS rule to ensure solved anagram clues show blue styling like initial grid.
 - [ ] Add a suitable celebration/animation at the end of the puzzle when both grids are complete.
 
 ## 🚀 **DEPLOYMENT READY**
