@@ -15,12 +15,51 @@ import sys
 # Add the current directory to the path so we can import our modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from systematic_grid_parser import parse_grid, ClueTuple
+# Removed systematic_grid_parser import - using hardcoded grid structure instead
 from clue_classes import ListenerClue, ClueFactory, ClueManager, ClueParameters, AnagramClue
+
+# Simple ClueTuple class for compatibility
+class ClueTuple:
+    """Simple clue tuple for compatibility with ClueFactory"""
+    def __init__(self, number: int, direction: str, cell_indices: Tuple[int, ...], length: int, parameters: Tuple[int, int, int]):
+        self.number = number
+        self.direction = direction
+        self.cell_indices = cell_indices
+        self.length = length
+        self.parameters = parameters
 from listener import get_prime_factors_with_multiplicity
 
 # Removed load_clue_parameters function - no longer needed
 # All clue data is now loaded from Listener 4869 clues.txt
+
+def get_grid_structure() -> List[Tuple[int, str, Tuple[int, ...]]]:
+    """Return the hardcoded grid structure for Listener 4869."""
+    return [
+        (1, "ACROSS", (0, 1, 2, 3)),
+        (1, "DOWN", (0, 8, 16, 24)),
+        (2, "DOWN", (1, 9)),
+        (3, "DOWN", (2, 10, 18, 26)),
+        (4, "ACROSS", (4, 5, 6, 7)),
+        (5, "DOWN", (5, 13, 21, 29)),
+        (6, "DOWN", (7, 15, 23, 31)),
+        (7, "DOWN", (11, 19, 27, 35, 43, 51)),
+        (8, "DOWN", (12, 20, 28, 36, 44, 52)),
+        (9, "ACROSS", (14, 15)),
+        (10, "ACROSS", (16, 17, 18, 19)),
+        (11, "ACROSS", (20, 21, 22, 23)),
+        (12, "ACROSS", (25, 26, 27, 28, 29, 30)),
+        (13, "DOWN", (32, 40, 48, 56)),
+        (14, "ACROSS", (33, 34, 35, 36, 37, 38)),
+        (15, "DOWN", (34, 42, 50, 58)),
+        (16, "DOWN", (37, 45, 53, 61)),
+        (17, "DOWN", (39, 47, 55, 63)),
+        (18, "ACROSS", (40, 41, 42, 43)),
+        (19, "ACROSS", (44, 45, 46, 47)),
+        (20, "ACROSS", (48, 49)),
+        (21, "DOWN", (54, 62)),
+        (22, "ACROSS", (56, 57, 58, 59)),
+        (23, "ACROSS", (60, 61, 62, 63))
+    ]
 
 def load_clues_from_file(filename: str = "Listener 4869 clues.txt") -> Dict[Tuple[int, str], str]:
     """Load actual clue text from the clues file."""
@@ -64,11 +103,11 @@ def get_clue_number_at_cell(cell_index: int, grid_clues: List[Tuple[int, str, Tu
     return None
 
 def load_clue_objects() -> Tuple[List[Tuple[int, str, Tuple[int, ...]]], Dict[Tuple[int, str], ListenerClue], ClueManager]:
-    """Load clue objects using the systematic grid parser and clue classes."""
+    """Load clue objects using hardcoded grid structure and clue classes."""
     print("Loading grid structure and clue objects...")
     
-    # Parse grid structure
-    grid_clues = parse_grid()
+    # Get hardcoded grid structure
+    grid_clues = get_grid_structure()
     
     # Create clue manager
     clue_manager = ClueManager()
