@@ -136,6 +136,39 @@ This transition enabled significant progress:
 ✅ **Iterative Development** - Starting simple and adding complexity as needed  
 ✅ **Documentation** - Clear documentation of decisions and their rationale  
 
+## Interactive Solver
+
+The main interactive solver can be run with:
+```bash
+python interactive_solver.py
+```
+
+**Note for Remote Environments (CS50 Codespace, etc.):**
+- The solver will generate an HTML file and attempt to open it in a browser
+- In remote environments, the browser may not open automatically due to environment limitations
+- The HTML file (`interactive_solver.html`) will be created in the project directory
+- You can manually open this file in your browser or use the Flask server version (see below)
+
+### Flask Server Version (Recommended for CS50)
+For better compatibility with remote environments, use the Flask server:
+```bash
+python app.py
+```
+
+**Access in CS50 Codespace:**
+- The server runs on `http://127.0.0.1:5001`
+- Use the **port forwarding** feature in VS Code to access the web interface
+- Click on the port forwarding notification or check the "Ports" tab
+- The application will open in your browser with full functionality
+
+**Features:**
+- User authentication (register/login)
+- Interactive crossword solver
+- Database persistence (SQLite/PostgreSQL)
+- Anagram grid functionality
+- Prime factor workpad
+- Solution history and undo functionality
+
 ## Installation & Usage
 
 ### Local Development
