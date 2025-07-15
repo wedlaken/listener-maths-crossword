@@ -3,12 +3,49 @@
 ## Overview
 This guide covers deploying the Interactive Crossword Solver web application for CS50 Final Project demonstration.
 
+## Virtual Environment Management
+
+### Checking Virtual Environment Status
+Before activating a virtual environment, check if you're already in one:
+
+```bash
+echo $VIRTUAL_ENV
+```
+
+**Output meanings:**
+- **If in a virtual environment**: Shows path like `/workspaces/111866764/project/.venv`
+- **If not in a virtual environment**: Empty output (nothing printed)
+
+### Environment Status Commands
+```bash
+# Check if you're in a virtual environment
+echo $VIRTUAL_ENV
+
+# Check which Python interpreter you're using
+which python
+
+# Check Python version
+python --version
+
+# Check if specific packages are installed
+pip list | grep flask
+```
+
+### Avoiding Nested Virtual Environments
+To prevent double activation (showing `((.venv))`):
+1. **Check first**: `echo $VIRTUAL_ENV`
+2. **Only activate if needed**: `source .venv/bin/activate`
+3. **Deactivate if nested**: `deactivate`
+
 ## Local Development Setup
 
 ### 1. Install Dependencies
 ```bash
-# Activate virtual environment
-source venv/bin/activate  # Mac/Linux
+# Check if virtual environment exists
+ls -la .venv/
+
+# Activate virtual environment (if not already active)
+source .venv/bin/activate  # Mac/Linux
 # or
 .\venv\Scripts\activate   # Windows
 
@@ -21,6 +58,40 @@ pip install -r requirements.txt
 python app.py
 ```
 The application will be available at `http://localhost:5001`
+
+## CS50 Codespace Setup
+
+### Environment Compatibility
+- **Python Version**: 3.12.10 (in Codespace)
+- **Local Python**: 3.13.3 (may have different package compatibility)
+- **Requirements**: Updated for Python 3.12 compatibility
+
+### Codespace Setup Steps
+```bash
+# Navigate to project directory
+cd /workspaces/111866764/project
+
+# Check if virtual environment exists
+ls -la .venv/
+
+# Activate virtual environment
+source .venv/bin/activate
+
+# Verify activation
+echo $VIRTUAL_ENV
+which python
+
+# Install dependencies (if needed)
+pip install -r requirements.txt
+
+# Start Flask application
+python app.py
+```
+
+### Port Forwarding
+- **Local URL**: `http://127.0.0.1:5001`
+- **Access Method**: Use VS Code port forwarding feature
+- **Browser Access**: Click port forwarding notification or check "Ports" tab
 
 ## Deployment Options
 
