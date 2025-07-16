@@ -805,12 +805,15 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             .crossword-grid {{
                 max-width: 100%;
                 overflow-x: auto;
+                display: block;
+                margin: 0 auto;
             }}
             
             .grid-cell {{
                 width: 40px;
                 height: 40px;
                 font-size: 16px;
+                box-sizing: border-box;
             }}
             
             .cell-value {{
@@ -824,10 +827,12 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             .clues-section {{
                 flex-direction: column;
                 gap: 15px;
+                width: 100%;
             }}
             
             .clues-column {{
                 margin-bottom: 15px;
+                width: 100%;
             }}
             
             .clue {{
@@ -937,10 +942,37 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             }}
         }}
         
+        /* Very small mobile devices */
+        @media (max-width: 360px) {{
+            .grid-cell {{
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
+            }}
+            
+            .cell-value {{
+                font-size: 14px;
+            }}
+            
+            .grid-clue-number {{
+                font-size: 6px;
+            }}
+            
+            .container {{
+                padding: 10px;
+            }}
+            
+            .main-content {{
+                gap: 15px;
+            }}
+        }}
+        
         .crossword-grid {{
             display: inline-block;
             border: 3px solid #333;
             background-color: #333;
+            max-width: 100%;
+            box-sizing: border-box;
         }}
         
         .grid-row {{
