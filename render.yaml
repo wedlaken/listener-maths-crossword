@@ -3,11 +3,11 @@ services:
     name: listener-crossword-solver
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    startCommand: gunicorn app:app
     envVars:
       - key: SECRET_KEY
         generateValue: true
       - key: PYTHON_VERSION
         value: 3.12.0
     autoDeploy: true
-    healthCheckPath: / 
+    healthCheckPath: /login 

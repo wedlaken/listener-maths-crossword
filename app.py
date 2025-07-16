@@ -241,6 +241,36 @@ def load_state():
         'anagram_clue_objects': puzzle_session.get_anagram_clue_objects()
     })
 
+# Direct route to serve interactive solver (fallback for static file issues)
+@app.route('/interactive_solver')
+def interactive_solver():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    try:
+        with open('static/interactive_solver.html', 'r', encoding='utf-8') as f:
+            content = f.read()
+        return content, 200, {'Content-Type': 'text/html'}
+    except FileNotFoundError:
+        return "Interactive solver file not found", 404
+
+# Debug route to test static file serving
+@app.route('/debug/static_test')
+def static_test():
+    import os
+    static_files = []
+    try:
+        for file in os.listdir('static'):
+            static_files.append(file)
+    except Exception as e:
+        static_files.append(f"Error listing static directory: {e}")
+    
+    return jsonify({
+        'static_files': static_files,
+        'static_dir_exists': os.path.exists('static'),
+        'interactive_solver_exists': os.path.exists('static/interactive_solver.html')
+    })
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
