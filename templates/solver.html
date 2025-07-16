@@ -3,6 +3,36 @@
 {% block title %}Solver - Interactive Crossword Solver{% endblock %}
 
 {% block content %}
+<style>
+#solver-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+#solver-container iframe {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Mobile responsive for the container */
+@media (max-width: 768px) {
+    #solver-container {
+        padding: 0;
+        margin: 0;
+    }
+    
+    #solver-container iframe {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+    }
+}
+</style>
+
 <div id="solver-container">
     <!-- The interactive solver will be loaded here -->
     <div class="text-center">
@@ -22,11 +52,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Create iframe to load the interactive solver
     const iframe = document.createElement('iframe');
-    iframe.src = '/interactive_solver';  // Use direct route instead of static file
+    // Add cache-busting parameter to ensure fresh content
+    const timestamp = new Date().getTime();
+    iframe.src = `/interactive_solver?t=${timestamp}`;  // Use direct route instead of static file
     iframe.style.width = '100%';
-    iframe.style.height = '1200px';
+    iframe.style.height = 'auto';
+    iframe.style.minHeight = '1200px';
     iframe.style.border = 'none';
     iframe.style.borderRadius = '8px';
+    iframe.style.overflow = 'hidden';
+    
+    // Add responsive iframe sizing
+    iframe.style.maxWidth = '100%';
+    iframe.style.boxSizing = 'border-box';
     
     // Replace loading message with iframe
     container.innerHTML = '';
