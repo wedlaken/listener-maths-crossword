@@ -1259,59 +1259,62 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     <button class="undo-button" id="undo-button" disabled>Undo Last Solution</button>
                     <div class="history-info" id="history-info">No solutions applied yet</div>
                 </div>
-                <div class="developer-section" style="margin-top: 15px; padding: 15px; background-color: #e9ecef; border-radius: 6px; text-align: center; min-height: 120px;">
+                <div class="developer-section" style="margin-top: 15px; padding: 15px; background-color: #e9ecef; border-radius: 6px; text-align: center; min-height: 140px;">
                     <h3>Developer Tools</h3>
-                    <button class="dev-button" id="dev-fill-14a" style="
-                        background-color: #28a745;
-                        color: white;
-                        border: none;
-                        padding: 8px 16px;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-size: 14px;
-                        margin-right: 10px;
-                    ">Fill 14A (Unclued)</button>
-                    <button class="dev-button" id="dev-fill-complete" style="
-                        background-color: #dc3545;
-                        color: white;
-                        border: none;
-                        padding: 8px 16px;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-size: 14px;
-                        margin-right: 10px;
-                    ">Fill Initial Grid</button>
-                    <button class="dev-button" id="dev-fill-anagram" style="
-                        background-color: #ffc107;
-                        color: white;
-                        border: none;
-                        padding: 8px 16px;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-size: 14px;
-                        margin-right: 10px;
-                        display: none;
-                    ">Fill Anagram Grid</button>
-                    <button class="dev-button" id="dev-toggle-anagram" style="
-                        background-color: #17a2b8;
-                        color: white;
-                        border: none;
-                        padding: 8px 16px;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-size: 14px;
-                        margin-right: 10px;
-                    ">Toggle Anagram Mode</button>
-                    <button class="dev-button" id="dev-toggle-constraints" style="
-                        background-color: #6f42c1;
-                        color: white;
-                        border: none;
-                        padding: 8px 16px;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-size: 14px;
-                    ">Toggle Constraints</button>
-                    <div class="dev-info" style="font-size: 12px; color: #666; margin-top: 5px;">Use these buttons to quickly test the anagram grid</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 10px;">
+                        <button class="dev-button" id="dev-fill-14a" style="
+                            background-color: #28a745;
+                            color: white;
+                            border: none;
+                            padding: 6px 12px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 12px;
+                            white-space: nowrap;
+                        ">Fill 14A</button>
+                        <button class="dev-button" id="dev-fill-complete" style="
+                            background-color: #dc3545;
+                            color: white;
+                            border: none;
+                            padding: 6px 12px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 12px;
+                            white-space: nowrap;
+                        ">Fill Initial</button>
+                        <button class="dev-button" id="dev-fill-anagram" style="
+                            background-color: #ffc107;
+                            color: white;
+                            border: none;
+                            padding: 6px 12px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 12px;
+                            white-space: nowrap;
+                            display: none;
+                        ">Fill Anagram</button>
+                        <button class="dev-button" id="dev-toggle-anagram" style="
+                            background-color: #17a2b8;
+                            color: white;
+                            border: none;
+                            padding: 6px 12px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 12px;
+                            white-space: nowrap;
+                        ">Toggle Anagram</button>
+                        <button class="dev-button" id="dev-toggle-constraints" style="
+                            background-color: #6f42c1;
+                            color: white;
+                            border: none;
+                            padding: 6px 12px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 12px;
+                            white-space: nowrap;
+                        ">Toggle Constraints</button>
+                    </div>
+                    <div class="dev-info" style="font-size: 11px; color: #666;">Use these buttons to quickly test the anagram grid</div>
                 </div>
 
             </div>
@@ -2090,7 +2093,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                             <strong style="color: #17a2b8;">The Anagram Challenge:</strong><br>
                             "Solvers must submit a grid in which every entry is an anagram of its counterpart in the initial grid 
                             (same digits in a different order). For each of the unclued six-digit entries, the anagram is a multiple 
-                            of its original value. The 48 numbers used (24 initial + 24 anagrams) are all different, and none start with zero."
+                            of its original value. The 48 numbers used (24 initial + 24 anagrams) are all different, and none starts with zero."
                         </div>
                     </div>
                     
@@ -3441,7 +3444,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 </div>
             `;
             const buttons = `
-                <button onclick="hideModal('anagram-completion-celebration')" style="background: linear-gradient(135deg, #6c757d, #495057);color: white;border: none;padding: 15px 30px;border-radius: 8px;font-size: 1.1em;font-weight: 500;cursor: pointer;transition: all 0.3s ease;box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(108, 117, 125, 0.4)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(108, 117, 125, 0.3)'">🎉 Now take a break! 🎉</button>
+                <button onclick="hideModal('anagram-completion-celebration')" style="background: linear-gradient(135deg, #6c757d, #495057);color: white;border: none;padding: 15px 30px;border-radius: 8px;font-size: 1.1em;font-weight: 500;cursor: pointer;transition: all 0.3s ease;box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(108, 117, 125, 0.4)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(108, 117, 125, 0.3)'">🎉 Now take a well-earned break! 🎉</button>
             `;
             createModal('anagram-completion-celebration', title, content, buttons);
         }}
