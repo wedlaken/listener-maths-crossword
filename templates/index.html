@@ -4,45 +4,265 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8 text-center">
-        <h1 class="display-4 mb-4">Interactive Crossword Solver</h1>
-        <p class="lead mb-5">
-            Solve the two stages of this complex mathematical puzzle. 
-            This interactive solver helps you explore solutions.
-        </p>
+    <div class="col-lg-10 text-center">
+        <div style="
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        ">
+            <!-- Decorative gradient line at top -->
+            <div style="
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #28a745, #17a2b8, #007bff);
+                z-index: 1;
+            "></div>
+            
+            <h1 class="display-4 mb-4" style="
+                font-size: 3.5em;
+                font-weight: 300;
+                letter-spacing: 2px;
+                color: #e9ecef;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                margin-bottom: 1.5rem;
+            ">
+                🧩 Interactive Crossword Solver 🧩
+            </h1>
+            
+            <p class="lead mb-5" style="
+                font-size: 1.4em;
+                line-height: 1.8;
+                color: rgba(255,255,255,0.9);
+                max-width: 800px;
+                margin: 0 auto 3rem auto;
+            ">
+                Embark on a mathematical journey through the two stages of this complex puzzle. 
+                This interactive solver combines computational power with human intuition to guide you through the solution.
+            </p>
+            
+            <div style="
+                background: rgba(40, 167, 69, 0.15);
+                padding: 2rem;
+                border-radius: 12px;
+                border-left: 4px solid #28a745;
+                margin-bottom: 2rem;
+                text-align: center;
+            ">
+                <h3 style="
+                    color: #28a745;
+                    font-weight: 600;
+                    margin-bottom: 1rem;
+                    font-size: 1.5em;
+                ">
+                    🎯 The Challenge
+                </h3>
+                <p style="
+                    color: #e9ecef;
+                    font-size: 1.1em;
+                    line-height: 1.6;
+                    margin: 0;
+                ">
+                    Solve the <strong>Listener 4869</strong> mathematical crossword puzzle, featuring prime factor constraints, 
+                    unclued entries, and a fascinating anagram transformation stage.
+                </p>
+            </div>
+        </div>
         
-        <div class="row">
+        <div class="row g-4">
             <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Features</h5>
-                        <ul class="list-unstyled">
-                            <li>✅ Interactive grid solving</li>
-                            <li>✅ Smart constraint propagation</li>
-                            <li>✅ Undo and deselect functionality</li>
-                            <li>✅ Progress saving</li>
-                            <li>✅ User accounts</li>
+                <div class="card h-100" style="
+                    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+                    border: 1px solid rgba(255,255,255,0.1);
+                    border-radius: 16px;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                    backdrop-filter: blur(10px);
+                    position: relative;
+                    overflow: hidden;
+                ">
+                    <!-- Decorative gradient line -->
+                    <div style="
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 3px;
+                        background: linear-gradient(90deg, #17a2b8, #007bff);
+                    "></div>
+                    
+                    <div class="card-body" style="padding: 2.5rem;">
+                        <h5 class="card-title" style="
+                            color: #17a2b8;
+                            font-weight: 600;
+                            font-size: 1.4em;
+                            margin-bottom: 1.5rem;
+                            text-align: center;
+                        ">
+                            ✨ Features
+                        </h5>
+                        <ul class="list-unstyled" style="margin: 0;">
+                            <li style="
+                                padding: 12px 0;
+                                border-bottom: 1px solid rgba(255,255,255,0.1);
+                                color: #e9ecef;
+                                font-size: 1.1em;
+                            ">
+                                🎮 <strong>Interactive Grid Solving</strong> - Click and solve with real-time feedback
+                            </li>
+                            <li style="
+                                padding: 12px 0;
+                                border-bottom: 1px solid rgba(255,255,255,0.1);
+                                color: #e9ecef;
+                                font-size: 1.1em;
+                            ">
+                                🧠 <strong>Smart Constraint Propagation</strong> - Automatic elimination of incompatible solutions
+                            </li>
+                            <li style="
+                                padding: 12px 0;
+                                border-bottom: 1px solid rgba(255,255,255,0.1);
+                                color: #e9ecef;
+                                font-size: 1.1em;
+                            ">
+                                ↩️ <strong>Undo & Deselect</strong> - Full control over your solving process
+                            </li>
+                            <li style="
+                                padding: 12px 0;
+                                border-bottom: 1px solid rgba(255,255,255,0.1);
+                                color: #e9ecef;
+                                font-size: 1.1em;
+                            ">
+                                💾 <strong>Progress Saving</strong> - Never lose your work
+                            </li>
+                            <li style="
+                                padding: 12px 0;
+                                color: #e9ecef;
+                                font-size: 1.1em;
+                            ">
+                                👤 <strong>User Accounts</strong> - Secure, personalized experience
+                            </li>
                         </ul>
                     </div>
                 </div>
             </div>
+            
             <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Get Started</h5>
-                        <p class="card-text">Register, to save your progress</p>
-                        <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
-                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary">Login</a>
+                <div class="card h-100" style="
+                    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+                    border: 1px solid rgba(255,255,255,0.1);
+                    border-radius: 16px;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                    backdrop-filter: blur(10px);
+                    position: relative;
+                    overflow: hidden;
+                ">
+                    <!-- Decorative gradient line -->
+                    <div style="
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 3px;
+                        background: linear-gradient(90deg, #28a745, #20c997);
+                    "></div>
+                    
+                    <div class="card-body" style="padding: 2.5rem;">
+                        <h5 class="card-title" style="
+                            color: #28a745;
+                            font-weight: 600;
+                            font-size: 1.4em;
+                            margin-bottom: 1.5rem;
+                            text-align: center;
+                        ">
+                            🚀 Get Started
+                        </h5>
+                        <p class="card-text" style="
+                            color: rgba(255,255,255,0.9);
+                            font-size: 1.1em;
+                            line-height: 1.6;
+                            margin-bottom: 2rem;
+                        ">
+                            Create an account to save your progress and track your solving journey through this fascinating mathematical puzzle.
+                        </p>
+                        <div style="text-align: center;">
+                            <a href="{{ url_for('register') }}" class="btn btn-primary" style="
+                                margin-right: 1rem;
+                                padding: 14px 28px;
+                                font-size: 1.1em;
+                                font-weight: 600;
+                            ">
+                                📝 Register Now
+                            </a>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-primary" style="
+                                padding: 14px 28px;
+                                font-size: 1.1em;
+                                font-weight: 600;
+                            ">
+                                🔑 Login
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="mt-4">
-            <h3>About This Project</h3>
-            <p>
-                This interactive crossword solver is built for the final project of CS50's Intro to Computer Science, written using object-oriented methods in Python and JavaScript to achieve
-                algorithmic constraint satisfaction and state management. It uses Flask, Bootstrap, SQLite, and a variety of other technologies to create a full-stack web application.
+        <div class="mt-5" style="
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        ">
+            <!-- Decorative gradient line -->
+            <div style="
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #6f42c1, #e83e8c);
+            "></div>
+            
+            <h3 style="
+                color: #6f42c1;
+                font-weight: 600;
+                margin-bottom: 1.5rem;
+                text-align: center;
+                font-size: 1.8em;
+            ">
+                🎓 About This Project
+            </h3>
+            <p style="
+                color: rgba(255,255,255,0.9);
+                font-size: 1.1em;
+                line-height: 1.7;
+                margin-bottom: 1.5rem;
+                text-align: justify;
+            ">
+                This interactive crossword solver represents the culmination of CS50's Introduction to Computer Science course. 
+                Built using object-oriented programming principles in Python and JavaScript, it demonstrates advanced algorithmic 
+                constraint satisfaction and sophisticated state management techniques.
+            </p>
+            <p style="
+                color: rgba(255,255,255,0.9);
+                font-size: 1.1em;
+                line-height: 1.7;
+                margin: 0;
+                text-align: justify;
+            ">
+                The application leverages Flask for the backend framework, Bootstrap for responsive design, SQLite for data persistence, 
+                and a comprehensive suite of modern web technologies to create a full-stack experience that bridges computational 
+                power with human problem-solving intuition.
             </p>
         </div>
     </div>

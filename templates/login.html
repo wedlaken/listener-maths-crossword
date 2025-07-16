@@ -4,29 +4,179 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="text-center">Login</h3>
+    <div class="col-md-6 col-lg-5">
+        <div class="card" style="
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        ">
+            <!-- Decorative gradient line at top -->
+            <div style="
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #28a745, #17a2b8, #007bff);
+                z-index: 1;
+            "></div>
+            
+            <div class="card-header" style="
+                background: linear-gradient(135deg, #28a745, #20c997);
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                border-radius: 16px 16px 0 0 !important;
+                color: white;
+                font-weight: 600;
+                text-align: center;
+                padding: 2rem 1.5rem;
+                position: relative;
+            ">
+                <h3 style="
+                    margin: 0;
+                    font-size: 2em;
+                    font-weight: 300;
+                    letter-spacing: 1px;
+                ">
+                    🔑 Welcome Back
+                </h3>
+                <p style="
+                    margin: 0.5rem 0 0 0;
+                    opacity: 0.9;
+                    font-size: 1.1em;
+                ">
+                    Sign in to continue your puzzle-solving journey
+                </p>
             </div>
-            <div class="card-body">
+            
+            <div class="card-body" style="padding: 2.5rem;">
                 <form method="POST">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                    <div class="mb-4">
+                        <label for="email" class="form-label" style="
+                            color: #e9ecef;
+                            font-weight: 600;
+                            margin-bottom: 10px;
+                            font-size: 1.1em;
+                        ">
+                            📧 Email Address
+                        </label>
+                        <input type="email" 
+                               class="form-control" 
+                               id="email" 
+                               name="email" 
+                               required
+                               placeholder="Enter your email address"
+                               style="
+                                   background: rgba(255,255,255,0.1);
+                                   border: 1px solid rgba(255,255,255,0.2);
+                                   border-radius: 10px;
+                                   color: #e9ecef;
+                                   padding: 14px 18px;
+                                   font-size: 16px;
+                                   transition: all 0.3s ease;
+                               "
+                        >
                     </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                    
+                    <div class="mb-4">
+                        <label for="password" class="form-label" style="
+                            color: #e9ecef;
+                            font-weight: 600;
+                            margin-bottom: 10px;
+                            font-size: 1.1em;
+                        ">
+                            🔒 Password
+                        </label>
+                        <input type="password" 
+                               class="form-control" 
+                               id="password" 
+                               name="password" 
+                               required
+                               placeholder="Enter your password"
+                               style="
+                                   background: rgba(255,255,255,0.1);
+                                   border: 1px solid rgba(255,255,255,0.2);
+                                   border-radius: 10px;
+                                   color: #e9ecef;
+                                   padding: 14px 18px;
+                                   font-size: 16px;
+                                   transition: all 0.3s ease;
+                               "
+                        >
                     </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Login</button>
+                    
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-primary" style="
+                            background: linear-gradient(135deg, #28a745, #20c997);
+                            border: none;
+                            border-radius: 10px;
+                            padding: 16px 24px;
+                            font-weight: 600;
+                            font-size: 1.1em;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+                        ">
+                            🚀 Sign In
+                        </button>
                     </div>
                 </form>
-                <div class="text-center mt-3">
-                    <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+                
+                <div class="text-center" style="
+                    padding-top: 1.5rem;
+                    border-top: 1px solid rgba(255,255,255,0.1);
+                ">
+                    <p style="
+                        color: rgba(255,255,255,0.8);
+                        font-size: 1.1em;
+                        margin-bottom: 1rem;
+                    ">
+                        Don't have an account yet?
+                    </p>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary" style="
+                        background: transparent;
+                        border: 2px solid #28a745;
+                        color: #28a745;
+                        border-radius: 10px;
+                        padding: 12px 24px;
+                        font-weight: 600;
+                        font-size: 1em;
+                        transition: all 0.3s ease;
+                        text-decoration: none;
+                    ">
+                        📝 Create Account
+                    </a>
                 </div>
             </div>
+        </div>
+        
+        <!-- Additional info card -->
+        <div class="card mt-4" style="
+            background: rgba(23, 162, 184, 0.15);
+            border: 1px solid rgba(23, 162, 184, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        ">
+            <h5 style="
+                color: #17a2b8;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                font-size: 1.2em;
+            ">
+                💡 Why Create an Account?
+            </h5>
+            <p style="
+                color: rgba(255,255,255,0.9);
+                font-size: 1em;
+                line-height: 1.6;
+                margin: 0;
+            ">
+                Save your progress, track your solving statistics, and never lose your work. 
+                Your puzzle-solving journey is automatically saved as you progress.
+            </p>
         </div>
     </div>
 </div>
