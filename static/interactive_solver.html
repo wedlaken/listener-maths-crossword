@@ -49,10 +49,202 @@
             min-width: 400px;
         }
         
+        /* Mobile responsive design */
+        @media (max-width: 768px) {
+            body {
+                margin: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+                max-width: 100%;
+            }
+            
+            .main-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .grid-section {
+                order: 1;
+            }
+            
+            .info-section {
+                order: 2;
+                min-width: auto;
+            }
+            
+            .crossword-grid {
+                max-width: 100%;
+                overflow-x: auto;
+                display: block;
+                margin: 0 auto;
+            }
+            
+            .grid-cell {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+                box-sizing: border-box;
+            }
+            
+            .cell-value {
+                font-size: 18px;
+            }
+            
+            .grid-clue-number {
+                font-size: 8px;
+            }
+            
+            .clues-section {
+                flex-direction: column;
+                gap: 15px;
+                width: 100%;
+            }
+            
+            .clues-column {
+                margin-bottom: 15px;
+                width: 100%;
+            }
+            
+            .clue {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .clue-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .clue-text {
+                font-size: 14px;
+            }
+            
+            .solution-count {
+                font-size: 11px;
+                min-width: auto;
+            }
+            
+            .solution-dropdown {
+                margin-top: 10px;
+            }
+            
+            .solution-select {
+                font-size: 14px;
+                padding: 8px;
+            }
+            
+            .apply-solution {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
+            .prime-factor-workpad {
+                margin-top: 20px;
+                padding: 12px;
+            }
+            
+            .progress-section {
+                margin-top: 15px;
+                padding: 12px;
+            }
+            
+            .undo-section {
+                margin-top: 15px;
+                padding: 12px;
+            }
+            
+            .undo-button {
+                padding: 10px 20px;
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            
+            .developer-section {
+                margin-top: 20px;
+                padding: 12px;
+                min-height: auto;
+            }
+            
+            .developer-section h3 {
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+            
+            .dev-button {
+                padding: 8px 12px !important;
+                font-size: 11px !important;
+                margin-bottom: 8px;
+            }
+            
+            .dev-info {
+                font-size: 10px;
+                margin-top: 10px;
+            }
+        }
+        
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            .grid-cell {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+            
+            .cell-value {
+                font-size: 16px;
+            }
+            
+            .grid-clue-number {
+                font-size: 7px;
+            }
+            
+            .clue {
+                padding: 8px;
+            }
+            
+            .clue-text {
+                font-size: 13px;
+            }
+            
+            .solution-count {
+                font-size: 10px;
+            }
+        }
+        
+        /* Very small mobile devices */
+        @media (max-width: 360px) {
+            .grid-cell {
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
+            }
+            
+            .cell-value {
+                font-size: 14px;
+            }
+            
+            .grid-clue-number {
+                font-size: 6px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .main-content {
+                gap: 15px;
+            }
+        }
+        
         .crossword-grid {
             display: inline-block;
             border: 3px solid #333;
             background-color: #333;
+            max-width: 100%;
+            box-sizing: border-box;
         }
         
         .grid-row {
@@ -2028,7 +2220,7 @@
                             <strong style="color: #17a2b8;">The Anagram Challenge:</strong><br>
                             "Solvers must submit a grid in which every entry is an anagram of its counterpart in the initial grid 
                             (same digits in a different order). For each of the unclued six-digit entries, the anagram is a multiple 
-                            of its original value. The 48 numbers used (24 initial + 24 anagrams) are all different, and none start with zero."
+                            of its original value. The 48 numbers used (24 initial + 24 anagrams) are all different, and none starts with zero."
                         </div>
                     </div>
                     
@@ -3252,23 +3444,44 @@
                         50% { box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 30px rgba(40, 167, 69, 0.3); }
                         100% { box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
                     }
+                    
+                    /* Mobile-specific modal styles */
+                    @media (max-width: 768px) {
+                        .modal-content {
+                            max-height: 85vh !important;
+                            margin: 10px !important;
+                            padding: 20px !important;
+                        }
+                    }
+                    
+                    @media (max-width: 480px) {
+                        .modal-content {
+                            max-height: 90vh !important;
+                            margin: 5px !important;
+                            padding: 15px !important;
+                        }
+                    }
                 `;
                 document.head.appendChild(style);
             }
             modal.innerHTML = `
-                <div style="
+                <div class="modal-content" style="
                     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
                     color: white;
                     padding: 40px;
                     border-radius: 12px;
                     text-align: center;
                     max-width: 600px;
+                    max-height: 80vh;
                     margin: 20px;
                     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
                     animation: slideIn 0.6s ease-out;
                     position: relative;
-                    overflow: hidden;
+                    overflow-y: auto;
+                    overflow-x: hidden;
                     border: 1px solid #495057;
+                    box-sizing: border-box;
+                    -webkit-overflow-scrolling: touch;
                 ">
                     <div style="
                         position: absolute;
@@ -3379,7 +3592,7 @@
                 </div>
             `;
             const buttons = `
-                <button onclick="hideModal('anagram-completion-celebration')" style="background: linear-gradient(135deg, #6c757d, #495057);color: white;border: none;padding: 15px 30px;border-radius: 8px;font-size: 1.1em;font-weight: 500;cursor: pointer;transition: all 0.3s ease;box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(108, 117, 125, 0.4)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(108, 117, 125, 0.3)'">🎉 Now take a break! 🎉</button>
+                <button onclick="hideModal('anagram-completion-celebration')" style="background: linear-gradient(135deg, #6c757d, #495057);color: white;border: none;padding: 15px 30px;border-radius: 8px;font-size: 1.1em;font-weight: 500;cursor: pointer;transition: all 0.3s ease;box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(108, 117, 125, 0.4)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(108, 117, 125, 0.3)'">🎉 Now take a well-earned break! 🎉</button>
             `;
             createModal('anagram-completion-celebration', title, content, buttons);
         }

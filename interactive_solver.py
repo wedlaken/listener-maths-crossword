@@ -3509,23 +3509,44 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                         50% {{ box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 30px rgba(40, 167, 69, 0.3); }}
                         100% {{ box-shadow: 0 20px 40px rgba(0,0,0,0.3); }}
                     }}
+                    
+                    /* Mobile-specific modal styles */
+                    @media (max-width: 768px) {{
+                        .modal-content {{
+                            max-height: 85vh !important;
+                            margin: 10px !important;
+                            padding: 20px !important;
+                        }}
+                    }}
+                    
+                    @media (max-width: 480px) {{
+                        .modal-content {{
+                            max-height: 90vh !important;
+                            margin: 5px !important;
+                            padding: 15px !important;
+                        }}
+                    }}
                 `;
                 document.head.appendChild(style);
             }}
             modal.innerHTML = `
-                <div style="
+                <div class="modal-content" style="
                     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
                     color: white;
                     padding: 40px;
                     border-radius: 12px;
                     text-align: center;
                     max-width: 600px;
+                    max-height: 80vh;
                     margin: 20px;
                     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
                     animation: slideIn 0.6s ease-out;
                     position: relative;
-                    overflow: hidden;
+                    overflow-y: auto;
+                    overflow-x: hidden;
                     border: 1px solid #495057;
+                    box-sizing: border-box;
+                    -webkit-overflow-scrolling: touch;
                 ">
                     <div style="
                         position: absolute;
