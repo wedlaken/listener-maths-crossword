@@ -749,15 +749,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         }}
         
         .header {{
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 20px;
-        }}
-        
-        .header h1 {{
-            color: #333;
-            margin: 0;
+            display: none;
         }}
         
         .main-content {{
@@ -809,9 +801,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             }}
             
             .grid-cell {{
-                width: 35px;
-                height: 35px;
-                font-size: 14px;
+                width: 35px !important;
+                height: 35px !important;
+                font-size: 14px !important;
                 box-sizing: border-box;
             }}
             
@@ -920,9 +912,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         /* Medium mobile devices - optimize for devices like Moto Edge 50 Ultra */
         @media (max-width: 600px) and (min-width: 481px) {{
             .grid-cell {{
-                width: 38px;
-                height: 38px;
-                font-size: 15px;
+                width: 38px !important;
+                height: 38px !important;
+                font-size: 15px !important;
             }}
             
             .clue-header {{
@@ -947,9 +939,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         /* Small mobile devices - allow single line with wrapping */
         @media (max-width: 480px) {{
             .grid-cell {{
-                width: 30px;
-                height: 30px;
-                font-size: 12px;
+                width: 30px !important;
+                height: 30px !important;
+                font-size: 12px !important;
             }}
             
             .cell-value {{
@@ -986,9 +978,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         /* Very small mobile devices - stack clues vertically */
         @media (max-width: 360px) {{
             .grid-cell {{
-                width: 25px;
-                height: 25px;
-                font-size: 10px;
+                width: 25px !important;
+                height: 25px !important;
+                font-size: 10px !important;
             }}
             
             .cell-value {{
@@ -1388,10 +1380,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Interactive Crossword Solver</h1>
-            <div class="timestamp">Listener 4869, 24 May 2025</div>
-        </div>
+
 
         <div class="main-content">
             <div class="grid-section">
