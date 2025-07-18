@@ -205,6 +205,39 @@ result = enhanced_solver.apply_solution("12_ACROSS", 167982)
 
 ## Recent Major Improvements (December 2024)
 
+### Mobile Responsiveness Fixes (Latest)
+
+#### Responsive Iframe Height
+- **Problem**: Fixed iframe height of 1200px didn't adapt to mobile screens
+- **Solution**: Dynamic iframe height based on screen size
+  - Desktop (>768px): 1200px
+  - Tablet (≤768px): 800px  
+  - Mobile (≤480px): 600px
+- **Implementation**: JavaScript window resize listener with responsive height adjustment
+
+#### Grid Cell Sizing Improvements
+- **Problem**: Fixed cell sizes (50px) overrode Bootstrap responsiveness
+- **Solution**: Added `flex-shrink: 0` to prevent cell compression
+- **Mobile Breakpoints**:
+  - Desktop: 50px × 50px cells
+  - Tablet: 40px × 40px cells
+  - Mobile: 35px × 35px cells
+  - Very small: 30px × 30px cells
+
+#### Container Responsiveness
+- **Problem**: Fixed container width and margin issues on mobile
+- **Solution**: 
+  - Added `width: 100%` and `box-sizing: border-box`
+  - Improved mobile container margins and padding
+  - Added touch-friendly scrolling with `-webkit-overflow-scrolling: touch`
+
+#### Horizontal Scrolling for Grid
+- **Problem**: Grid overflow on small screens
+- **Solution**: 
+  - Added horizontal scroll containers
+  - Smooth touch scrolling for iOS devices
+  - Proper overflow handling in grid sections
+
 ### Interactive Solver Enhancements
 
 #### Prime Factorization Workpad

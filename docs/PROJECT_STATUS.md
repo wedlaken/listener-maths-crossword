@@ -77,10 +77,10 @@ The application is fully responsive thanks to Bootstrap CSS framework:
 ## Next Steps & Future Enhancements
 
 ### Immediate (Testing & Polish)
+- [x] Mobile responsiveness improvements (iframe height, grid cell sizing, container handling)
 - [ ] Comprehensive testing of all features in production
 - [ ] UI/UX refinements and bug fixes
 - [ ] Performance optimization
-- [ ] Mobile experience improvements
 
 ### Medium Term (Feature Enhancements)
 - [ ] Additional puzzle support

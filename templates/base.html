@@ -231,6 +231,51 @@
             .display-4 {
                 font-size: 2.5rem;
             }
+            
+            /* Mobile navbar improvements */
+            .navbar-brand {
+                font-size: 1.1em;
+                max-width: 70%;
+            }
+            
+            .navbar-collapse {
+                background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%);
+                border-radius: 8px;
+                margin-top: 10px;
+                padding: 15px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
+            
+            .navbar-nav .nav-link {
+                padding: 12px 0;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .navbar-nav .nav-link:last-child {
+                border-bottom: none;
+            }
+            
+            .navbar-text {
+                display: block !important;
+                margin: 10px 0;
+                padding: 8px 0;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                font-size: 0.9em;
+            }
+            
+            .btn-outline-light {
+                margin: 5px 0;
+                width: 100%;
+                text-align: center;
+            }
+        }
+        
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            .navbar-brand {
+                font-size: 1em;
+                max-width: 65%;
+            }
         }
         
         /* Animation keyframes */
@@ -260,19 +305,28 @@
             <a class="navbar-brand" href="{{ url_for('index') }}">
                 🧩 Listener no.4869 Crossword Solver
             </a>
-            <div class="navbar-nav ms-auto">
-                {% if session.user_id %}
-                    <span class="navbar-text me-3">Welcome, {{ session.email }}</span>
-                    <!-- Save/Load buttons - only show on solver page -->
-                    {% if request.endpoint == 'solver' %}
-                        <button id="save-progress" class="btn btn-outline-light btn-sm me-2">💾 Save Progress</button>
-                        <button id="load-progress" class="btn btn-outline-light btn-sm me-3">📂 Load Progress</button>
+            
+            <!-- Hamburger menu button for mobile -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <!-- Collapsible navbar content -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    {% if session.user_id %}
+                        <span class="navbar-text me-3 d-none d-lg-inline">Welcome, {{ session.email }}</span>
+                        <!-- Save/Load buttons - only show on solver page -->
+                        {% if request.endpoint == 'solver' %}
+                            <button id="save-progress" class="btn btn-outline-light btn-sm me-2">💾 Save Progress</button>
+                            <button id="load-progress" class="btn btn-outline-light btn-sm me-3">📂 Load Progress</button>
+                        {% endif %}
+                        <a class="nav-link" href="{{ url_for('logout') }}">🚪 Logout</a>
+                    {% else %}
+                        <a class="nav-link" href="{{ url_for('login') }}">🔑 Login</a>
+                        <a class="nav-link" href="{{ url_for('register') }}">📝 Register</a>
                     {% endif %}
-                    <a class="nav-link" href="{{ url_for('logout') }}">🚪 Logout</a>
-                {% else %}
-                    <a class="nav-link" href="{{ url_for('login') }}">🔑 Login</a>
-                    <a class="nav-link" href="{{ url_for('register') }}">📝 Register</a>
-                {% endif %}
+                </div>
             </div>
         </div>
     </nav>

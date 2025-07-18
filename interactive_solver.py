@@ -840,19 +840,24 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 margin-bottom: 10px;
             }}
             
+            /* Improved clue layout for medium mobile screens */
             .clue-header {{
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
             }}
             
             .clue-text {{
                 font-size: 14px;
+                flex: 1;
+                min-width: 0;
             }}
             
             .solution-count {{
                 font-size: 11px;
                 min-width: auto;
+                white-space: nowrap;
             }}
             
             .solution-dropdown {{
@@ -913,7 +918,28 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             }}
         }}
         
-        /* Extra small mobile devices */
+        /* Medium mobile devices - optimize for devices like Moto Edge 50 Ultra */
+        @media (max-width: 600px) and (min-width: 481px) {{
+            .clue-header {{
+                flex-direction: row;
+                align-items: center;
+                gap: 6px;
+                flex-wrap: wrap;
+            }}
+            
+            .clue-text {{
+                font-size: 13px;
+                flex: 1;
+                min-width: 0;
+            }}
+            
+            .solution-count {{
+                font-size: 10px;
+                white-space: nowrap;
+            }}
+        }}
+        
+        /* Small mobile devices - stack clues vertically */
         @media (max-width: 480px) {{
             .grid-cell {{
                 width: 35px;
@@ -933,8 +959,15 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 padding: 8px;
             }}
             
+            .clue-header {{
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }}
+            
             .clue-text {{
                 font-size: 13px;
+                flex: none;
             }}
             
             .solution-count {{
