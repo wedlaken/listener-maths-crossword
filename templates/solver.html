@@ -16,6 +16,8 @@
     max-width: 100% !important;
     overflow-x: hidden !important;
     box-sizing: border-box !important;
+    border: none;
+    border-radius: 8px;
 }
 
 /* Mobile responsive for the container */
@@ -29,6 +31,14 @@
         width: 100% !important;
         max-width: 100vw !important;
         overflow-x: hidden !important;
+        min-height: 800px !important; /* Reduced from 1200px for mobile */
+    }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+    #solver-container iframe {
+        min-height: 600px !important; /* Even smaller for very small screens */
     }
 }
 </style>
@@ -57,7 +67,16 @@ document.addEventListener('DOMContentLoaded', function() {
     iframe.src = `/interactive_solver?t=${timestamp}`;  // Use direct route instead of static file
     iframe.style.width = '100%';
     iframe.style.height = 'auto';
-    iframe.style.minHeight = '1200px';
+    
+    // Responsive height based on screen size
+    if (window.innerWidth <= 480) {
+        iframe.style.minHeight = '600px';
+    } else if (window.innerWidth <= 768) {
+        iframe.style.minHeight = '800px';
+    } else {
+        iframe.style.minHeight = '1200px';
+    }
+    
     iframe.style.border = 'none';
     iframe.style.borderRadius = '8px';
     iframe.style.overflow = 'hidden';
@@ -69,6 +88,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Replace loading message with iframe
     container.innerHTML = '';
     container.appendChild(iframe);
+    
+    // Handle window resize for responsive iframe height
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 480) {
+            iframe.style.minHeight = '600px';
+        } else if (window.innerWidth <= 768) {
+            iframe.style.minHeight = '800px';
+        } else {
+            iframe.style.minHeight = '1200px';
+        }
+    });
     
     // Test iframe communication after it loads
     iframe.onload = function() {
