@@ -82,9 +82,9 @@
             }
             
             .grid-cell {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
                 box-sizing: border-box;
             }
             
@@ -192,6 +192,12 @@
         
         /* Medium mobile devices - optimize for devices like Moto Edge 50 Ultra */
         @media (max-width: 600px) and (min-width: 481px) {
+            .grid-cell {
+                width: 38px;
+                height: 38px;
+                font-size: 15px;
+            }
+            
             .clue-header {
                 flex-direction: row;
                 align-items: center;
@@ -211,12 +217,12 @@
             }
         }
         
-        /* Small mobile devices - stack clues vertically */
+        /* Small mobile devices - allow single line with wrapping */
         @media (max-width: 480px) {
             .grid-cell {
-                width: 35px;
-                height: 35px;
-                font-size: 14px;
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
             }
             
             .cell-value {
@@ -232,27 +238,30 @@
             }
             
             .clue-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
+                flex-direction: row;
+                align-items: center;
+                gap: 6px;
+                flex-wrap: wrap;
             }
             
             .clue-text {
                 font-size: 13px;
-                flex: none;
+                flex: 1;
+                min-width: 0;
             }
             
             .solution-count {
                 font-size: 10px;
+                white-space: nowrap;
             }
         }
         
-        /* Very small mobile devices */
+        /* Very small mobile devices - stack clues vertically */
         @media (max-width: 360px) {
             .grid-cell {
-                width: 30px;
-                height: 30px;
-                font-size: 12px;
+                width: 25px;
+                height: 25px;
+                font-size: 10px;
             }
             
             .cell-value {
@@ -270,6 +279,26 @@
             .main-content {
                 gap: 15px;
             }
+            
+            .clue-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .clue-text {
+                font-size: 12px;
+                flex: none;
+            }
+            
+            .solution-count {
+                font-size: 9px;
+            }
+        }
+        
+        .grid-wrapper {
+            text-align: center;
+            margin: 0 auto;
         }
         
         .crossword-grid {
@@ -641,7 +670,8 @@
             <div class="grid-section">
                 <div id="initial-grid-section">
                     <h3>Puzzle Grid</h3>
-                    <div class="crossword-grid">
+                    <div class="grid-wrapper">
+<div class="crossword-grid">
   <div class="grid-row">
     <div class="grid-cell " data-cell="0"><div class="grid-clue-number">1</div></div>
     <div class="grid-cell " data-cell="1"><div class="grid-clue-number">2</div></div>
@@ -722,6 +752,7 @@
     <div class="grid-cell " data-cell="62"></div>
     <div class="grid-cell " data-cell="63"></div>
   </div>
+</div>
 </div>
                 </div>
                 <div id="anagram-grid-section" style="display: none; margin-top: 30px;">
