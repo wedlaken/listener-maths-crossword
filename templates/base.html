@@ -56,6 +56,11 @@
             background: rgba(255,255,255,0.1);
             transition: all 0.3s ease;
             font-weight: 500;
+            vertical-align: middle;
+            line-height: 1.5;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .navbar .btn-outline-light:hover {
@@ -322,12 +327,12 @@
                 <div class="navbar-nav ms-auto">
                     {% if session.user_id %}
                         <span class="navbar-text me-3 d-none d-lg-inline">Welcome, {{ session.email }}</span>
+                        <a class="btn btn-outline-light btn-sm me-3" href="{{ url_for('logout') }}">🚪 Logout</a>
                         <!-- Save/Load buttons - only show on solver page -->
                         {% if request.endpoint == 'solver' %}
                             <button id="save-progress" class="btn btn-outline-light btn-sm me-2">💾 Save Progress</button>
-                            <button id="load-progress" class="btn btn-outline-light btn-sm me-3">📂 Load Progress</button>
+                            <button id="load-progress" class="btn btn-outline-light btn-sm">📂 Load Progress</button>
                         {% endif %}
-                        <a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">🚪 Logout</a>
                     {% else %}
                         <a class="nav-link" href="{{ url_for('login') }}">🔑 Login</a>
                         <a class="nav-link" href="{{ url_for('register') }}">📝 Register</a>

@@ -1023,8 +1023,8 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         }}
         
         .grid-wrapper {{
-            text-align: center;
-            margin: 0 auto;
+            text-align: left;
+            margin: 0;
         }}
         
         .crossword-grid {{

@@ -41,6 +41,12 @@ For fast local development without Git delays:
 - **`deploy.bat`**: Quick deployment to GitHub/Render
 - **`dev_workflow.py`**: Full workflow with Git status checks (slower)
 
+### Deployment Strategy
+For detailed information about when to use each workflow approach, see:
+**[DEPLOYMENT_WORKFLOW_STRATEGY.md](DEPLOYMENT_WORKFLOW_STRATEGY.md)**
+
+This document explains the strategic approach to balancing development speed with proper documentation practices, including when to use quick deployment vs. detailed manual commits.
+
 ### Git Workflow (For Deployment)
 1. Always pull before starting work
 2. Make changes
