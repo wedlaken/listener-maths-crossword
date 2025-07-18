@@ -801,9 +801,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             }}
             
             .grid-cell {{
-                width: 35px !important;
-                height: 35px !important;
-                font-size: 14px !important;
+                width: 42px !important;
+                height: 42px !important;
+                font-size: 16px !important;
                 box-sizing: border-box;
             }}
             
@@ -912,9 +912,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         /* Medium mobile devices - optimize for devices like Moto Edge 50 Ultra */
         @media (max-width: 600px) and (min-width: 481px) {{
             .grid-cell {{
-                width: 38px !important;
-                height: 38px !important;
-                font-size: 15px !important;
+                width: 45px !important;
+                height: 45px !important;
+                font-size: 17px !important;
             }}
             
             .clue-header {{
@@ -939,9 +939,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         /* Small mobile devices - allow single line with wrapping */
         @media (max-width: 480px) {{
             .grid-cell {{
-                width: 30px !important;
-                height: 30px !important;
-                font-size: 12px !important;
+                width: 38px !important;
+                height: 38px !important;
+                font-size: 14px !important;
             }}
             
             .cell-value {{
@@ -978,9 +978,9 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         /* Very small mobile devices - stack clues vertically */
         @media (max-width: 360px) {{
             .grid-cell {{
-                width: 25px !important;
-                height: 25px !important;
-                font-size: 10px !important;
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 12px !important;
             }}
             
             .cell-value {{
