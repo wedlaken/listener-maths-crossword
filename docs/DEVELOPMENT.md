@@ -26,7 +26,22 @@
 
 ## Development Workflow
 
-### Git Workflow
+### Quick Development Workflow (Recommended)
+For fast local development without Git delays:
+
+1. **Make changes** to `interactive_solver.py`
+2. **Run quick development script**:
+   - Windows: Double-click `quick_dev.bat` or run `python quick_dev.py`
+   - This automatically generates HTML and saves to `static/` folder
+3. **Test locally**: `python app.py` → visit `http://localhost:5001`
+4. **Deploy when ready**: Double-click `deploy.bat` or run Git commands manually
+
+### Development Scripts
+- **`quick_dev.bat`** or **`python quick_dev.py`**: Fast local development (no Git)
+- **`deploy.bat`**: Quick deployment to GitHub/Render
+- **`dev_workflow.py`**: Full workflow with Git status checks (slower)
+
+### Git Workflow (For Deployment)
 1. Always pull before starting work
 2. Make changes
 3. Commit with descriptive messages

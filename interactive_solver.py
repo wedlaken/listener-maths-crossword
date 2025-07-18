@@ -734,8 +734,12 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
     <style>
         body {{
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 20px;
             background-color: #f5f5f5;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
         }}
         
         .container {{
@@ -746,6 +750,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             position: relative;
+            min-height: calc(100vh - 40px);
         }}
         
         .header {{
@@ -771,12 +776,14 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         /* Mobile responsive design */
         @media (max-width: 768px) {{
             body {{
-                margin: 10px;
+                margin: 0;
+                padding: 10px;
             }}
             
             .container {{
                 padding: 15px;
                 max-width: 100%;
+                min-height: calc(100vh - 20px);
             }}
             
             .main-content {{
@@ -1639,10 +1646,10 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             updateUndoButton();
             
             if (lastState.solution === 'DESELECT') {{
-                showNotification(`Undid deselect for clue ${{lastState.clueId}}`, 'info');
+                // Undid deselect for clue
             }} else {{
                 const gridType = lastState.isAnagramSolution ? 'anagram grid' : 'initial grid';
-                showNotification(`Undid solution "${{lastState.solution}}" for clue ${{lastState.clueId}} (${{gridType}})`, 'info');
+                // Undid solution
             }}
         }}
         function updateUndoButton() {{
@@ -2258,6 +2265,23 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     0% {{ transform: translateY(-100vh) rotate(0deg); }}
                     100% {{ transform: translateY(100vh) rotate(360deg); }}
                 }}
+                
+                /* Mobile-specific modal styles */
+                @media (max-width: 768px) {{
+                    #completion-celebration > div {{
+                        max-height: 90vh !important;
+                        margin: 10px !important;
+                        padding: 20px !important;
+                    }}
+                }}
+                
+                @media (max-width: 480px) {{
+                    #completion-celebration > div {{
+                        max-height: 95vh !important;
+                        margin: 5px !important;
+                        padding: 15px !important;
+                    }}
+                }}
             `;
             document.head.appendChild(style);
             
@@ -2274,12 +2298,16 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     border-radius: 12px;
                     text-align: center;
                     max-width: 600px;
+                    max-height: 85vh;
                     margin: 20px;
                     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
                     animation: slideIn 0.6s ease-out;
                     position: relative;
-                    overflow: hidden;
+                    overflow-y: auto;
+                    overflow-x: hidden;
                     border: 1px solid #495057;
+                    box-sizing: border-box;
+                    -webkit-overflow-scrolling: touch;
                 ">
                     <div style="
                         position: absolute;
@@ -2911,7 +2939,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     toggleButton.style.backgroundColor = '#17a2b8';
                     // Hide anagram fill button
                     document.getElementById('dev-fill-anagram').style.display = 'none';
-                    showNotification('Switched to Initial Grid Mode', 'info');
+                    // Switched to Initial Grid Mode
                     // Update progress for initial grid
                     updateProgress();
                 }} else {{
@@ -2922,7 +2950,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     toggleButton.style.backgroundColor = '#28a745';
                     // Show anagram fill button
                     document.getElementById('dev-fill-anagram').style.display = 'inline-block';
-                    showNotification('Switched to Anagram Grid Mode', 'info');
+                    // Switched to Anagram Grid Mode
                     // Reset progress bar to zero for anagram grid
                     document.querySelector('.progress-fill').style.width = '0%';
                     document.querySelector('.progress-stats').innerHTML = 
@@ -2939,11 +2967,11 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             if (anagramConstraintsEnabled) {{
                 toggleButton.textContent = 'Constraints: ON';
                 toggleButton.style.backgroundColor = '#6f42c1';
-                showNotification('Anagram constraints enabled - solutions will be filtered based on crossing clues', 'info');
+                // Anagram constraints enabled
             }} else {{
                 toggleButton.textContent = 'Constraints: OFF';
                 toggleButton.style.backgroundColor = '#dc3545';
-                showNotification('Anagram constraints disabled - all anagram solutions will be shown', 'info');
+                // Anagram constraints disabled
             }}
             
             // Regenerate anagram clues with new constraint setting
@@ -3352,7 +3380,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
             // Fill in clue 14A (unclued) with the known solution
             const solution = '142857';
             applySolutionToGrid('14_ACROSS', solution);
-            showNotification('Filled 14A with solution 142857', 'success');
+                            showNotification('Filled 14A with solution 142857', 'success');
         }}
         
         function fillCompleteGrid() {{
@@ -3395,7 +3423,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 }}
             }}
             
-            showNotification('Filled grid with actual known solutions only', 'success');
+                            showNotification('Filled grid with actual known solutions only', 'success');
         }}
         
         function fillAnagramGrid() {{
@@ -3443,7 +3471,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                 }}
             }}
             
-            showNotification('Filled anagram grid with known anagram solutions', 'success');
+                            showNotification('Filled anagram grid with known anagram solutions', 'success');
         }}
 
         // Add this function after updateAllClueDisplays
@@ -3632,6 +3660,10 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     if (modal.parentNode) {{
                         modal.remove();
                     }}
+                    // Scroll to top after intro modal is dismissed
+                    if (modalId === 'intro-modal') {{
+                        window.scrollTo(0, 0);
+                    }}
                 }}, 500);
             }}
         }}
@@ -3796,12 +3828,10 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
                     }}
                 }}
                 
-                showNotification('State loaded successfully!', 'success');
+                // State loaded successfully
             }}
             else if (event.data.action === 'test_communication') {{
-                console.log('Test communication received');
-                
-                // Send test response back
+                // Send test response back (no notification needed)
                 window.parent.postMessage({{
                     action: 'test_response',
                     message: 'Iframe communication working!'
@@ -3923,7 +3953,21 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
     
     return html_content
 
-
+def save_html_to_static(html_content: str, filename: str = "interactive_solver.html"):
+    """Save generated HTML to static folder for Flask app deployment."""
+    static_dir = "static"
+    if not os.path.exists(static_dir):
+        os.makedirs(static_dir)
+    
+    filepath = os.path.join(static_dir, filename)
+    try:
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        print(f"[SUCCESS] HTML saved to {filepath}")
+        return True
+    except Exception as e:
+        print(f"[ERROR] Error saving HTML: {e}")
+        return False
 
 def main():
     """Main function to generate interactive solver."""
@@ -3943,12 +3987,16 @@ def main():
     # Generate interactive HTML
     html_content = generate_interactive_html(clue_objects)
     
-    # Save and open
+    # Save for local development
     filename = "interactive_solver.html"
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(html_content)
     
+    # Also save to static folder for Flask app deployment
+    save_html_to_static(html_content)
+    
     print(f"Generated interactive solver: {filename}")
+    print("[SUCCESS] HTML automatically saved to static/ folder for Flask deployment")
     print("Open this file in a web browser to use the interactive solver")
     
     # Try to open in browser

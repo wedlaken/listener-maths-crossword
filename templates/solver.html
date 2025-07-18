@@ -6,39 +6,33 @@
 <style>
 #solver-container {
     width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
+    height: calc(100vh - 76px); /* Full height minus navbar */
+    overflow: hidden;
     box-sizing: border-box;
+    margin-top: 0;
+    padding: 0;
 }
 
 #solver-container iframe {
     width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-    box-sizing: border-box !important;
+    height: 100% !important;
     border: none;
-    border-radius: 8px;
+    border-radius: 0;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
 }
 
 /* Mobile responsive for the container */
 @media (max-width: 768px) {
     #solver-container {
-        padding: 0;
-        margin: 0;
-    }
-    
-    #solver-container iframe {
-        width: 100% !important;
-        max-width: 100vw !important;
-        overflow-x: hidden !important;
-        min-height: 800px !important; /* Reduced from 1200px for mobile */
+        height: calc(100vh - 76px);
     }
 }
 
 /* Extra small mobile devices */
 @media (max-width: 480px) {
-    #solver-container iframe {
-        min-height: 600px !important; /* Even smaller for very small screens */
+    #solver-container {
+        height: calc(100vh - 76px);
     }
 }
 </style>
@@ -68,21 +62,11 @@ document.addEventListener('DOMContentLoaded', function() {
     iframe.style.width = '100%';
     iframe.style.height = 'auto';
     
-    // Responsive height based on screen size
-    if (window.innerWidth <= 480) {
-        iframe.style.minHeight = '600px';
-    } else if (window.innerWidth <= 768) {
-        iframe.style.minHeight = '800px';
-    } else {
-        iframe.style.minHeight = '1200px';
-    }
-    
+    // Set iframe to full height
+    iframe.style.height = '100%';
     iframe.style.border = 'none';
-    iframe.style.borderRadius = '8px';
+    iframe.style.borderRadius = '0';
     iframe.style.overflow = 'hidden';
-    
-    // Add responsive iframe sizing
-    iframe.style.maxWidth = '100%';
     iframe.style.boxSizing = 'border-box';
     
     // Replace loading message with iframe
@@ -91,33 +75,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle window resize for responsive iframe height
     window.addEventListener('resize', function() {
-        if (window.innerWidth <= 480) {
-            iframe.style.minHeight = '600px';
-        } else if (window.innerWidth <= 768) {
-            iframe.style.minHeight = '800px';
-        } else {
-            iframe.style.minHeight = '1200px';
-        }
+        // Keep iframe at full height
+        iframe.style.height = '100%';
     });
     
     // Test iframe communication after it loads
     iframe.onload = function() {
-        console.log('Iframe loaded, testing communication...');
         iframe.contentWindow.postMessage({action: 'test_communication'}, '*');
     };
     
     // Handle save/load buttons
-    document.getElementById('save-progress').addEventListener('click', function() {
-        console.log('Save Progress button clicked');
-        showNotification('Saving progress...', 'info');
+            document.getElementById('save-progress').addEventListener('click', function() {
+            showNotification('Saving progress...', 'info');
         
         // Send message to iframe to save state
         iframe.contentWindow.postMessage({action: 'save_state'}, '*');
     });
     
-    document.getElementById('load-progress').addEventListener('click', function() {
-        console.log('Load Progress button clicked');
-        showNotification('Loading progress...', 'info');
+            document.getElementById('load-progress').addEventListener('click', function() {
+            showNotification('Loading progress...', 'info');
         
         // Send message to iframe to load state
         iframe.contentWindow.postMessage({action: 'load_state'}, '*');
@@ -125,10 +101,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Listen for messages from iframe
     window.addEventListener('message', function(event) {
-        console.log('Received message from iframe:', event.data);
         
         if (event.data.action === 'save_state_request') {
-            console.log('Save state request received:', event.data.state);
             
             // Get state from iframe and save to server
             fetch('/api/save_state', {
@@ -139,11 +113,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(event.data.state)
             })
             .then(response => {
-                console.log('Save response status:', response.status);
                 return response.json();
             })
             .then(data => {
-                console.log('Save response data:', data);
                 if (data.success) {
                     showNotification('Progress saved successfully!', 'success');
                 } else {
@@ -156,16 +128,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         else if (event.data.action === 'load_state_request') {
-            console.log('Load state request received');
             
             // Load state from server and send to iframe
             fetch('/api/load_state')
             .then(response => {
-                console.log('Load response status:', response.status);
                 return response.json();
             })
             .then(data => {
-                console.log('Load response data:', data);
                 iframe.contentWindow.postMessage({
                     action: 'load_state_response',
                     state: data
@@ -178,8 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         else if (event.data.action === 'test_response') {
-            console.log('Test response received from iframe:', event.data.message);
-            showNotification('Iframe communication working!', 'success');
+            // Communication test successful - no notification needed
         }
     });
 });
