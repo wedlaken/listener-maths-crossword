@@ -33,6 +33,7 @@ This document captures key Python programming concepts and learning points encou
 - [Unified Grid Interface: State Management and User Experience](#unified-grid-interface-state-management-and-user-experience)
 - [UI/UX Polish: Button Consistency and Mobile Optimization](#uiux-polish-button-consistency-and-mobile-optimization)
 - [Development Workflow Strategy: Balancing Speed and Documentation](#development-workflow-strategy-balancing-speed-and-documentation)
+- [Code Architecture Refactoring: Eliminating Duplication and Future-Proofing](#code-architecture-refactoring-eliminating-duplication-and-future-proofing)
 
 ---
 
@@ -5284,6 +5285,336 @@ This dual workflow strategy represents **mature development thinking**:
 The key insight is that **development workflows should serve the development process, not the other way around**. By creating tools that match the current development phase, we've significantly improved productivity while maintaining the ability to create proper documentation when needed.
 
 This approach demonstrates understanding that different phases of a project require different tools and processes, and being willing to adapt accordingly.
+
+---
+
+## Code Architecture Refactoring: Eliminating Duplication and Future-Proofing
+
+### Overview
+The latest phase focused on **code architecture refactoring** to eliminate duplication and prepare for future OCR integration. This represents a shift from feature development to **code quality and maintainability**.
+
+### Key Learning Areas
+
+#### 1. Identifying Code Duplication Patterns
+
+**Problem**: Significant duplication between similar functions
+```python
+# Before: Duplicated grid generation logic
+def generate_grid_html():
+    # 150 lines of grid structure, border calculation, HTML generation
+    
+def generate_anagram_grid_html():
+    # 150 lines of nearly identical logic with minor differences
+```
+
+**Solution**: Pattern recognition and abstraction
+```python
+# After: Shared base function with parameterized differences
+def generate_base_grid_html(additional_classes="", cell_additional_classes=""):
+    # Single source of truth for grid logic
+    
+def generate_grid_html():
+    return generate_base_grid_html()  # Simple wrapper
+    
+def generate_anagram_grid_html():
+    return generate_base_grid_html(
+        additional_classes=" anagram-grid",
+        cell_additional_classes=" anagram-cell"
+    )
+```
+
+**Learning**: **Code duplication is a smell** that indicates opportunities for abstraction. Look for patterns in similar functions.
+
+#### 2. Single Source of Truth Principle
+
+**Problem**: Grid structure and border logic scattered across multiple functions
+```python
+# Before: Hardcoded grid structure in multiple places
+grid_clues = [
+    (1, "ACROSS", (0, 1, 2, 3)),
+    # ... repeated in multiple functions
+]
+```
+
+**Solution**: Centralized data and logic
+```python
+# After: Single source of truth
+def get_grid_structure():
+    """Single function containing all grid structure data."""
+    return [
+        (1, "ACROSS", (0, 1, 2, 3)),
+        # ... defined once, used everywhere
+    ]
+
+def calculate_grid_borders(grid_clues):
+    """Centralized border calculation logic."""
+    # ... single implementation
+```
+
+**Learning**: **Single source of truth** makes code more maintainable and reduces the risk of inconsistencies.
+
+#### 3. Parameterized Function Design
+
+**Problem**: Functions with similar logic but different requirements
+```python
+# Before: Separate functions for each clue type
+def generate_clues_html(clue_objects):
+    # Regular clue logic
+    
+def generate_anagram_clues_html(anagram_clue_objects):
+    # Similar logic with different data handling
+```
+
+**Solution**: Smart parameterization with object detection
+```python
+# After: Single function handling both types
+def generate_clue_column_html(clues, title, clue_id_prefix="", grid_type="initial"):
+    for clue in clues:
+        if hasattr(clue, 'get_original_solution'):  # AnagramClue
+            # Anagram-specific logic
+        else:  # ListenerClue
+            # Regular clue logic
+```
+
+**Learning**: **Parameterization** allows one function to handle multiple use cases while maintaining clarity.
+
+#### 4. Future-Proofing for OCR Integration
+
+**Problem**: Hardcoded grid structure makes future OCR integration difficult
+```python
+# Before: Grid structure embedded in HTML generation
+def generate_grid_html():
+    grid_clues = [
+        (1, "ACROSS", (0, 1, 2, 3)),  # Hardcoded
+        # ... scattered throughout code
+    ]
+```
+
+**Solution**: Separated data from presentation
+```python
+# After: OCR-ready structure
+def get_grid_structure():
+    """Future OCR output can replace this function."""
+    return grid_data
+
+def generate_grid_html():
+    grid_clues = get_grid_structure()  # Data-driven
+    # ... presentation logic
+```
+
+**Learning**: **Separation of concerns** makes code more adaptable to future requirements.
+
+#### 5. Consistent Architecture Patterns
+
+**Problem**: Inconsistent patterns across different parts of the codebase
+```python
+# Before: Different approaches for similar problems
+def generate_grid_html():
+    # One approach
+    
+def generate_clues_html():
+    # Different approach for similar problem
+```
+
+**Solution**: Established consistent patterns
+```python
+# After: Consistent architecture
+# Pattern: Shared Base Function → Specific Wrapper Functions
+generate_base_grid_html() → generate_grid_html() / generate_anagram_grid_html()
+generate_clue_column_html() → generate_clues_html() / generate_anagram_clues_html()
+```
+
+**Learning**: **Consistent patterns** make code more predictable and easier to understand.
+
+### Implementation Strategy
+
+#### 1. Systematic Refactoring Approach
+```python
+# Step 1: Identify duplication
+def find_duplication():
+    # Look for similar function signatures
+    # Identify repeated logic patterns
+    # Find hardcoded data in multiple places
+
+# Step 2: Extract common logic
+def extract_common_logic():
+    # Create shared base functions
+    # Parameterize differences
+    # Maintain backward compatibility
+
+# Step 3: Update callers
+def update_callers():
+    # Replace duplicated functions with calls to shared logic
+    # Test thoroughly
+    # Verify functionality unchanged
+```
+
+#### 2. Testing Strategy
+```python
+# Test both before and after refactoring
+def test_refactoring():
+    # Generate HTML before refactoring
+    old_html = generate_old_way()
+    
+    # Generate HTML after refactoring
+    new_html = generate_new_way()
+    
+    # Compare outputs
+    assert old_html == new_html
+```
+
+#### 3. Documentation Strategy
+```python
+# Document the new architecture
+def document_architecture():
+    # Explain the shared base function pattern
+    # Document parameter meanings
+    # Provide examples of usage
+```
+
+### Benefits Achieved
+
+#### 1. **Reduced Code Duplication**
+- **Before**: ~250 lines of duplicated code
+- **After**: ~100 lines of shared code
+- **Reduction**: 60% less code to maintain
+
+#### 2. **Improved Maintainability**
+```python
+# Single point of modification
+def get_grid_structure():
+    # Change here affects both grids
+    return updated_grid_data
+```
+
+#### 3. **Enhanced Readability**
+```python
+# Clear separation of concerns
+def generate_grid_html():
+    return generate_base_grid_html()  # Simple and clear
+```
+
+#### 4. **Future-Proof Architecture**
+```python
+# OCR integration ready
+def get_grid_structure():
+    # Future: Replace with OCR output
+    return ocr_parse_puzzle_image()
+```
+
+### Technical Implementation Details
+
+#### 1. Smart Object Detection
+```python
+def generate_clue_column_html(clues, ...):
+    for clue in clues:
+        # Detect object type automatically
+        if hasattr(clue, 'get_original_solution'):
+            # Handle AnagramClue
+            original_solution = clue.get_original_solution()
+            anagram_solutions = clue.get_anagram_solutions()
+        else:
+            # Handle ListenerClue
+            current_solutions = clue.get_valid_solutions()
+            clue_text = f"{clue.parameters.b}:{clue.parameters.c}"
+```
+
+#### 2. Flexible Parameter System
+```python
+def generate_base_grid_html(
+    solved_cells=None,
+    additional_classes="",
+    additional_attributes="",
+    cell_additional_classes="",
+    cell_additional_attributes=""
+):
+    # Handle all variations through parameters
+```
+
+#### 3. Consistent HTML Generation
+```python
+# Unified approach to HTML generation
+def generate_html_structure():
+    html = []
+    html.append('<div class="container">')
+    # ... consistent structure
+    return '\n'.join(html)
+```
+
+### Future OCR Integration Benefits
+
+#### 1. **Clean Data Flow**
+```python
+# OCR output can directly populate existing functions
+def ocr_integration():
+    grid_structure = ocr_parse_puzzle()
+    return generate_base_grid_html(grid_structure)
+```
+
+#### 2. **Minimal Code Changes**
+```python
+# Only need to update data source, not presentation logic
+def get_grid_structure():
+    # Replace hardcoded data with OCR output
+    return ocr_parse_puzzle_image()
+```
+
+#### 3. **Consistent Interface**
+```python
+# OCR output follows existing data structure
+ocr_output = [
+    (1, "ACROSS", (0, 1, 2, 3)),  # Same format as current data
+    # ... OCR-generated structure
+]
+```
+
+### Learning Points
+
+#### 1. **Refactoring is an Investment**
+- **Short-term**: Time spent refactoring
+- **Long-term**: Easier maintenance and future development
+- **ROI**: Significant time savings in future development
+
+#### 2. **Pattern Recognition is Key**
+- Look for similar function signatures
+- Identify repeated logic patterns
+- Find opportunities for abstraction
+
+#### 3. **Future-Proofing Pays Off**
+- Design for future requirements
+- Separate data from presentation
+- Create flexible, parameterized functions
+
+#### 4. **Consistency Improves Maintainability**
+- Use consistent patterns across the codebase
+- Establish clear architecture principles
+- Document the patterns for future developers
+
+### Best Practices
+
+#### For Identifying Refactoring Opportunities
+1. **Look for similar function names** - indicates potential duplication
+2. **Check for repeated data structures** - candidates for centralization
+3. **Identify similar logic patterns** - opportunities for abstraction
+4. **Consider future requirements** - design for adaptability
+
+#### For Implementing Refactoring
+1. **Maintain backward compatibility** - don't break existing functionality
+2. **Test thoroughly** - ensure refactoring doesn't change behavior
+3. **Document changes** - explain the new architecture
+4. **Update related code** - ensure consistency across the codebase
+
+### Conclusion
+
+This refactoring represents **mature software development thinking**:
+- **Proactive code quality improvement**
+- **Future-proofing for new requirements**
+- **Consistent architecture patterns**
+- **Reduced maintenance burden**
+
+The key insight is that **good architecture makes future development easier**. By investing time in refactoring now, we've created a codebase that's more maintainable, adaptable, and ready for future enhancements like OCR integration.
+
+This demonstrates understanding of **software engineering principles** and the ability to think beyond immediate requirements to long-term maintainability.
 
 ---
 

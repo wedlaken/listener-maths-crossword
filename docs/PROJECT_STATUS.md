@@ -61,12 +61,13 @@ The application is fully responsive thanks to Bootstrap CSS framework:
 
 ## Recent Achievements
 
-### January 2025: UI/UX Polish and Mobile Optimization
-- ✅ **Logout Button Consistency**: Updated styling to match save/load buttons for consistent hierarchy
-- ✅ **Mobile Grid Sizing**: Optimized cell sizes across all mobile breakpoints (42px to 32px range)
-- ✅ **Header Removal**: Eliminated redundant title/subtitle for better space utilization
-- ✅ **CSS Specificity**: Added `!important` declarations to ensure mobile styles override desktop defaults
-- ✅ **Hamburger Menu Integration**: Consistent button styling for proper mobile navigation
+### January 2025: Code Architecture Refactoring and UI Polish
+- ✅ **Grid Generation Refactoring**: Eliminated ~150 lines of duplicated code with shared `generate_base_grid_html()` function
+- ✅ **Clue Generation Refactoring**: Eliminated ~100 lines of duplicated logic with shared `generate_clue_column_html()` function
+- ✅ **Single Source of Truth**: Centralized grid structure and border logic for future OCR integration
+- ✅ **Cross-Platform Cleanup**: Removed `.bat` files for better Mac/Windows compatibility
+- ✅ **UI Polish**: Added consistent header underlines and green anagram grid borders
+- ✅ **Mobile Optimization**: Optimized grid sizing and button styling for mobile devices
 
 ### July 2025: Production Deployment
 - ✅ Successfully deployed to Render cloud platform
@@ -86,8 +87,10 @@ The application is fully responsive thanks to Bootstrap CSS framework:
 ## Next Steps & Future Enhancements
 
 ### Immediate (Testing & Polish)
-- [x] Mobile responsiveness improvements (iframe height, grid cell sizing, container handling)
-- [x] UI/UX refinements (button consistency, header removal, grid optimization)
+- [x] Code architecture refactoring (eliminated ~250 lines of duplication)
+- [x] Single source of truth for grid structure and clue generation
+- [x] Cross-platform compatibility improvements
+- [x] UI/UX refinements (consistent styling, mobile optimization)
 - [ ] Comprehensive testing of all features in production
 - [ ] Performance optimization
 

@@ -37,9 +37,10 @@ For fast local development without Git delays:
 4. **Deploy when ready**: Double-click `deploy.bat` or run Git commands manually
 
 ### Development Scripts
-- **`quick_dev.bat`** or **`python quick_dev.py`**: Fast local development (no Git)
-- **`deploy.bat`**: Quick deployment to GitHub/Render
+- **`python quick_dev.py`**: Fast local development (no Git)
 - **`dev_workflow.py`**: Full workflow with Git status checks (slower)
+
+**Note**: `.bat` files have been removed to maintain cross-platform compatibility.
 
 ### Deployment Strategy
 For detailed information about when to use each workflow approach, see:
@@ -151,6 +152,8 @@ git clean -fd
    - Includes prime factorization workpad for mathematical experimentation
    - Supports constraint propagation and solution validation
    - Provides undo/redo functionality and solution history
+   - **Refactored Architecture**: Shared base functions for grid and clue generation
+   - **Single Source of Truth**: Centralized grid structure and border logic
 3. `systematic_grid_parser.py`: Grid structure parsing (uses ground truth data)
 4. `app.py`: Flask web application (production deployment)
 5. `clue_classes.py`: Clue object definitions and management
@@ -225,6 +228,41 @@ result = enhanced_solver.apply_solution("12_ACROSS", 167982)
 #### Integration with Interactive Solver
 
 ## Recent Major Improvements (December 2024 - January 2025)
+
+### Code Architecture Refactoring (Latest - January 2025)
+**Goal**: Eliminate code duplication and create single source of truth for future OCR integration
+
+#### Grid Generation Refactoring
+- **Problem**: `generate_grid_html()` and `generate_anagram_grid_html()` had ~150 lines of duplicated code
+- **Solution**: Created shared `generate_base_grid_html()` function with parameterized differences
+- **Benefits**:
+  - Single source of truth for grid structure (`get_grid_structure()`)
+  - Centralized border calculation (`calculate_grid_borders()`)
+  - Easy to modify both grids simultaneously
+  - Future OCR integration will only need to update one function
+
+#### Clue Generation Refactoring
+- **Problem**: `generate_clues_html()` and `generate_anagram_clues_html()` had ~100 lines of duplicated logic
+- **Solution**: Created shared `generate_clue_column_html()` function with smart parameter handling
+- **Benefits**:
+  - Eliminated Across/Down loop duplication
+  - Unified solution dropdown generation
+  - Automatic detection of `ListenerClue` vs `AnagramClue` objects
+  - Consistent HTML structure across both clue types
+
+#### Architecture Pattern
+Both refactorings follow the same pattern:
+```
+Shared Base Function → Specific Wrapper Functions
+generate_base_grid_html() → generate_grid_html() / generate_anagram_grid_html()
+generate_clue_column_html() → generate_clues_html() / generate_anagram_clues_html()
+```
+
+#### Future OCR Benefits
+- **Single Point of Modification**: Grid structure changes only need to be made in `get_grid_structure()`
+- **Consistent Border Logic**: Border calculations are centralized and reusable
+- **Clean Data Flow**: OCR output can directly populate the shared functions
+- **Reduced Maintenance**: Changes to clue HTML structure only need to be made once
 
 ### UI/UX Polish and Mobile Responsiveness (Latest)
 

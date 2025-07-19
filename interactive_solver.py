@@ -33,7 +33,7 @@ from listener import get_prime_factors_with_multiplicity
 # All clue data is now loaded from Listener 4869 clues.txt
 
 def get_grid_structure() -> List[Tuple[int, str, Tuple[int, ...]]]:
-    """Return the hardcoded grid structure for Listener 4869."""
+    """Get the grid structure for the crossword puzzle."""
     return [
         (1, "ACROSS", (0, 1, 2, 3)),
         (1, "DOWN", (0, 8, 16, 24)),
@@ -60,6 +60,145 @@ def get_grid_structure() -> List[Tuple[int, str, Tuple[int, ...]]]:
         (22, "ACROSS", (56, 57, 58, 59)),
         (23, "ACROSS", (60, 61, 62, 63))
     ]
+
+def calculate_grid_borders(grid_clues: List[Tuple[int, str, Tuple[int, ...]]]) -> Dict[str, set]:
+    """Calculate border classes for the grid based on clue structure."""
+    # Initialize border sets
+    thick_right_cells = set()
+    thick_bottom_cells = set()
+    thick_left_cells = set()
+    thick_top_cells = set()
+    
+    # Process ACROSS clues to find thick right borders
+    across_clues = [clue for clue in grid_clues if clue[1] == 'ACROSS']
+    for number, direction, cell_indices in across_clues:
+        if len(cell_indices) > 0:
+            last_cell = cell_indices[-1]
+            if last_cell % 8 != 7 and last_cell not in {30, 38}:
+                thick_right_cells.add(last_cell)
+    
+    # Process DOWN clues to find thick bottom borders
+    down_clues = [clue for clue in grid_clues if clue[1] == 'DOWN']
+    for number, direction, cell_indices in down_clues:
+        if len(cell_indices) > 0:
+            last_cell = cell_indices[-1]
+            if last_cell < 56:
+                thick_bottom_cells.add(last_cell)
+    
+    # Handle isolated cells
+    isolated_cells = {9, 14, 49}
+    for cell_index in isolated_cells:
+        if cell_index == 9:
+            thick_left_cells.add(9)
+            thick_right_cells.add(9)
+            thick_bottom_cells.add(9)
+        elif cell_index == 14:
+            thick_left_cells.add(14)
+            thick_top_cells.add(14)
+            thick_bottom_cells.add(14)
+        elif cell_index == 49:
+            thick_top_cells.add(49)
+            thick_bottom_cells.add(49)
+            thick_right_cells.add(49)
+    
+    # Add specific borders for cell pair separations
+    # Cells 11 and 12 separation
+    thick_top_cells.add(11)
+    thick_left_cells.add(11)
+    thick_right_cells.add(11)
+    thick_top_cells.add(12)
+    thick_right_cells.add(12)
+    
+    # Cells 30 and 38 separation
+    thick_right_cells.add(30)
+    thick_top_cells.add(30)
+    thick_right_cells.add(38)
+    thick_bottom_cells.add(38)
+    thick_bottom_cells.add(30)
+    
+    # Cells 51 and 52 separation
+    thick_left_cells.add(51)
+    thick_right_cells.add(51)
+    thick_right_cells.add(52)
+    thick_bottom_cells.add(51)
+    thick_bottom_cells.add(52)
+
+    # Cells 25 and 33 separation
+    thick_left_cells.add(25)
+    thick_top_cells.add(25)
+    thick_left_cells.add(33)
+    thick_bottom_cells.add(33)
+    thick_bottom_cells.add(25)
+    
+    # Cell 54 borders
+    thick_left_cells.add(54)
+    thick_top_cells.add(54)
+    thick_right_cells.add(54)
+    
+    return {
+        'thick_right': thick_right_cells,
+        'thick_bottom': thick_bottom_cells,
+        'thick_left': thick_left_cells,
+        'thick_top': thick_top_cells
+    }
+
+def generate_base_grid_html(solved_cells: Dict[int, str] = None, 
+                           grid_clues: List[Tuple[int, str, Tuple[int, ...]]] = None,
+                           additional_classes: str = "",
+                           additional_attributes: str = "",
+                           cell_additional_classes: str = "",
+                           cell_additional_attributes: str = "") -> str:
+    """Generate base HTML for the crossword grid with shared logic."""
+    if solved_cells is None:
+        solved_cells = {}
+    if grid_clues is None:
+        grid_clues = get_grid_structure()
+    
+    # Calculate borders
+    borders = calculate_grid_borders(grid_clues)
+    
+    # Generate grid HTML
+    grid_html = [f'<div class="crossword-grid{additional_classes}"{additional_attributes}>']
+    
+    for row in range(8):
+        grid_html.append('  <div class="grid-row">')
+        for col in range(8):
+            cell_index = row * 8 + col
+            
+            # Get clue number for this cell (only if it's the first cell of a clue)
+            clue_number = get_clue_number_at_cell(cell_index, grid_clues)
+            
+            # Check if cell is solved
+            cell_value = solved_cells.get(cell_index, '')
+            
+            # Determine border classes
+            border_classes = []
+            if cell_index in borders['thick_right']:
+                border_classes.append('thick-right')
+            if cell_index in borders['thick_bottom']:
+                border_classes.append('thick-bottom')
+            if cell_index in borders['thick_left']:
+                border_classes.append('thick-left')
+            if cell_index in borders['thick_top']:
+                border_classes.append('thick-top')
+            
+            border_class = ' '.join(border_classes)
+            
+            # Create cell with additional classes and attributes
+            cell_html = f'    <div class="grid-cell {border_class}{cell_additional_classes}" data-cell="{cell_index}"{cell_additional_attributes}>'
+            if clue_number:
+                cell_html += f'<div class="grid-clue-number">{clue_number}</div>'
+            if cell_value:
+                cell_html += f'<div class="cell-value">{cell_value}</div>'
+            cell_html += '</div>'
+            
+            grid_html.append(cell_html)
+        
+        grid_html.append('  </div>')
+    
+    grid_html.append('</div>')
+    
+    return '\n'.join(grid_html)
 
 def load_clues_from_file(filename: str = "Listener 4869 clues.txt") -> Dict[Tuple[int, str], str]:
     """Load actual clue text from the clues file."""
@@ -167,465 +306,159 @@ def load_clue_objects() -> Tuple[List[Tuple[int, str, Tuple[int, ...]]], Dict[Tu
 
 def generate_grid_html(solved_cells: Dict[int, str] = None) -> str:
     """Generate HTML for the crossword grid."""
-    if solved_cells is None:
-        solved_cells = {}
-    
-    # Define grid structure (same as puzzle_visualizer.py)
-    grid_clues = [
-        (1, "ACROSS", (0, 1, 2, 3)),
-        (1, "DOWN", (0, 8, 16, 24)),
-        (2, "DOWN", (1, 9)),
-        (3, "DOWN", (2, 10, 18, 26)),
-        (4, "ACROSS", (4, 5, 6, 7)),
-        (5, "DOWN", (5, 13, 21, 29)),
-        (6, "DOWN", (7, 15, 23, 31)),
-        (7, "DOWN", (11, 19, 27, 35, 43, 51)),
-        (8, "DOWN", (12, 20, 28, 36, 44, 52)),
-        (9, "ACROSS", (14, 15)),
-        (10, "ACROSS", (16, 17, 18, 19)),
-        (11, "ACROSS", (20, 21, 22, 23)),
-        (12, "ACROSS", (25, 26, 27, 28, 29, 30)),
-        (13, "DOWN", (32, 40, 48, 56)),
-        (14, "ACROSS", (33, 34, 35, 36, 37, 38)),
-        (15, "DOWN", (34, 42, 50, 58)),
-        (16, "DOWN", (37, 45, 53, 61)),
-        (17, "DOWN", (39, 47, 55, 63)),
-        (18, "ACROSS", (40, 41, 42, 43)),
-        (19, "ACROSS", (44, 45, 46, 47)),
-        (20, "ACROSS", (48, 49)),
-        (21, "DOWN", (54, 62)),
-        (22, "ACROSS", (56, 57, 58, 59)),
-        (23, "ACROSS", (60, 61, 62, 63))
-    ]
-    
-    # Initialize border sets (same logic as puzzle_visualizer.py)
-    thick_right_cells = set()
-    thick_bottom_cells = set()
-    thick_left_cells = set()
-    thick_top_cells = set()
-    
-    # Process ACROSS clues to find thick right borders
-    across_clues = [clue for clue in grid_clues if clue[1] == 'ACROSS']
-    for number, direction, cell_indices in across_clues:
-        if len(cell_indices) > 0:
-            last_cell = cell_indices[-1]
-            if last_cell % 8 != 7 and last_cell not in {30, 38}:
-                thick_right_cells.add(last_cell)
-    
-    # Process DOWN clues to find thick bottom borders
-    down_clues = [clue for clue in grid_clues if clue[1] == 'DOWN']
-    for number, direction, cell_indices in down_clues:
-        if len(cell_indices) > 0:
-            last_cell = cell_indices[-1]
-            if last_cell < 56:
-                thick_bottom_cells.add(last_cell)
-    
-    # Handle isolated cells
-    isolated_cells = {9, 14, 49}
-    for cell_index in isolated_cells:
-        if cell_index == 9:
-            thick_left_cells.add(9)
-            thick_right_cells.add(9)
-            thick_bottom_cells.add(9)
-        elif cell_index == 14:
-            thick_left_cells.add(14)
-            thick_top_cells.add(14)
-            thick_bottom_cells.add(14)
-        elif cell_index == 49:
-            thick_top_cells.add(49)
-            thick_bottom_cells.add(49)
-            thick_right_cells.add(49)
-    
-    # Add specific borders for cell pair separations (same as puzzle_visualizer.py)
-    # Cells 11 and 12 separation
-    thick_top_cells.add(11)
-    thick_left_cells.add(11)
-    thick_right_cells.add(11)
-    thick_top_cells.add(12)
-    thick_right_cells.add(12)
-    
-    # Cells 30 and 38 separation
-    thick_right_cells.add(30)
-    thick_top_cells.add(30)
-    thick_right_cells.add(38)
-    thick_bottom_cells.add(38)
-    thick_bottom_cells.add(30)
-    
-    # Cells 51 and 52 separation
-    thick_left_cells.add(51)
-    thick_right_cells.add(51)
-    thick_right_cells.add(52)
-    thick_bottom_cells.add(51)
-    thick_bottom_cells.add(52)
+    # Use shared grid generation with wrapper div
+    base_grid = generate_base_grid_html(solved_cells)
+    return f'<div class="grid-wrapper">\n{base_grid}\n</div>'
 
-    # Cells 25 and 33 separation
-    thick_left_cells.add(25)
-    thick_top_cells.add(25)
-    thick_left_cells.add(33)
-    thick_bottom_cells.add(33)
-    thick_bottom_cells.add(25)
+def generate_clue_column_html(clues: List, 
+                             direction: str, 
+                             title: str,
+                             clue_id_prefix: str = "",
+                             additional_classes: str = "",
+                             grid_type: str = "initial") -> str:
+    """Generate HTML for a column of clues (Across or Down) with shared logic."""
+    html = [f'  <div class="clues-column">']
+    html.append(f'    <h3>{title}</h3>')
     
-    # Cell 54 borders
-    thick_left_cells.add(54)
-    thick_top_cells.add(54)
-    thick_right_cells.add(54)
-    
-    # Generate grid HTML
-    grid_html = ['<div class="grid-wrapper">', '<div class="crossword-grid">']
-    
-    for row in range(8):
-        grid_html.append('  <div class="grid-row">')
-        for col in range(8):
-            cell_index = row * 8 + col
-            
-            # Get clue number for this cell (only if it's the first cell of a clue)
-            clue_number = get_clue_number_at_cell(cell_index, grid_clues)
-            
-            # Check if cell is solved
-            cell_value = solved_cells.get(cell_index, '')
-            
-            # Determine border classes
-            border_classes = []
-            if cell_index in thick_right_cells:
-                border_classes.append('thick-right')
-            if cell_index in thick_bottom_cells:
-                border_classes.append('thick-bottom')
-            if cell_index in thick_left_cells:
-                border_classes.append('thick-left')
-            if cell_index in thick_top_cells:
-                border_classes.append('thick-top')
-            
-            border_class = ' '.join(border_classes)
-            
-            # Create interactive cell
-            cell_html = f'    <div class="grid-cell {border_class}" data-cell="{cell_index}">' \
-                        + (f'<div class="grid-clue-number">{clue_number}</div>' if clue_number else '') \
-                        + (f'<div class="cell-value">{cell_value}</div>' if cell_value else '') \
-                        + '</div>'
-            
-            grid_html.append(cell_html)
+    for clue in clues:
+        # Generate clue ID with optional prefix
+        base_clue_id = create_clue_id(clue.number, clue.direction)
+        clue_id = f"{clue_id_prefix}{base_clue_id}" if clue_id_prefix else base_clue_id
         
-        grid_html.append('  </div>')
+        # Get clue-specific data
+        if hasattr(clue, 'get_original_solution'):  # AnagramClue
+            # Anagram clue logic
+            original_solution = clue.get_original_solution()
+            anagram_solutions = clue.get_anagram_solutions()
+            clue_text = f"Original: {original_solution}"
+            solution_count = len(anagram_solutions)
+            status_class = "anagram-clue"
+            solutions = anagram_solutions
+            placeholder_text = "-- Select an anagram --"
+        else:  # ListenerClue
+            # Regular clue logic
+            current_solutions = clue.get_valid_solutions()
+            solution_count = len(current_solutions)
+            clue_text = "Unclued" if clue.parameters.is_unclued else f"{clue.parameters.b}:{clue.parameters.c}"
+            status_class = "multiple" if solution_count > 1 else "unclued" if clue.parameters.is_unclued else ""
+            solutions = current_solutions
+            placeholder_text = "-- Select a solution --"
+        
+        # Add additional classes
+        if additional_classes:
+            status_class = f"{status_class} {additional_classes}"
+        
+        # Generate clue HTML
+        html.append(f'    <div class="clue {status_class}" data-clue="{clue_id}" data-grid-type="{grid_type}">')
+        html.append('      <div class="clue-header">')
+        html.append(f'        <span class="clue-number">{clue.number}.</span>')
+        html.append(f'        <span class="clue-text">{clue_text}</span>')
+        
+        # Solution count display
+        if hasattr(clue, 'get_original_solution'):  # AnagramClue
+            html.append(f'        <span class="solution-count">({solution_count} anagrams)</span>')
+        else:  # ListenerClue
+            if not clue.parameters.is_unclued:
+                solution_word = 'solution' if solution_count == 1 else 'solutions'
+                html.append(f'        <span class="solution-count">{solution_count} {solution_word}</span>')
+            else:
+                html.append(f'        <span class="solution-count" id="unclued-count-{clue_id}"></span>')
+        
+        html.append('      </div>')
+        
+        # Generate solution dropdown/input
+        if hasattr(clue, 'get_original_solution'):  # AnagramClue
+            # Anagram solutions dropdown
+            if solutions:
+                html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
+                html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
+                html.append(f'          <option value="">{placeholder_text}</option>')
+                for solution in solutions:
+                    html.append(f'          <option value="{solution}">{solution}</option>')
+                html.append(f'        </select>')
+                html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
+                html.append(f'      </div>')
+        else:  # ListenerClue
+            # Regular clue solutions
+            if clue.parameters.is_unclued:
+                # Unclued input and dropdown
+                html.append(f'      <div class="solution-input" id="input-{clue_id}" style="display: none;">')
+                html.append(f'        <input type="text" class="solution-text-input" data-clue="{clue_id}" placeholder="Enter {clue.length}-digit solution" maxlength="{clue.length}">')
+                html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
+                html.append(f'        <span class="unclued-error" id="error-{clue_id}" style="color: #b00; margin-left: 8px; display: none;"></span>')
+                html.append(f'      </div>')
+                html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
+                html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
+                html.append(f'          <option value="">{placeholder_text}</option>')
+                html.append(f'        </select>')
+                html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
+                html.append(f'      </div>')
+            else:
+                # Regular solutions dropdown
+                if solutions:
+                    html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
+                    html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
+                    html.append(f'          <option value="">{placeholder_text}</option>')
+                    for solution in solutions:
+                        html.append(f'          <option value="{solution}">{solution}</option>')
+                    html.append(f'        </select>')
+                    html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
+                    html.append(f'      </div>')
+        
+        html.append(f'    </div>')
     
-    grid_html.append('</div>')  # close crossword-grid
-    grid_html.append('</div>')   # close grid-wrapper
-    
-    return '\n'.join(grid_html)
+    html.append('  </div>')
+    return '\n'.join(html)
 
 def generate_clues_html(clue_objects: Dict[Tuple[int, str], ListenerClue]) -> str:
     """Generate HTML for the clues section using clue objects."""
     html = ['<div class="clues-section">']
 
     # Across clues
-    html.append('  <div class="clues-column">')
-    html.append('    <h3>Across</h3>')
-
     across_clues = [clue for clue in clue_objects.values() if clue.direction == "ACROSS"]
     across_clues.sort(key=lambda x: x.number)
-
-    for clue in across_clues:
-        clue_id = create_clue_id(clue.number, clue.direction)
-        current_solutions = clue.get_valid_solutions()
-        solution_count = len(current_solutions)
-        clue_text = "Unclued" if clue.parameters.is_unclued else f"{clue.parameters.b}:{clue.parameters.c}"
-        status_class = "multiple" if solution_count > 1 else "unclued" if clue.parameters.is_unclued else ""
-        html.append(f'    <div class="clue {status_class}" data-clue="{clue_id}" data-grid-type="initial">')
-        html.append('      <div class="clue-header">')
-        html.append(f'        <span class="clue-number">{clue.number}.</span>')
-        html.append(f'        <span class="clue-text">{clue_text}</span>')
-        if not clue.parameters.is_unclued:
-            solution_word = 'solution' if solution_count == 1 else 'solutions'
-            html.append(f'        <span class="solution-count">{solution_count} {solution_word}</span>')
-        else:
-            html.append(f'        <span class="solution-count" id="unclued-count-{clue_id}"></span>')
-        html.append('      </div>')
-        if clue.parameters.is_unclued:
-            html.append(f'      <div class="solution-input" id="input-{clue_id}" style="display: none;">')
-            html.append(f'        <input type="text" class="solution-text-input" data-clue="{clue_id}" placeholder="Enter {clue.length}-digit solution" maxlength="{clue.length}">')
-            html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
-            html.append(f'        <span class="unclued-error" id="error-{clue_id}" style="color: #b00; margin-left: 8px; display: none;"></span>')
-            html.append(f'      </div>')
-            html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
-            html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
-            html.append(f'          <option value="">-- Select a solution --</option>')
-            html.append(f'        </select>')
-            html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
-            html.append(f'      </div>')
-        else:
-            if current_solutions:
-                html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
-                html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
-                html.append(f'          <option value="">-- Select a solution --</option>')
-                for solution in current_solutions:
-                    html.append(f'          <option value="{solution}">{solution}</option>')
-                html.append(f'        </select>')
-                html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
-                html.append(f'      </div>')
-        html.append(f'    </div>')
-
-    html.append('  </div>')
+    html.append(generate_clue_column_html(across_clues, "ACROSS", "Across"))
 
     # Down clues
-    html.append('  <div class="clues-column">')
-    html.append('    <h3>Down</h3>')
-
     down_clues = [clue for clue in clue_objects.values() if clue.direction == "DOWN"]
     down_clues.sort(key=lambda x: x.number)
+    html.append(generate_clue_column_html(down_clues, "DOWN", "Down"))
 
-    for clue in down_clues:
-        clue_id = create_clue_id(clue.number, clue.direction)
-        current_solutions = clue.get_valid_solutions()
-        solution_count = len(current_solutions)
-        clue_text = "Unclued" if clue.parameters.is_unclued else f"{clue.parameters.b}:{clue.parameters.c}"
-        status_class = "multiple" if solution_count > 1 else "unclued" if clue.parameters.is_unclued else ""
-        html.append(f'    <div class="clue {status_class}" data-clue="{clue_id}" data-grid-type="initial">')
-        html.append('      <div class="clue-header">')
-        html.append(f'        <span class="clue-number">{clue.number}.</span>')
-        html.append(f'        <span class="clue-text">{clue_text}</span>')
-        if not clue.parameters.is_unclued:
-            solution_word = 'solution' if solution_count == 1 else 'solutions'
-            html.append(f'        <span class="solution-count">{solution_count} {solution_word}</span>')
-        else:
-            html.append(f'        <span class="solution-count" id="unclued-count-{clue_id}"></span>')
-        html.append('      </div>')
-        if clue.parameters.is_unclued:
-            html.append(f'      <div class="solution-input" id="input-{clue_id}" style="display: none;">')
-            html.append(f'        <input type="text" class="solution-text-input" data-clue="{clue_id}" placeholder="Enter {clue.length}-digit solution" maxlength="{clue.length}">')
-            html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
-            html.append(f'        <span class="unclued-error" id="error-{clue_id}" style="color: #b00; margin-left: 8px; display: none;"></span>')
-            html.append(f'      </div>')
-            html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
-            html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
-            html.append(f'          <option value="">-- Select a solution --</option>')
-            html.append(f'        </select>')
-            html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
-            html.append(f'      </div>')
-        else:
-            if current_solutions:
-                html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
-                html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
-                html.append(f'          <option value="">-- Select a solution --</option>')
-                for solution in current_solutions:
-                    html.append(f'          <option value="{solution}">{solution}</option>')
-                html.append(f'        </select>')
-                html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
-                html.append(f'      </div>')
-        html.append(f'    </div>')
-
-    html.append('  </div>')
     html.append('</div>')
     return '\n'.join(html)
 
 def generate_anagram_grid_html(solved_cells: Dict[int, str] = None) -> str:
     """Generate HTML for the anagram crossword grid."""
-    if solved_cells is None:
-        solved_cells = {}
-    
-    # Define grid structure (same as original grid)
-    grid_clues = [
-        (1, "ACROSS", (0, 1, 2, 3)),
-        (1, "DOWN", (0, 8, 16, 24)),
-        (2, "DOWN", (1, 9)),
-        (3, "DOWN", (2, 10, 18, 26)),
-        (4, "ACROSS", (4, 5, 6, 7)),
-        (5, "DOWN", (5, 13, 21, 29)),
-        (6, "DOWN", (7, 15, 23, 31)),
-        (7, "DOWN", (11, 19, 27, 35, 43, 51)),
-        (8, "DOWN", (12, 20, 28, 36, 44, 52)),
-        (9, "ACROSS", (14, 15)),
-        (10, "ACROSS", (16, 17, 18, 19)),
-        (11, "ACROSS", (20, 21, 22, 23)),
-        (12, "ACROSS", (25, 26, 27, 28, 29, 30)),
-        (13, "DOWN", (32, 40, 48, 56)),
-        (14, "ACROSS", (33, 34, 35, 36, 37, 38)),
-        (15, "DOWN", (34, 42, 50, 58)),
-        (16, "DOWN", (37, 45, 53, 61)),
-        (17, "DOWN", (39, 47, 55, 63)),
-        (18, "ACROSS", (40, 41, 42, 43)),
-        (19, "ACROSS", (44, 45, 46, 47)),
-        (20, "ACROSS", (48, 49)),
-        (21, "DOWN", (54, 62)),
-        (22, "ACROSS", (56, 57, 58, 59)),
-        (23, "ACROSS", (60, 61, 62, 63))
-    ]
-    
-    # Initialize border sets (same logic as original grid)
-    thick_right_cells = set()
-    thick_bottom_cells = set()
-    thick_left_cells = set()
-    thick_top_cells = set()
-    
-    # Process ACROSS clues to find thick right borders
-    across_clues = [clue for clue in grid_clues if clue[1] == 'ACROSS']
-    for number, direction, cell_indices in across_clues:
-        if len(cell_indices) > 0:
-            last_cell = cell_indices[-1]
-            if last_cell % 8 != 7 and last_cell not in {30, 38}:
-                thick_right_cells.add(last_cell)
-    
-    # Process DOWN clues to find thick bottom borders
-    down_clues = [clue for clue in grid_clues if clue[1] == 'DOWN']
-    for number, direction, cell_indices in down_clues:
-        if len(cell_indices) > 0:
-            last_cell = cell_indices[-1]
-            if last_cell < 56:
-                thick_bottom_cells.add(last_cell)
-    
-    # Handle isolated cells
-    isolated_cells = {9, 14, 49}
-    for cell_index in isolated_cells:
-        if cell_index == 9:
-            thick_left_cells.add(9)
-            thick_right_cells.add(9)
-            thick_bottom_cells.add(9)
-        elif cell_index == 14:
-            thick_left_cells.add(14)
-            thick_top_cells.add(14)
-            thick_bottom_cells.add(14)
-        elif cell_index == 49:
-            thick_top_cells.add(49)
-            thick_bottom_cells.add(49)
-            thick_right_cells.add(49)
-    
-    # Add specific borders for cell pair separations
-    thick_top_cells.add(11)
-    thick_left_cells.add(11)
-    thick_right_cells.add(11)
-    thick_top_cells.add(12)
-    thick_right_cells.add(12)
-    
-    thick_right_cells.add(30)
-    thick_top_cells.add(30)
-    thick_right_cells.add(38)
-    thick_bottom_cells.add(38)
-    thick_bottom_cells.add(30)
-    
-    thick_left_cells.add(51)
-    thick_right_cells.add(51)
-    thick_right_cells.add(52)
-    thick_bottom_cells.add(51)
-    thick_bottom_cells.add(52)
-
-    thick_left_cells.add(25)
-    thick_top_cells.add(25)
-    thick_left_cells.add(33)
-    thick_bottom_cells.add(33)
-    thick_bottom_cells.add(25)
-    
-    thick_left_cells.add(54)
-    thick_top_cells.add(54)
-    thick_right_cells.add(54)
-    
-    # Generate anagram grid HTML
-    grid_html = ['<div class="crossword-grid anagram-grid" id="anagram-grid">']
-    
-    for row in range(8):
-        grid_html.append('  <div class="grid-row">')
-        for col in range(8):
-            cell_index = row * 8 + col
-            
-            # Get clue number for this cell (only if it's the first cell of a clue)
-            clue_number = get_clue_number_at_cell(cell_index, grid_clues)
-            
-            # Check if cell is solved
-            cell_value = solved_cells.get(cell_index, '')
-            
-            # Determine border classes
-            border_classes = []
-            if cell_index in thick_right_cells:
-                border_classes.append('thick-right')
-            if cell_index in thick_bottom_cells:
-                border_classes.append('thick-bottom')
-            if cell_index in thick_left_cells:
-                border_classes.append('thick-left')
-            if cell_index in thick_top_cells:
-                border_classes.append('thick-top')
-            
-            border_class = ' '.join(border_classes)
-            
-            # Create anagram cell
-            cell_html = f'    <div class="grid-cell anagram-cell {border_class}" data-cell="{cell_index}" data-anagram="true">'
-            if clue_number:
-                cell_html += f'<div class="grid-clue-number">{clue_number}</div>'
-            if cell_value:
-                cell_html += f'<div class="cell-value">{cell_value}</div>'
-            cell_html += '</div>'
-            
-            grid_html.append(cell_html)
-        
-        grid_html.append('  </div>')
-    
-    grid_html.append('</div>')
-    
-    return '\n'.join(grid_html)
+    # Use shared grid generation with anagram-specific classes and attributes
+    return generate_base_grid_html(
+        solved_cells=solved_cells,
+        additional_classes=" anagram-grid",
+        additional_attributes=' id="anagram-grid"',
+        cell_additional_classes=" anagram-cell",
+        cell_additional_attributes=' data-anagram="true"'
+    )
 
 def generate_anagram_clues_html(anagram_clue_objects: Dict[Tuple[int, str], AnagramClue]) -> str:
     """Generate HTML for the anagram clues section using AnagramClue objects."""
     html = ['<div class="clues-section anagram-clues-section" id="anagram-clues-section">']
 
     # Across clues
-    html.append('  <div class="clues-column">')
-    html.append('    <h3>Anagram Solutions - Across</h3>')
-
     across_clues = [clue for clue in anagram_clue_objects.values() if clue.direction == "ACROSS"]
     across_clues.sort(key=lambda x: x.number)
-
-    for clue in across_clues:
-        clue_id = f"anagram_{create_clue_id(clue.number, clue.direction)}"
-        original_solution = clue.get_original_solution()
-        anagram_solutions = clue.get_anagram_solutions()
-        
-        html.append(f'    <div class="clue anagram-clue" data-clue="{clue_id}" data-grid-type="anagram">')
-        html.append('      <div class="clue-header">')
-        html.append(f'        <span class="clue-number">{clue.number}.</span>')
-        html.append(f'        <span class="clue-text">Original: {original_solution}</span>')
-        html.append(f'        <span class="solution-count">({len(anagram_solutions)} anagrams)</span>')
-        html.append('      </div>')
-        if anagram_solutions:
-            html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
-            html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
-            html.append(f'          <option value="">-- Select an anagram --</option>')
-            for anagram in anagram_solutions:
-                html.append(f'          <option value="{anagram}">{anagram}</option>')
-            html.append(f'        </select>')
-            html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
-            html.append(f'      </div>')
-        html.append(f'    </div>')
-
-    html.append('  </div>')
+    html.append(generate_clue_column_html(
+        across_clues, "ACROSS", "Anagram Solutions - Across",
+        clue_id_prefix="anagram_", grid_type="anagram"
+    ))
 
     # Down clues
-    html.append('  <div class="clues-column">')
-    html.append('    <h3>Anagram Solutions - Down</h3>')
-
     down_clues = [clue for clue in anagram_clue_objects.values() if clue.direction == "DOWN"]
     down_clues.sort(key=lambda x: x.number)
+    html.append(generate_clue_column_html(
+        down_clues, "DOWN", "Anagram Solutions - Down",
+        clue_id_prefix="anagram_", grid_type="anagram"
+    ))
 
-    for clue in down_clues:
-        clue_id = f"anagram_{create_clue_id(clue.number, clue.direction)}"
-        original_solution = clue.get_original_solution()
-        anagram_solutions = clue.get_anagram_solutions()
-        
-        html.append(f'    <div class="clue anagram-clue" data-clue="{clue_id}" data-grid-type="anagram">')
-        html.append('      <div class="clue-header">')
-        html.append(f'        <span class="clue-number">{clue.number}.</span>')
-        html.append(f'        <span class="clue-text">Original: {original_solution}</span>')
-        html.append(f'        <span class="solution-count">({len(anagram_solutions)} anagrams)</span>')
-        html.append('      </div>')
-        if anagram_solutions:
-            html.append(f'      <div class="solution-dropdown" id="dropdown-{clue_id}" style="display: none;">')
-            html.append(f'        <select class="solution-select" data-clue="{clue_id}">')
-            html.append(f'          <option value="">-- Select an anagram --</option>')
-            for anagram in anagram_solutions:
-                html.append(f'          <option value="{anagram}">{anagram}</option>')
-            html.append(f'        </select>')
-            html.append(f'        <button class="apply-solution" data-clue="{clue_id}">Apply</button>')
-            html.append(f'      </div>')
-        html.append(f'    </div>')
-
-    html.append('  </div>')
     html.append('</div>')
-    
     return '\n'.join(html)
 
 def generate_anagram_solutions_for_clue(original_solution: int, length: int, is_unclued: bool) -> List[int]:
@@ -1341,6 +1174,19 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         .anagram-cell .cell-value {{
             color: #333 !important;
         }}
+        /* Make thick borders green in anagram grid */
+        .anagram-grid .thick-right {{
+            border-right: 3px solid #28a745 !important;
+        }}
+        .anagram-grid .thick-bottom {{
+            border-bottom: 3px solid #28a745 !important;
+        }}
+        .anagram-grid .thick-left {{
+            border-left: 3px solid #28a745 !important;
+        }}
+        .anagram-grid .thick-top {{
+            border-top: 3px solid #28a745 !important;
+        }}
         .anagram-clues-section h3 {{
             color: #28a745 !important;
             border-bottom: 2px solid #28a745 !important;
@@ -1392,7 +1238,7 @@ def generate_interactive_html(clue_objects: Dict[Tuple[int, str], ListenerClue])
         <div class="main-content">
             <div class="grid-section">
                 <div id="initial-grid-section">
-                    <h3>Puzzle Grid</h3>
+                    <h3 style="color: #333; border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 15px;">Puzzle Grid</h3>
                     {generate_grid_html()}
                 </div>
                 <div id="anagram-grid-section" style="display: none; margin-top: 30px;">

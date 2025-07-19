@@ -614,6 +614,19 @@
         .anagram-cell .cell-value {
             color: #333 !important;
         }
+        /* Make thick borders green in anagram grid */
+        .anagram-grid .thick-right {
+            border-right: 3px solid #28a745 !important;
+        }
+        .anagram-grid .thick-bottom {
+            border-bottom: 3px solid #28a745 !important;
+        }
+        .anagram-grid .thick-left {
+            border-left: 3px solid #28a745 !important;
+        }
+        .anagram-grid .thick-top {
+            border-top: 3px solid #28a745 !important;
+        }
         .anagram-clues-section h3 {
             color: #28a745 !important;
             border-bottom: 2px solid #28a745 !important;
@@ -665,7 +678,7 @@
         <div class="main-content">
             <div class="grid-section">
                 <div id="initial-grid-section">
-                    <h3>Puzzle Grid</h3>
+                    <h3 style="color: #333; border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 15px;">Puzzle Grid</h3>
                     <div class="grid-wrapper">
 <div class="crossword-grid">
   <div class="grid-row">
@@ -755,84 +768,84 @@
                     <h3 style="color: #28a745; border-bottom: 2px solid #28a745;">Anagram Grid</h3>
                     <div class="crossword-grid anagram-grid" id="anagram-grid">
   <div class="grid-row">
-    <div class="grid-cell anagram-cell " data-cell="0" data-anagram="true"><div class="grid-clue-number">1</div></div>
-    <div class="grid-cell anagram-cell " data-cell="1" data-anagram="true"><div class="grid-clue-number">2</div></div>
-    <div class="grid-cell anagram-cell " data-cell="2" data-anagram="true"><div class="grid-clue-number">3</div></div>
-    <div class="grid-cell anagram-cell thick-right" data-cell="3" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="4" data-anagram="true"><div class="grid-clue-number">4</div></div>
-    <div class="grid-cell anagram-cell " data-cell="5" data-anagram="true"><div class="grid-clue-number">5</div></div>
-    <div class="grid-cell anagram-cell " data-cell="6" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="7" data-anagram="true"><div class="grid-clue-number">6</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="0" data-anagram="true"><div class="grid-clue-number">1</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="1" data-anagram="true"><div class="grid-clue-number">2</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="2" data-anagram="true"><div class="grid-clue-number">3</div></div>
+    <div class="grid-cell thick-right anagram-cell" data-cell="3" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="4" data-anagram="true"><div class="grid-clue-number">4</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="5" data-anagram="true"><div class="grid-clue-number">5</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="6" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="7" data-anagram="true"><div class="grid-clue-number">6</div></div>
   </div>
   <div class="grid-row">
-    <div class="grid-cell anagram-cell " data-cell="8" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-right thick-bottom thick-left" data-cell="9" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="10" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-right thick-left thick-top" data-cell="11" data-anagram="true"><div class="grid-clue-number">7</div></div>
-    <div class="grid-cell anagram-cell thick-right thick-top" data-cell="12" data-anagram="true"><div class="grid-clue-number">8</div></div>
-    <div class="grid-cell anagram-cell " data-cell="13" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-bottom thick-left thick-top" data-cell="14" data-anagram="true"><div class="grid-clue-number">9</div></div>
-    <div class="grid-cell anagram-cell " data-cell="15" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="8" data-anagram="true"></div>
+    <div class="grid-cell thick-right thick-bottom thick-left anagram-cell" data-cell="9" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="10" data-anagram="true"></div>
+    <div class="grid-cell thick-right thick-left thick-top anagram-cell" data-cell="11" data-anagram="true"><div class="grid-clue-number">7</div></div>
+    <div class="grid-cell thick-right thick-top anagram-cell" data-cell="12" data-anagram="true"><div class="grid-clue-number">8</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="13" data-anagram="true"></div>
+    <div class="grid-cell thick-bottom thick-left thick-top anagram-cell" data-cell="14" data-anagram="true"><div class="grid-clue-number">9</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="15" data-anagram="true"></div>
   </div>
   <div class="grid-row">
-    <div class="grid-cell anagram-cell " data-cell="16" data-anagram="true"><div class="grid-clue-number">10</div></div>
-    <div class="grid-cell anagram-cell " data-cell="17" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="18" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-right" data-cell="19" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="20" data-anagram="true"><div class="grid-clue-number">11</div></div>
-    <div class="grid-cell anagram-cell " data-cell="21" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="22" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="23" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="16" data-anagram="true"><div class="grid-clue-number">10</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="17" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="18" data-anagram="true"></div>
+    <div class="grid-cell thick-right anagram-cell" data-cell="19" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="20" data-anagram="true"><div class="grid-clue-number">11</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="21" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="22" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="23" data-anagram="true"></div>
   </div>
   <div class="grid-row">
-    <div class="grid-cell anagram-cell thick-bottom" data-cell="24" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-bottom thick-left thick-top" data-cell="25" data-anagram="true"><div class="grid-clue-number">12</div></div>
-    <div class="grid-cell anagram-cell thick-bottom" data-cell="26" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="27" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="28" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-bottom" data-cell="29" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-right thick-bottom thick-top" data-cell="30" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-bottom" data-cell="31" data-anagram="true"></div>
+    <div class="grid-cell thick-bottom anagram-cell" data-cell="24" data-anagram="true"></div>
+    <div class="grid-cell thick-bottom thick-left thick-top anagram-cell" data-cell="25" data-anagram="true"><div class="grid-clue-number">12</div></div>
+    <div class="grid-cell thick-bottom anagram-cell" data-cell="26" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="27" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="28" data-anagram="true"></div>
+    <div class="grid-cell thick-bottom anagram-cell" data-cell="29" data-anagram="true"></div>
+    <div class="grid-cell thick-right thick-bottom thick-top anagram-cell" data-cell="30" data-anagram="true"></div>
+    <div class="grid-cell thick-bottom anagram-cell" data-cell="31" data-anagram="true"></div>
   </div>
   <div class="grid-row">
-    <div class="grid-cell anagram-cell " data-cell="32" data-anagram="true"><div class="grid-clue-number">13</div></div>
-    <div class="grid-cell anagram-cell thick-bottom thick-left" data-cell="33" data-anagram="true"><div class="grid-clue-number">14</div></div>
-    <div class="grid-cell anagram-cell " data-cell="34" data-anagram="true"><div class="grid-clue-number">15</div></div>
-    <div class="grid-cell anagram-cell " data-cell="35" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="36" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="37" data-anagram="true"><div class="grid-clue-number">16</div></div>
-    <div class="grid-cell anagram-cell thick-right thick-bottom" data-cell="38" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="39" data-anagram="true"><div class="grid-clue-number">17</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="32" data-anagram="true"><div class="grid-clue-number">13</div></div>
+    <div class="grid-cell thick-bottom thick-left anagram-cell" data-cell="33" data-anagram="true"><div class="grid-clue-number">14</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="34" data-anagram="true"><div class="grid-clue-number">15</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="35" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="36" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="37" data-anagram="true"><div class="grid-clue-number">16</div></div>
+    <div class="grid-cell thick-right thick-bottom anagram-cell" data-cell="38" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="39" data-anagram="true"><div class="grid-clue-number">17</div></div>
   </div>
   <div class="grid-row">
-    <div class="grid-cell anagram-cell " data-cell="40" data-anagram="true"><div class="grid-clue-number">18</div></div>
-    <div class="grid-cell anagram-cell " data-cell="41" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="42" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-right" data-cell="43" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="44" data-anagram="true"><div class="grid-clue-number">19</div></div>
-    <div class="grid-cell anagram-cell " data-cell="45" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="46" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="47" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="40" data-anagram="true"><div class="grid-clue-number">18</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="41" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="42" data-anagram="true"></div>
+    <div class="grid-cell thick-right anagram-cell" data-cell="43" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="44" data-anagram="true"><div class="grid-clue-number">19</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="45" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="46" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="47" data-anagram="true"></div>
   </div>
   <div class="grid-row">
-    <div class="grid-cell anagram-cell " data-cell="48" data-anagram="true"><div class="grid-clue-number">20</div></div>
-    <div class="grid-cell anagram-cell thick-right thick-bottom thick-top" data-cell="49" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="50" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-right thick-bottom thick-left" data-cell="51" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-right thick-bottom" data-cell="52" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="53" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-right thick-left thick-top" data-cell="54" data-anagram="true"><div class="grid-clue-number">21</div></div>
-    <div class="grid-cell anagram-cell " data-cell="55" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="48" data-anagram="true"><div class="grid-clue-number">20</div></div>
+    <div class="grid-cell thick-right thick-bottom thick-top anagram-cell" data-cell="49" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="50" data-anagram="true"></div>
+    <div class="grid-cell thick-right thick-bottom thick-left anagram-cell" data-cell="51" data-anagram="true"></div>
+    <div class="grid-cell thick-right thick-bottom anagram-cell" data-cell="52" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="53" data-anagram="true"></div>
+    <div class="grid-cell thick-right thick-left thick-top anagram-cell" data-cell="54" data-anagram="true"><div class="grid-clue-number">21</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="55" data-anagram="true"></div>
   </div>
   <div class="grid-row">
-    <div class="grid-cell anagram-cell " data-cell="56" data-anagram="true"><div class="grid-clue-number">22</div></div>
-    <div class="grid-cell anagram-cell " data-cell="57" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="58" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell thick-right" data-cell="59" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="60" data-anagram="true"><div class="grid-clue-number">23</div></div>
-    <div class="grid-cell anagram-cell " data-cell="61" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="62" data-anagram="true"></div>
-    <div class="grid-cell anagram-cell " data-cell="63" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="56" data-anagram="true"><div class="grid-clue-number">22</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="57" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="58" data-anagram="true"></div>
+    <div class="grid-cell thick-right anagram-cell" data-cell="59" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="60" data-anagram="true"><div class="grid-clue-number">23</div></div>
+    <div class="grid-cell  anagram-cell" data-cell="61" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="62" data-anagram="true"></div>
+    <div class="grid-cell  anagram-cell" data-cell="63" data-anagram="true"></div>
   </div>
 </div>
                     <div style="margin-top: 20px; text-align: center;">
