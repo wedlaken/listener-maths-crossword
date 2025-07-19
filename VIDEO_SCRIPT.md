@@ -24,7 +24,7 @@ What started as a simple puzzle solver has become a full-stack web application w
 ### Live Demo: Core Functionality (60 seconds)
 *[Screen recording of the application – with inset video of me?]*
 
-"Let me first show you the original newspaper puzzle that gave me the inspiration, and then demonstrate the solver in action.
+"Let me first show you the original newspaper puzzle that gave me the inspiration, and then demonstrate the solver in action. The application is now live at listener-maths-crossword.onrender.com, demonstrating production deployment capabilities.
 
 The 'Listener Crossword' has a long and rich history in the Times newspaper – the London version – and is known to be very challenging. I did not realise at first that the nature of the puzzle is different each time it is published (every 3 months), and so my original idea, which was to design an application to recognise the puzzle grid and clues from camera shots, became redendant. I stopped trying to make OCR – visual recognition – work and expanded my work on the core logic and user interface.
 
@@ -39,8 +39,9 @@ Four 'unclued clues' in the centre of the grid do not have the same clue type, b
 3. **Use the undo system** - complete solution history with selective restoration
 4. **Experience the anagram stage** - after completing the initial puzzle, users face a second challenge where every entry must be an anagram of the original
 5. **Use development tools** - in order to speed up testing and development, I've added buttons to speed through the first level while maintaining its function
+6. **Access from any device** - the interface is fully responsive and works on desktop, tablet, and mobile
 
-Notice the color coding: blue for user-selected solutions, green for algorithm-determined ones, and yellow for multiple possibilities."
+Notice the color coding: blue for user-selected solutions, green for algorithm-determined ones, and yellow for multiple possibilities. The interface has been polished with consistent styling and professional-grade UI/UX."
 
 ### Technical Architecture (30 seconds)
 *[Show key files and explain structure]*
@@ -50,8 +51,10 @@ Notice the color coding: blue for user-selected solutions, green for algorithm-d
 - **Interactive JavaScript frontend** with real-time updates using the sophisticated clue objects
 - **Mathematical algorithms** for prime factorization and constraint satisfaction
 - **Database persistence** for cross-device progress synchronization
+- **Production deployment** on Render with PostgreSQL database and automatic HTTPS
+- **Refactored architecture** with eliminated code duplication and single source of truth
 
-Each component demonstrates different CS50 concepts, from basic web development to advanced algorithmic thinking."
+Each component demonstrates different CS50 concepts, from basic web development to advanced algorithmic thinking and production deployment."
 
 ### Learning Outcomes & AI Collaboration (30 seconds)
 *[Show documentation and learning points]*
@@ -83,6 +86,8 @@ Thank you for watching!"
 - Demonstrated advanced programming concepts beyond CS50 requirements
 - Created a production-ready application with real-world complexity
 - Showed strategic thinking in development approach
+- Production deployment demonstrates full-stack development capabilities
+- Code refactoring shows understanding of maintainable architecture
 
 ### Timing Breakdown:
 - Opening: 15 seconds

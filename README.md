@@ -4,7 +4,9 @@
 
 ## Project Overview
 
-The Listener Maths Crossword Solver is a sophisticated, production-ready web application that solves mathematical crossword puzzles using constraint satisfaction algorithms and real-time interactivity. What began as a command-line puzzle solver evolved into a full-stack web application demonstrating advanced programming concepts.
+The Listener Maths Crossword Solver is a sophisticated, **production-ready web application** that solves mathematical crossword puzzles using constraint satisfaction algorithms and real-time interactivity. What began as a command-line puzzle solver evolved into a **full-stack web application** demonstrating advanced programming concepts, now **live at https://listener-maths-crossword.onrender.com**.
+
+**🎉 Live Demo**: [https://listener-maths-crossword.onrender.com](https://listener-maths-crossword.onrender.com)
 
 I've spoken about the benefits of working with AI tools in the video recorded for this submission and please read the VIDEO_SCRIPT.md in the root of this project in conjunction with this required file. I've allowed Cursor to put the bulk of this README together so as not to overlook some of the programming paradigms and frameworks we've used and many of the advanced programmatic techniques – especially in Pyhton and JavaScript – that I've wanted to explore and implement. I was keen that the fundamental structure of the programming had class objects at its heart and used multiple techniques to manipulate those objects and their states to meet the challenge of a quite sophisiticated puzzle posed by a human (Listener Crossword no.4869).
 
@@ -19,6 +21,8 @@ You will find a lot more detail about the challenges, changes to development dir
 - **Deselect Functionality**: Remove individual solutions and restore all possible options
 - **Two-Stage Puzzle Experience**: Complete the initial mathematical puzzle, then tackle an anagram challenge where every entry must be an anagram of the original
 - **Prime Factorization Workpad**: Interactive tool for exploring mathematical properties and understanding clue constraints
+- **Mobile-Responsive Design**: Optimized interface for desktop, tablet, and mobile devices
+- **Consistent UI/UX**: Professional-grade interface with polished styling and intuitive navigation
 
 ### 🔐 User Management & Persistence
 - **User Registration & Authentication**: Email-based registration with secure password hashing
@@ -46,6 +50,8 @@ You will find a lot more detail about the challenges, changes to development dir
 - **Progressive State Management**: Automatic save/load functionality with user progress tracking
 - **Unified Grid Interface**: Seamless transition between initial and anagram puzzle stages with consistent UI/UX
 - **Mathematical Tools**: Interactive prime factorization workpad for educational exploration
+- **Mobile Optimization**: Fine-tuned responsive breakpoints with optimized grid cell sizing
+- **Professional UI**: Consistent button styling, header underlines, and color-coded anagram sections
 
 ### Mathematical Engine
 - **Prime Number Algorithms**: Efficient prime factorization and property checking
@@ -84,6 +90,12 @@ This transition enabled significant progress:
 - **`systematic_grid_parser.py`**: Ground truth data parser for grid structure and clue positions
 - **`clue_classes.py`**: Advanced data structures for clue management and state tracking, including AnagramClue class for second-stage puzzle
 
+### Refactored Architecture (Latest)
+- **`get_grid_structure()`**: Single source of truth for grid layout and clue positions
+- **`generate_base_grid_html()`**: Shared grid generation with parameterized differences
+- **`generate_clue_column_html()`**: Unified clue generation handling both regular and anagram clues
+- **`calculate_grid_borders()`**: Centralized border calculation logic
+
 ### Data & Configuration
 - **`data/Listener 4869 clues.txt`**: Ground truth clue parameters and puzzle data
 - **`data/clue_parameters_4869.txt`**: Mathematical parameters for each clue
@@ -91,8 +103,10 @@ This transition enabled significant progress:
 - **`requirements.txt`**: Python dependencies for the project
 
 ### Development & Deployment
-- **`dev_server.py`**: Development server with auto-reload and file watching
-- **`config/Procfile`**: Production deployment configuration
+- **`scripts/`**: Development utilities and tools (moved from root for better organization)
+- **`render.yaml`**: Render cloud platform configuration for production deployment
+- **`Procfile`**: Production deployment configuration
+- **`gunicorn.conf.py`**: WSGI server configuration for production
 - **`templates/`**: HTML templates for the web interface
 - **`static/`**: CSS, JavaScript, and static assets
 
@@ -119,6 +133,8 @@ This transition enabled significant progress:
 - **Interactive JavaScript Frontend**: Real-time communication between iframe and parent window
 - **Database Integration**: SQLite with proper schema design for user accounts and puzzle state
 - **Session Management**: Secure user authentication with password hashing and session tracking
+- **Production Deployment**: Render cloud platform with PostgreSQL database and automatic HTTPS
+- **Mobile-First Design**: Responsive interface optimized for all device sizes
 
 ## Learning Outcomes & CS50 Skills Demonstrated
 
@@ -129,6 +145,9 @@ This transition enabled significant progress:
 ✅ **JavaScript Programming** - Interactive frontend with real-time updates and state management  
 ✅ **Problem Solving** - Complex algorithmic thinking with mathematical constraints  
 ✅ **Code Organization** - Well-structured, maintainable code with proper separation of concerns  
+✅ **Production Deployment** - Render cloud platform with PostgreSQL and automatic HTTPS  
+✅ **Mobile Responsiveness** - Bootstrap framework with optimized responsive design  
+✅ **Code Architecture** - Refactored codebase with eliminated duplication and single source of truth  
 
 ### Strategic Decision Making
 ✅ **Adaptive Development** - Demonstrated ability to pivot when initial approaches prove challenging  
@@ -178,15 +197,23 @@ python app.py
 4. Open `http://localhost:5001` in your browser
 
 ### Production Deployment
-The application is configured for deployment on platforms like Heroku, Railway, or Render:
-- Database automatically created on first run
-- Environment variables for configuration
-- Static file serving configured
-- Production-ready WSGI server
+The application is **live and deployed** on Render cloud platform:
+- **Live URL**: https://listener-maths-crossword.onrender.com
+- **PostgreSQL Database**: Production database with automatic backups
+- **Automatic HTTPS**: Secure connections with SSL certificates
+- **Auto-Deploy**: Automatic deployment on every Git push
+- **Environment Variables**: Secure configuration management
+- **Production WSGI Server**: Gunicorn with optimized settings
 
 ## Recent Enhancements & Future Development
 
-### Recent Additions (Latest Development Session)
+### Recent Additions (Latest Development Sessions - July 2025)
+- **Production Deployment**: Live application on Render with PostgreSQL database
+- **Code Architecture Refactoring**: Eliminated ~250 lines of duplication with shared base functions
+- **Mobile Responsiveness**: Optimized interface for all device sizes with fine-tuned breakpoints
+- **UI/UX Polish**: Consistent styling, header underlines, and green anagram grid borders
+- **Cross-Platform Cleanup**: Removed .bat files for better Mac/Windows compatibility
+- **Single Source of Truth**: Centralized grid structure and border logic for future OCR integration
 - **Two-Stage Puzzle Experience**: Complete anagram challenge after solving the initial mathematical puzzle
 - **Prime Factorization Workpad**: Interactive mathematical exploration tool
 - **Unified UI/UX**: Consistent interface across both puzzle stages with seamless transitions
@@ -194,12 +221,13 @@ The application is configured for deployment on platforms like Heroku, Railway, 
 - **Improved Grammar**: Singular/plural display for solution counts ("1 solution" vs "2 solutions")
 
 ### Future Enhancements
-While the current implementation uses ground truth data for reliability, the OCR infrastructure has been preserved for potential future enhancements:
-- **Automated Puzzle Parsing**: Reintegration of OCR for automatic puzzle input
+The refactored architecture is now **OCR-ready** for future enhancements:
+- **Automated Puzzle Parsing**: OCR integration simplified with centralized grid structure
 - **Multiple Puzzle Support**: Database schema supports multiple puzzle types
 - **Advanced Analytics**: User solving patterns and statistics
-- **Mobile Optimization**: Enhanced responsive design for mobile devices
-- **Server Deployment**: Learning web hosting and deployment processes
+- **Enhanced Mobile Features**: Touch gestures and mobile-specific optimizations
+- **API Development**: RESTful API for third-party integrations
+- **Educational Features**: Tutorial mode and hint system
 
 ## Conclusion
 
