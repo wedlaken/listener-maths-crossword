@@ -8,7 +8,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from anagram_grid_solver import find_anagram_multiples
+from archive.anagram_grid_solver import find_anagram_multiples
 from typing import List, Dict, Set
 import json
 
