@@ -169,6 +169,172 @@ These files are specifically for the **final anagram grid compilation** - the tr
 - `enhanced_interactive_solver.py` - Enhanced interactive solver with anagram validation
 - `constrained_forward_solver.py` - Constrained forward search implementation
 
+### Centralized Import Hub Pattern (`utils.py`) - **RECENTLY REFINED**
+
+#### Overview
+The project implements a **centralized import hub pattern** using `utils.py` as a single point of access for all shared functions and modules. This pattern evolved from solving import issues when files were moved between folders and has been **recently refined** to eliminate redundant path management throughout the codebase.
+
+#### Problem Evolution and Solution
+
+**Phase 1 - Original Issue**: When files were moved to `archive/` and `experimental/` folders, imports broke across the codebase:
+```python
+# Before: Direct imports that broke when files moved
+from archive.anagram_grid_solver import is_anagram
+from systematic_grid_parser import parse_grid
+from crossword_solver import ListenerPuzzle
+```
+
+**Phase 2 - Scattered Path Management**: Added `sys.path.append()` lines to individual files:
+```python
+# Problematic approach: Every file needed complex path manipulation
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils import parse_grid
+```
+
+**Phase 3 - Centralized Solution**: Eliminated scattered path management in favor of centralized hub:
+```python
+# Clean approach: Single import point that works from anywhere
+from utils import is_anagram, parse_grid, ListenerPuzzle
+```
+
+#### Key Refinements (Latest Improvements)
+
+**1. Eliminated Redundant Path Management**:
+- **Removed**: All `sys.path.append()` lines from individual script files
+- **Result**: Cleaner, more maintainable codebase
+- **Benefit**: No more counting `dirname()` calls or updating paths when moving files
+
+**2. Graceful Dependency Handling**:
+- **Added**: Fallback implementations for missing modules (e.g., OpenCV)
+- **Added**: Helpful error messages when dependencies are unavailable
+- **Result**: Scripts run gracefully even with missing dependencies
+
+**3. Simplified Script Execution**:
+- **Before**: Complex path manipulation in every script
+- **After**: Simple execution with `PYTHONPATH=. python3 scripts/script_name.py`
+- **Benefit**: Consistent, predictable behavior across all scripts
+
+#### Technical Implementation
+
+**Core Architecture**:
+```python
+# utils.py - Centralized Import Hub
+import os
+import sys
+
+# Add all project paths automatically
+project_root = os.path.dirname(os.path.abspath(__file__))
+current_dir = os.getcwd()
+
+# Ensure both project root and current directory are in path
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
+# Add subfolder paths
+for path in [archive_path, experimental_path, scripts_path]:
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
+# Import with graceful fallbacks
+try:
+    from archive.systematic_grid_parser import parse_grid
+except ImportError:
+    parse_grid = None  # Graceful fallback
+```
+
+**Script Usage**:
+```python
+# Any script can now simply do:
+from utils import parse_grid, ListenerClue, is_anagram
+
+# No path manipulation needed!
+# No counting dirname() calls!
+# Works from any folder depth!
+```
+project_root = os.path.dirname(os.path.abspath(__file__))
+archive_path = os.path.join(project_root, 'archive')
+experimental_path = os.path.join(project_root, 'experimental')
+
+for path in [project_root, archive_path, experimental_path]:
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
+# Import all commonly used modules with fallbacks
+try:
+    from archive.systematic_grid_parser import parse_grid, SystematicGridParser
+    from experimental.crossword_solver import ListenerPuzzle, ListenerClue
+    from archive.anagram_grid_solver import find_anagram_multiples
+except ImportError:
+    # Fallback implementations if modules not available
+    parse_grid = None
+    ListenerPuzzle = None
+    find_anagram_multiples = None
+
+# Provide local implementations as fallbacks
+def is_anagram(num1: int, num2: int) -> bool:
+    """Local implementation if archive module unavailable"""
+    return sorted(str(num1)) == sorted(str(num2))
+```
+
+#### Benefits
+
+1. **Interface Stability**: Main code doesn't care where modules live
+2. **Refactoring Safety**: Move files without breaking imports
+3. **Graceful Degradation**: Fallback implementations if modules missing
+4. **Code Archaeology**: Preserve experimental code without cluttering main code
+5. **Cross-Platform**: Works from any location in project structure
+6. **Future-Proof**: Easy to add new modules or change implementations
+
+#### Usage Pattern
+
+**In any file, anywhere in the project**:
+```python
+# Simple, consistent imports
+from utils import (
+    is_anagram,           # Core utility function
+    parse_grid,           # Archive module function
+    ListenerPuzzle,       # Experimental module class
+    find_anagram_multiples # Archive module function
+)
+```
+
+#### Future Applications
+
+This pattern is valuable for:
+- **Multi-stage projects** with experimental/archive phases
+- **Code evolution** where implementations change over time
+- **Team development** where different people work on different modules
+- **Documentation** of development history and decision-making
+- **Feature flags** and A/B testing of different implementations
+
+#### Comparison with sys.path Manipulation
+
+**Traditional Approach** (scattered throughout codebase):
+```python
+# In each file that needs imports
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'archive'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from archive.module import function
+```
+
+**Centralized Hub Approach**:
+```python
+# Single setup in utils.py
+# All files just use:
+from utils import function
+```
+
+**Advantages of Hub Approach**:
+- **Single point of configuration** vs. scattered path manipulation
+- **Automatic path management** vs. manual path calculations
+- **Graceful error handling** vs. import failures
+- **Clean, readable imports** vs. complex import statements
+- **Easy maintenance** vs. updating multiple files
+
 ### Solver Architecture: Separation of Concerns
 
 #### Core Constraint Engine: `constrained_forward_solver.py`

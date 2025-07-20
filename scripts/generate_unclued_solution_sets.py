@@ -6,7 +6,6 @@ Integrates with existing solution set structure and provides validation
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils import find_anagram_multiples
 from typing import List, Dict, Set

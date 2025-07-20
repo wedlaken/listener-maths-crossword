@@ -5,7 +5,6 @@ Puzzle visualizer that generates HTML output for grid display
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import json
 from datetime import datetime
 from typing import Dict, Tuple, List, Optional

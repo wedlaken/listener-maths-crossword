@@ -14,6 +14,11 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
+# Also add current working directory to path (for when scripts are run from project root)
+current_dir = os.getcwd()
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
 # Add archive and experimental folders to path
 archive_path = os.path.join(project_root, 'archive')
 experimental_path = os.path.join(project_root, 'experimental')

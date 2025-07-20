@@ -5,7 +5,6 @@ Export clue objects to JSON for review
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import json
 import re
 from typing import Dict, Tuple, List
@@ -73,6 +72,11 @@ def main():
     print("=== EXPORTING CLUE OBJECTS TO JSON ===")
     
     # Parse grid and load parameters
+    if parse_grid is None:
+        print("ERROR: parse_grid function not available (missing OpenCV dependency)")
+        print("Please install OpenCV: pip install opencv-python")
+        return
+    
     grid_clues = parse_grid()
     clue_params = load_clue_parameters("data/Listener 4869 clues.txt")
     
