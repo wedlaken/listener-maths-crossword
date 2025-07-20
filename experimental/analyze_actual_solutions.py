@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Analyze the actual solutions from the prize-winning puzzle"""
 
-from anagram_grid_solver import find_anagram_multiples, generate_anagrams_including_original, is_anagram
+from archive.anagram_grid_solver import find_anagram_multiples, generate_anagrams_including_original, is_anagram
 
 def analyze_actual_solutions():
     """Analyze the actual unclued solutions from the prize-winning puzzle."""

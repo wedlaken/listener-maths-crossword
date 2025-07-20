@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate comprehensive list of unclued solution candidates"""
 
-from anagram_grid_solver import find_anagram_multiples, is_anagram
+from archive.anagram_grid_solver import find_anagram_multiples, is_anagram
 import json
 from collections import defaultdict
 

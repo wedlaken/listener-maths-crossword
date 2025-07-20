@@ -16,7 +16,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from systematic_grid_parser import parse_grid, ClueTuple
 from clue_classes import ListenerClue, ClueFactory, ClueManager, ClueParameters
-from anagram_grid_solver import find_anagram_multiples, generate_anagrams, validate_anagram_constraints
+from archive.anagram_grid_solver import find_anagram_multiples, generate_anagrams, validate_anagram_constraints
 
 def validate_unclued_solution_for_anagram(clue_id: str, solution: int) -> Tuple[bool, List[str]]:
     """

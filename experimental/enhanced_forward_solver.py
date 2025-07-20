@@ -4,7 +4,7 @@
 import json
 import os
 from typing import Dict, List, Set, Optional
-from anagram_grid_solver import is_anagram
+from archive.anagram_grid_solver import is_anagram
 
 class ForwardUncluedSolver:
     """Enhanced solver using forward-search unclued candidates."""
