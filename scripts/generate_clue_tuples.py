@@ -4,7 +4,7 @@
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from systematic_grid_parser import SystematicGridParser
+from utils import SystematicGridParser
 
 def get_manual_clue_mapping():
     """Define the manual mapping of clue numbers to cell positions (0-63 indexing)."""

@@ -6,7 +6,7 @@ including grid displays, clue status, and solution details.
 """
 
 from typing import Dict, List, Optional, Tuple
-from crossword_solver import ListenerPuzzle, ListenerClue
+from utils import ListenerPuzzle, ListenerClue
 import os
 
 class PuzzlePresenter:

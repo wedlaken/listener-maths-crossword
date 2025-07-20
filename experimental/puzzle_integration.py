@@ -8,8 +8,8 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from systematic_grid_parser import parse_grid
-from crossword_solver import ListenerPuzzle, ListenerClue
+from utils import parse_grid
+from utils import ListenerPuzzle, ListenerClue
 from typing import Dict, Tuple, List, Optional
 
 def load_clue_parameters(filename: str) -> Dict[Tuple[int, str], Tuple[int, int, int]]:

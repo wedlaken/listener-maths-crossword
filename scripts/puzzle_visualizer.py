@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 from typing import Dict, Tuple, List, Optional
 
-from systematic_grid_parser import parse_grid
+from utils import parse_grid
 
 def load_clue_parameters(filename: str) -> Dict[Tuple[int, str], Tuple[int, int, int]]:
     """Load clue parameters from file."""

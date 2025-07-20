@@ -14,9 +14,9 @@ import sys
 # Add the current directory to the path so we can import our modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from systematic_grid_parser import parse_grid, ClueTuple
+from utils import parse_grid, ClueTuple
 from clue_classes import ListenerClue, ClueFactory, ClueManager, ClueParameters
-from archive.anagram_grid_solver import find_anagram_multiples, generate_anagrams, validate_anagram_constraints
+from utils import find_anagram_multiples, generate_anagrams, validate_anagram_constraints
 
 class AnagramEnhancedClueManager(ClueManager):
     """Enhanced clue manager with anagram validation for unclued clues."""

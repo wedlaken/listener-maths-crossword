@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
-from crossword_solver import Clue, CrosswordGrid
+from utils import Clue, CrosswordGrid
 import matplotlib.pyplot as plt
 from colorama import init, Fore, Style
 from systematic_grid_parser import SystematicGridParser, ClueTuple

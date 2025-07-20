@@ -10,8 +10,8 @@ import json
 import re
 from typing import Dict, Tuple, List
 
-from systematic_grid_parser import parse_grid
-from crossword_solver import ListenerClue
+from utils import parse_grid
+from utils import ListenerClue
 
 def load_clue_parameters(filename: str) -> Dict[Tuple[int, str], Tuple[int, int, int]]:
     """Load clue parameters from file."""

@@ -5,7 +5,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from archive.anagram_grid_solver import is_anagram
+from utils import is_anagram
 import json
 from collections import defaultdict
 
