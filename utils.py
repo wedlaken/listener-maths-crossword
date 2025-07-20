@@ -156,4 +156,4 @@ def get_available_modules() -> Dict[str, bool]:
 def is_running_from_folder(folder_name: str) -> bool:
     """Check if the current script is running from a specific folder."""
     current_dir = os.path.basename(os.getcwd())
-    return current_dir == folder_name 
+    return current_dir == folder_name
