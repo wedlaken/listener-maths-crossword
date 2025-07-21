@@ -210,6 +210,19 @@ hub.register_import(
     description="Validate anagram constraints function"
 )
 
+# Register listener-related imports
+hub.register_import(
+    'find_solutions', 
+    'listener.find_solutions',
+    description="Find solutions function"
+)
+
+hub.register_import(
+    'get_prime_factors_with_multiplicity', 
+    'listener.get_prime_factors_with_multiplicity',
+    description="Get prime factors with multiplicity function"
+)
+
 
 
 # Core utility functions (local implementations)
@@ -326,6 +339,8 @@ find_anagram_multiples = hub.get('find_anagram_multiples')
 generate_anagrams = hub.get('generate_anagrams')
 generate_anagrams_including_original = hub.get('generate_anagrams_including_original')
 validate_anagram_constraints = hub.get('validate_anagram_constraints')
+find_solutions = hub.get('find_solutions')
+get_prime_factors_with_multiplicity = hub.get('get_prime_factors_with_multiplicity')
 
 
 # Print status report on module load (only in development)

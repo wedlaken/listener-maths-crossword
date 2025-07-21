@@ -5,10 +5,11 @@ Comprehensive test of listener.py to validate the logic and show prime factors
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import math
 from sympy import isprime
 from typing import List, Tuple
-from listener import find_solutions, get_prime_factors_with_multiplicity
+from utils import find_solutions, get_prime_factors_with_multiplicity
 
 def test_prime_factorization():
     """Test the prime factorization function with known examples"""
@@ -98,75 +99,70 @@ def test_edge_cases():
         factors = get_prime_factors_with_multiplicity(sol)
         print(f"  {sol} -> {factors}")
 
-def verify_listener_logic():
-    """Verify the listener logic step by step"""
-    print("\nVERIFYING LISTENER LOGIC")
+def test_comprehensive_validation():
+    """Comprehensive validation of the listener logic"""
+    print("\nCOMPREHENSIVE VALIDATION")
     print("="*50)
     
-    # Let's manually check a few solutions for clue 10
-    a, b, c = 4, 3, 104
-    solutions = find_solutions(a, b, c)
+    # Test various combinations
+    test_cases = [
+        (2, 1, 0),   # 2 digits, 1 prime factor, diff=0
+        (2, 2, 1),   # 2 digits, 2 prime factors, diff=1
+        (3, 2, 5),   # 3 digits, 2 prime factors, diff=5
+        (3, 3, 10),  # 3 digits, 3 prime factors, diff=10
+    ]
     
-    print(f"Checking first few solutions for (a={a}, b={b}, c={c}):")
+    all_passed = True
+    for a, b, c in test_cases:
+        print(f"\nTesting (a={a}, b={b}, c={c}):")
+        solutions = find_solutions(a, b, c)
+        print(f"  Found {len(solutions)} solutions: {solutions}")
+        
+        # Validate each solution
+        for solution in solutions:
+            factors = get_prime_factors_with_multiplicity(solution)
+            if len(factors) != b or max(factors) - min(factors) != c:
+                print(f"  ✗ {solution} -> {factors} (invalid)")
+                all_passed = False
+            else:
+                print(f"  ✓ {solution} -> {factors}")
     
-    for i, solution in enumerate(solutions[:5]):  # Check first 5
-        print(f"\nSolution {i+1}: {solution}")
-        
-        # Check it's 4 digits
-        digits = len(str(solution))
-        print(f"  Digits: {digits} {'✓' if digits == a else '✗'}")
-        
-        # Get prime factors
-        factors = get_prime_factors_with_multiplicity(solution)
-        print(f"  Prime factors: {factors}")
-        
-        # Check number of factors
-        factor_count = len(factors)
-        print(f"  Factor count: {factor_count} {'✓' if factor_count == b else '✗'}")
-        
-        # Check difference
-        min_factor = min(factors)
-        max_factor = max(factors)
-        diff = max_factor - min_factor
-        print(f"  Min factor: {min_factor}")
-        print(f"  Max factor: {max_factor}")
-        print(f"  Difference: {diff} {'✓' if diff == c else '✗'}")
-        
-        # Verify the number actually equals the product of its factors
-        product = 1
-        for factor in factors:
-            product *= factor
-        print(f"  Product check: {product} {'✓' if product == solution else '✗'}")
+    return all_passed
 
 def main():
     """Main test function"""
-    print("LISTENER.PY VALIDATION TEST")
+    print("LISTENER MATHS CROSSWORD - LISTENER VALIDATION TEST")
     print("="*60)
     
-    # Test 1: Prime factorization
-    print("Test 1: Prime factorization function")
-    factorization_ok = test_prime_factorization()
-    print(f"Prime factorization: {'PASS' if factorization_ok else 'FAIL'}")
-    
-    # Test 2: Analyze clue 10 solutions
-    print("\nTest 2: Clue 10 solution analysis")
-    clue_10_ok = analyze_solutions_for_clue_10()
-    print(f"Clue 10 analysis: {'PASS' if clue_10_ok else 'FAIL'}")
-    
-    # Test 3: Edge cases
-    test_edge_cases()
-    
-    # Test 4: Manual verification
-    verify_listener_logic()
-    
-    print("\n" + "="*60)
-    print("VALIDATION COMPLETE")
-    print("="*60)
-    
-    if factorization_ok and clue_10_ok:
-        print("✓ All tests passed - listener.py appears to be working correctly")
-    else:
-        print("✗ Some tests failed - there may be issues with listener.py")
+    try:
+        # Test prime factorization
+        prime_test_passed = test_prime_factorization()
+        
+        # Analyze clue 10
+        clue_10_passed = analyze_solutions_for_clue_10()
+        
+        # Test edge cases
+        test_edge_cases()
+        
+        # Comprehensive validation
+        comprehensive_passed = test_comprehensive_validation()
+        
+        print("\n" + "="*60)
+        print("TEST RESULTS SUMMARY")
+        print("="*60)
+        print(f"Prime factorization test: {'✓ PASSED' if prime_test_passed else '✗ FAILED'}")
+        print(f"Clue 10 analysis: {'✓ PASSED' if clue_10_passed else '✗ FAILED'}")
+        print(f"Comprehensive validation: {'✓ PASSED' if comprehensive_passed else '✗ FAILED'}")
+        
+        if all([prime_test_passed, clue_10_passed, comprehensive_passed]):
+            print("\n🎉 ALL TESTS PASSED! Listener logic is working correctly.")
+        else:
+            print("\n⚠️ Some tests failed. Please check the implementation.")
+            
+    except Exception as e:
+        print(f"Error during listener validation test: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     main() 
