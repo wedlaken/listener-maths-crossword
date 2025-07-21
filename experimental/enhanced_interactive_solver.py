@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Enhanced Interactive Crossword Solver with Anagram Grid Constraints
-Adds validation for the second stage anagram grid requirements.
+Enhanced Interactive Solver with Unclued Validation
+Integrates the pre-computed unclued solution sets for better user experience
 """
 
 import json
@@ -10,9 +10,6 @@ from typing import Dict, List, Tuple, Optional, Set
 from datetime import datetime
 import webbrowser
 import sys
-
-# Add the current directory to the path so we can import our modules
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from utils import parse_grid, ClueTuple
 from clue_classes import ListenerClue, ClueFactory, ClueManager, ClueParameters

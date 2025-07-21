@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 """
-Efficient solver that handles unclued clues differently and leverages grid symmetry
+Efficient solver that uses optimized algorithms
 """
 
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from typing import Dict, Tuple, List, Optional, Set
+from typing import Dict, Tuple, List, Optional
 
 from utils import parse_grid
 from utils import ListenerPuzzle, ListenerClue

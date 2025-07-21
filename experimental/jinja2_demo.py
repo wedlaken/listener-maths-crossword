@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 """
-Jinja2 Demo for Crossword Solver
-Shows how the current f-string approach could be refactored using Jinja2 templating.
+Jinja2 Template Demo for Listener Maths Crossword
+Demonstrates how to use Jinja2 templates to generate HTML for the crossword interface
 """
 
 import json
 import os
-import sys
-from typing import Dict, List, Tuple
-from jinja2 import Environment, Template
-
-# Add the current directory to the path so we can import our modules
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from typing import Dict, List, Tuple, Optional, Set
+from datetime import datetime
+import webbrowser
+from jinja2 import Template
 
 from utils import parse_grid, ClueTuple
-from clue_classes import ListenerClue, ClueFactory, ClueManager, ClueParameters, AnagramClue
+from clue_classes import ListenerClue, ClueFactory, ClueManager, ClueParameters
 
 def load_clue_parameters(filename: str) -> Dict[Tuple[int, str], Tuple[int, int, int]]:
     """Load clue parameters from file."""

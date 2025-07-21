@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
-Strategic solver that works in phases like a human would
+Strategic solver that prioritizes clues with the most constraints
 """
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils import parse_grid
 from utils import ListenerPuzzle, ListenerClue

@@ -6,7 +6,6 @@ Uses 0-63 indexing consistently throughout
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from utils import parse_grid
 from utils import ListenerPuzzle, ListenerClue

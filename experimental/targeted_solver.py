@@ -3,10 +3,6 @@
 Targeted solver that applies solved clues first, then works with fewest solutions
 """
 
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from typing import Dict, Tuple, List, Optional
 
 from utils import parse_grid

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
-Focused solver that starts with clues having fewest solutions and works outward
+Focused solver that targets specific clue types
 """
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from typing import Dict, Tuple, List, Optional, Set
 from collections import defaultdict

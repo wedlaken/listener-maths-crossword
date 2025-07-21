@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 """
-Analyze the unclued solution space for Listener 4869
-Find all 6-digit numbers that have anagram multiples ≤ 6 digits
+Analyze the unclued solution space to understand the constraints
 """
 
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from utils import find_anagram_multiples, generate_anagrams_including_original
-from typing import List, Dict, Set
 import json
+import os
+from typing import Dict, List, Tuple, Optional, Set
+
+from utils import parse_grid, ClueTuple
+from clue_classes import ListenerClue, ClueFactory, ClueManager, ClueParameters
 
 def find_all_valid_unclued_candidates() -> Dict[int, List[int]]:
     """
