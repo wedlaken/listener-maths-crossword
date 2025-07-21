@@ -38,8 +38,9 @@ crossword_solver.db
 
 # Project specific
 images/
-tests/
-archive/
+# archive/  # Commented out to allow development history to be tracked
+# experimental/  # Commented out to allow experimental code to be tracked
+# tests/  # Commented out to allow test files to be tracked
 *.jpg
 *.jpeg
 *.gif
@@ -71,5 +72,5 @@ Desktop.ini
 clue_objects_export.json
 solution_sets.json
 
-# Test files
+# Test files - only ignore specific test files that shouldn't be tracked
 test_db.py 
