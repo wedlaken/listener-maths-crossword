@@ -3,7 +3,8 @@
 Test script for AnagramClue class
 """
 
-from clue_classes import ListenerClue, ClueParameters, AnagramClue
+from utils import ListenerClue
+from clue_classes import ClueParameters, AnagramClue
 
 def test_anagram_clue():
     """Test the AnagramClue class with various scenarios."""

@@ -1,20 +1,27 @@
 #!/usr/bin/env python3
-"""Simple test for anagram functions"""
+"""
+Simple test script for anagram functionality.
+"""
 
-from anagram_grid_solver import find_anagram_multiples, generate_anagrams
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-print("Testing anagram functions...")
+from utils import find_anagram_multiples, generate_anagrams
 
-# Test 1089 (known to have anagram multiples)
-print(f"1089 anagrams: {generate_anagrams(1089)}")
-print(f"1089 anagram multiples: {find_anagram_multiples(1089)}")
+def test_anagram_functions():
+    """Test basic anagram functionality."""
+    print("Testing anagram functions...")
+    
+    # Test find_anagram_multiples
+    test_number = 142857
+    multiples = find_anagram_multiples(test_number)
+    print(f"Anagram multiples of {test_number}: {multiples}")
+    
+    # Test generate_anagrams
+    test_number = 123
+    anagrams = generate_anagrams(test_number)
+    print(f"Anagrams of {test_number}: {anagrams}")
 
-# Test 2048 (from the puzzle)
-print(f"2048 anagrams: {generate_anagrams(2048)}")
-print(f"2048 anagram multiples: {find_anagram_multiples(2048)}")
-
-# Test 2178 (should be a multiple of 1089)
-print(f"2178 anagrams: {generate_anagrams(2178)}")
-print(f"2178 anagram multiples: {find_anagram_multiples(2178)}")
-
-print("Done!") 
+if __name__ == "__main__":
+    test_anagram_functions() 

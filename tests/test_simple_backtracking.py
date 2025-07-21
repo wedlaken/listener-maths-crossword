@@ -6,7 +6,8 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'experimental'))
-from puzzle_integration import create_puzzle_from_files
+
+from experimental.puzzle_integration import integrate_puzzle as create_puzzle_from_files
 
 def test_simple_backtracking():
     """Test basic backtracking functionality"""
@@ -107,16 +108,16 @@ def main():
         test_state_management()
         
         print("\n" + "="*60)
-        print("ALL TESTS COMPLETE")
+        print("SIMPLE BACKTRACKING TEST COMPLETE")
         print("="*60)
         
         if success:
-            print("✓ Puzzle solved successfully with backtracking!")
+            print("✓ Simple backtracking test passed")
         else:
-            print("✗ Puzzle not fully solved (but no infinite loop)")
-        
+            print("✗ Simple backtracking test failed")
+            
     except Exception as e:
-        print(f"Error during testing: {e}")
+        print(f"Error during simple backtracking test: {e}")
         import traceback
         traceback.print_exc()
 

@@ -1,4 +1,4 @@
-from crossword_solver import ListenerClue, ListenerPuzzle
+from utils import ListenerClue, ListenerPuzzle
 from puzzle_reader import ListenerPuzzleReader
 
 def test_listener_puzzle():
@@ -101,7 +101,7 @@ def test_with_real_data():
             puzzle.print_solution()
             
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error testing with real data: {e}")
         import traceback
         traceback.print_exc()
 

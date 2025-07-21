@@ -3,6 +3,11 @@
 Test script to verify anagram generation fix for duplicate permutations.
 """
 
+# Note: This test imports from interactive_solver which is in the root directory
+# We'll need to import it directly since it's not part of the utils hub
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from interactive_solver import generate_anagram_solutions_for_clue
 
 def test_anagram_generation():

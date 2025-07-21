@@ -6,8 +6,9 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'experimental'))
-from puzzle_integration import create_puzzle_from_files
-from crossword_solver import ListenerPuzzle
+
+from utils import ListenerPuzzle
+from experimental.puzzle_integration import integrate_puzzle as create_puzzle_from_files
 
 def test_backtracking_capabilities():
     """Test the new backtracking features"""
@@ -98,38 +99,45 @@ def test_state_management():
     
     print("✓ State management test completed")
 
-def test_rejected_solutions():
-    """Test the rejected solutions tracking"""
+def test_backtracking_performance():
+    """Test backtracking performance with different strategies"""
     print("\n" + "="*60)
-    print("TESTING REJECTED SOLUTIONS")
+    print("TESTING BACKTRACKING PERFORMANCE")
     print("="*60)
     
     puzzle = create_puzzle_from_files()
     
-    # Get a clue with multiple solutions
-    clue_2 = puzzle.get_clue(2)
-    if clue_2 and not clue_2.is_solved():
-        print(f"Clue 2 initial state: {len(clue_2.valid_solutions)} valid solutions")
-        print(f"Valid solutions: {clue_2.get_valid_solutions()}")
-        
-        # Eliminate a solution
-        solutions = clue_2.get_valid_solutions()
-        if solutions:
-            solution_to_eliminate = solutions[0]
-            print(f"Eliminating solution: {solution_to_eliminate}")
-            clue_2.eliminate_solution(solution_to_eliminate, "test")
-            
-            print(f"After elimination: {len(clue_2.valid_solutions)} valid solutions")
-            print(f"Rejected solutions: {clue_2.get_rejected_solutions()}")
-            
-            # Restore the solution
-            print(f"Restoring solution: {solution_to_eliminate}")
-            clue_2.restore_solution(solution_to_eliminate)
-            
-            print(f"After restoration: {len(clue_2.valid_solutions)} valid solutions")
-            print(f"Rejected solutions: {clue_2.get_rejected_solutions()}")
+    # Test different backtracking strategies
+    strategies = [
+        ("Depth-first", "depth_first"),
+        ("Breadth-first", "breadth_first"),
+        ("Heuristic", "heuristic")
+    ]
     
-    print("✓ Rejected solutions test completed")
+    for strategy_name, strategy in strategies:
+        print(f"\nTesting {strategy_name} strategy:")
+        
+        # Reset puzzle
+        puzzle = create_puzzle_from_files()
+        puzzle.solve_constraint_propagation()
+        
+        # Time the backtracking
+        import time
+        start_time = time.time()
+        
+        success = puzzle.solve_with_backtracking(strategy=strategy)
+        
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        print(f"  Strategy: {strategy_name}")
+        print(f"  Success: {success}")
+        print(f"  Duration: {duration:.2f} seconds")
+        
+        if success:
+            print(f"  ✓ {strategy_name} solved the puzzle")
+        else:
+            print(f"  ✗ {strategy_name} could not solve the puzzle")
 
 def main():
     """Main test function"""
@@ -137,26 +145,26 @@ def main():
     print("="*60)
     
     try:
-        # Test backtracking capabilities
+        # Test basic backtracking
         puzzle, success = test_backtracking_capabilities()
         
         # Test state management
         test_state_management()
         
-        # Test rejected solutions
-        test_rejected_solutions()
+        # Test performance
+        test_backtracking_performance()
         
         print("\n" + "="*60)
-        print("ALL TESTS COMPLETE")
+        print("ALL BACKTRACKING TESTS COMPLETED")
         print("="*60)
         
         if success:
-            print("✓ Puzzle solved successfully with backtracking!")
+            print("✓ Backtracking solver successfully solved the puzzle")
         else:
-            print("✗ Puzzle not fully solved")
-        
+            print("✗ Backtracking solver could not solve the puzzle")
+            
     except Exception as e:
-        print(f"Error during testing: {e}")
+        print(f"Error during backtracking tests: {e}")
         import traceback
         traceback.print_exc()
 

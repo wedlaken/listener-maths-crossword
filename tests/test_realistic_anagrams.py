@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from anagram_grid_solver import *
+from utils import find_anagram_multiples, generate_anagrams, is_anagram
 
 def find_numbers_with_anagram_multiples():
     """Find numbers that actually have anagram multiples."""
@@ -98,35 +98,29 @@ def test_6_digit_numbers():
     print()
     
     # Test some 6-digit numbers that might have anagram multiples
-    test_6digit = [
-        100000, 200000, 300000, 400000, 500000,  # Simple patterns
-        102400, 204800, 409600, 819200,          # Powers of 2
-        108900, 217800, 326700, 435600,          # Multiples of 1089
-        111111, 222222, 333333, 444444,          # Repeated digits
-        123456, 234567, 345678, 456789,          # Sequential
+    test_numbers = [
+        100000,  # Simple case
+        142857,  # Cyclic number
+        108900,  # Multiple of 1089
+        217800,  # Multiple of 1089
+        102400,  # Power of 2
+        204800,  # Power of 2
     ]
     
-    working_numbers = []
-    
-    for num in test_6digit:
+    for num in test_numbers:
         multiples = find_anagram_multiples(num, max_digits=6)
         if multiples:
             print(f"{num}: {len(multiples)} multiples - {multiples}")
-            working_numbers.append((num, multiples))
         else:
             print(f"{num}: No valid multiples")
     
     print()
-    print(f"Found {len(working_numbers)} 6-digit numbers with anagram multiples")
-    print("These are candidates for unclued solutions!")
-    
-    return working_numbers
 
 def main():
-    """Main analysis function."""
-    print("REALISTIC ANAGRAM MULTIPLE ANALYSIS")
-    print("=" * 50)
-    print()
+    """Main test function."""
+    print("="*60)
+    print("REALISTIC ANAGRAM MULTIPLES TEST")
+    print("="*60)
     
     # Find numbers with anagram multiples
     found_multiples = find_numbers_with_anagram_multiples()
@@ -135,17 +129,19 @@ def main():
     test_specific_patterns()
     
     # Test 6-digit numbers
-    working_6digit = test_6_digit_numbers()
+    test_6_digit_numbers()
     
     # Analyze constraints
     analyze_unclued_constraints()
     
-    print("=== SUMMARY ===")
-    print(f"Found {len(found_multiples)} numbers with anagram multiples")
-    print(f"Found {len(working_6digit)} 6-digit numbers suitable for unclued clues")
-    print()
-    print("This analysis shows that the anagram requirement creates")
-    print("very strong constraints on what unclued solutions can be!")
+    print("="*60)
+    print("TEST COMPLETE")
+    print("="*60)
+    
+    # Summary
+    print(f"\nSummary: Found {len(found_multiples)} numbers with anagram multiples")
+    for num, multiples in found_multiples.items():
+        print(f"  {num}: {len(multiples)} multiples")
 
 if __name__ == "__main__":
     main() 

@@ -210,6 +210,8 @@ hub.register_import(
     description="Validate anagram constraints function"
 )
 
+
+
 # Core utility functions (local implementations)
 def is_anagram(num1: int, num2: int) -> bool:
     """Check if two numbers are anagrams (same digits, different order)."""
@@ -324,6 +326,7 @@ find_anagram_multiples = hub.get('find_anagram_multiples')
 generate_anagrams = hub.get('generate_anagrams')
 generate_anagrams_including_original = hub.get('generate_anagrams_including_original')
 validate_anagram_constraints = hub.get('validate_anagram_constraints')
+
 
 # Print status report on module load (only in development)
 if __name__ != "__main__":

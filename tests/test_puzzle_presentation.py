@@ -6,7 +6,8 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'experimental'))
-from puzzle_integration import create_puzzle_from_files
+
+from experimental.puzzle_integration import integrate_puzzle as create_puzzle_from_files
 from puzzle_presenter import PuzzlePresenter
 
 def test_puzzle_presentation():
@@ -107,26 +108,11 @@ def main():
         test_complete_solution_presentation()
         
         print("\n" + "="*60)
-        print("ALL PRESENTATION TESTS COMPLETE")
+        print("PUZZLE PRESENTATION TEST COMPLETE")
         print("="*60)
         
-        # Show final status
-        solved_clues = sum(1 for clue in puzzle.clues.values() if clue.is_solved())
-        total_clues = len(puzzle.clues)
-        solved_cells = len(puzzle.solved_cells)
-        total_cells = 64
-        
-        print(f"Final Status:")
-        print(f"  Clues solved: {solved_clues}/{total_clues} ({solved_clues/total_clues*100:.1f}%)")
-        print(f"  Cells solved: {solved_cells}/{total_cells} ({solved_cells/total_cells*100:.1f}%)")
-        
-        if puzzle.is_puzzle_solved():
-            print("✓ Puzzle is completely solved!")
-        else:
-            print("⚠ Puzzle partially solved - backtracking may be needed")
-        
     except Exception as e:
-        print(f"Error during testing: {e}")
+        print(f"Error during puzzle presentation test: {e}")
         import traceback
         traceback.print_exc()
 

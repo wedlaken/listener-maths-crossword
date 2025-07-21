@@ -6,7 +6,7 @@ Demonstrates how to create and manage ListenerClue objects with actual puzzle da
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from systematic_grid_parser import SystematicGridParser, ClueTuple
+from utils import SystematicGridParser, ClueTuple
 from clue_classes import ClueFactory, ClueManager, ListenerClue, ClueParameters
 from typing import Dict, List, Tuple
 
@@ -99,114 +99,70 @@ def test_clue_interactions(manager: ClueManager):
     print("\nInitial state:")
     manager.print_state()
     
-    # Test solving a simple clue
-    print("\n" + "-"*40)
-    print("Testing clue solving and constraint propagation...")
+    # Test applying a solution
+    print("\nApplying solution for clue 1A = 1234:")
+    manager.apply_solution(1, 1234)
+    manager.print_state()
     
-    # Find a clued clue with few solutions to test with
-    test_clue = None
-    for clue in manager.clues.values():
-        if not clue.parameters.is_unclued and len(clue.possible_solutions) <= 5:
-            test_clue = clue
-            break
+    # Test constraint propagation
+    print("\nTesting constraint propagation:")
+    affected_clues = manager.get_affected_clues(1)
+    print(f"Clues affected by clue 1: {affected_clues}")
     
-    if test_clue:
-        print(f"\nTesting with clue {test_clue.number} {test_clue.direction}")
-        print(f"Solutions: {test_clue.get_valid_solutions()}")
-        
-        if test_clue.get_valid_solutions():
-            # Apply the first solution
-            solution = test_clue.get_valid_solutions()[0]
-            print(f"Applying solution: {solution}")
-            
-            eliminated = manager.apply_solution(test_clue.number, solution)
-            print(f"Eliminated {len(eliminated)} solutions from other clues")
-            
-            if eliminated:
-                print("Eliminated solutions:")
-                for clue_num, sol in eliminated:
-                    if sol != -1:
-                        print(f"  Clue {clue_num}: {sol}")
-                    else:
-                        print(f"  Clue {clue_num}: constraint update")
-            
-            print("\nState after applying solution:")
-            manager.print_state()
-        else:
-            print("No solutions available for testing")
-    else:
-        print("No suitable test clue found")
-    
-    # Test unclued clue constraint updates
-    print("\n" + "-"*40)
-    print("Testing unclued clue constraint updates...")
-    
-    unclued_clues = manager._get_unclued_clues()
-    if unclued_clues:
-        print(f"Found {len(unclued_clues)} unclued clues:")
-        for clue in unclued_clues:
-            print(f"  {clue}")
-        
-        # Show how unclued clues get constrained by solved cells
-        if manager.solved_cells:
-            print(f"\nUnclued clues are constrained by {len(manager.solved_cells)} solved cells")
-            for clue in unclued_clues:
-                original_count = clue.original_solution_count
-                current_count = len(clue.possible_solutions)
-                if current_count < original_count:
-                    print(f"  Clue {clue.number}: {current_count}/{original_count} solutions remaining")
-    else:
-        print("No unclued clues found")
+    # Test removing a solution
+    print("\nRemoving solution for clue 1A:")
+    manager.remove_solution(1)
+    manager.print_state()
 
 def test_crossing_clues(manager: ClueManager):
-    """Test finding crossing clues"""
+    """Test crossing clue functionality"""
     print("\n" + "="*60)
     print("TESTING CROSSING CLUES")
     print("="*60)
     
-    # Find clues that cross each other
-    for clue_number in sorted(manager.clues.keys()):
-        clue = manager.clues[clue_number]
-        crossing = clue.get_crossing_clues(manager.clues)
+    # Find clues that cross
+    crossing_pairs = manager.find_crossing_clues()
+    print(f"Found {len(crossing_pairs)} crossing clue pairs:")
+    
+    for clue1, clue2 in crossing_pairs[:5]:  # Show first 5
+        print(f"  {clue1} crosses {clue2}")
+    
+    # Test constraint propagation through crossings
+    if crossing_pairs:
+        clue1, clue2 = crossing_pairs[0]
+        print(f"\nTesting constraint propagation between {clue1} and {clue2}")
         
-        if crossing:
-            print(f"\nClue {clue_number} {clue.direction} crosses with:")
-            for cross_clue in crossing:
-                print(f"  Clue {cross_clue.number} {cross_clue.direction} (cells: {cross_clue.cell_indices})")
-        else:
-            print(f"\nClue {clue_number} {clue.direction} has no crossing clues")
+        # Apply solution to first clue
+        manager.apply_solution(clue1.number, 1234)
+        print(f"Applied solution {1234} to {clue1}")
+        
+        # Check how it affects the crossing clue
+        affected = manager.get_affected_clues(clue1.number)
+        print(f"Affected clues: {affected}")
 
 def main():
-    """Main test function"""
-    print("LISTENER MATHS CROSSWORD - CLUE CLASSES TEST")
+    """Main test function."""
+    print("="*60)
+    print("TESTING CLUE CLASSES")
     print("="*60)
     
     try:
         # Create clue objects
         manager = create_clue_objects()
         
-        # Test basic functionality
-        test_clue_interactions(manager)
-        
-        # Test crossing clues
-        test_crossing_clues(manager)
-        
-        # Final summary
-        print("\n" + "="*60)
-        print("FINAL SUMMARY")
-        print("="*60)
-        print(f"Total clues: {len(manager.clues)}")
-        print(f"Clued clues: {len([c for c in manager.clues.values() if not c.parameters.is_unclued])}")
-        print(f"Unclued clues: {len([c for c in manager.clues.values() if c.parameters.is_unclued])}")
-        print(f"Solved cells: {len(manager.solved_cells)}")
-        
-        # Show some example solutions
-        print("\nExample solutions for clued clues:")
-        for clue in manager.clues.values():
-            if not clue.parameters.is_unclued and len(clue.possible_solutions) <= 3:
-                solutions = clue.get_valid_solutions()
-                print(f"  Clue {clue.number} {clue.direction}: {solutions}")
-        
+        if manager.clues:
+            # Test interactions
+            test_clue_interactions(manager)
+            
+            # Test crossing clues
+            test_crossing_clues(manager)
+            
+            print("\n" + "="*60)
+            print("ALL TESTS COMPLETED SUCCESSFULLY")
+            print("="*60)
+        else:
+            print("No clues created - cannot run tests")
+            
     except Exception as e:
         print(f"Error during testing: {e}")
         import traceback

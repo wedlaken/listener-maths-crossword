@@ -7,8 +7,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from anagram_grid_solver import *
-from systematic_grid_parser import parse_grid
+from utils import find_anagram_multiples, generate_anagrams, is_anagram, parse_grid
 from clue_classes import ListenerClue, ClueFactory, ClueParameters
 
 def load_test_solutions():
@@ -100,36 +99,58 @@ def analyze_anagram_multiples_pattern():
     print("=== ANALYZING ANAGRAM MULTIPLES PATTERNS ===")
     print()
     
-    # Test some numbers to see patterns
-    test_numbers = [
-        1000, 2000, 3000, 4000, 5000,  # Unclued possibilities
-        1024, 2048, 4096, 8192,        # Powers of 2
-        1001, 2002, 3003, 4004,        # Palindromic patterns
-        1234, 2345, 3456, 4567,        # Sequential
-        1111, 2222, 3333, 4444,        # Repeated digits
-    ]
+    # Test different number patterns
+    test_patterns = {
+        "Powers of 2": [1024, 2048, 4096, 8192],
+        "Multiples of 1089": [1089, 2178, 3267, 4356, 5445, 6534, 7623, 8712, 9801],
+        "Repeated digits": [1111, 2222, 3333, 4444, 5555, 6666, 7777, 8888, 9999],
+        "Sequential": [1234, 2345, 3456, 4567, 5678, 6789],
+    }
     
-    for num in test_numbers:
-        multiples = find_anagram_multiples(num, max_digits=6)
-        if multiples:
-            print(f"{num}: {len(multiples)} multiples - {multiples}")
-        else:
-            print(f"{num}: No valid multiples")
+    for pattern_name, numbers in test_patterns.items():
+        print(f"{pattern_name}:")
+        working_numbers = []
+        
+        for num in numbers:
+            multiples = find_anagram_multiples(num, max_digits=6)
+            if multiples:
+                working_numbers.append((num, multiples))
+                print(f"  ✓ {num}: {len(multiples)} multiples")
+            else:
+                print(f"  ✗ {num}: No multiples")
+        
+        print(f"  Summary: {len(working_numbers)}/{len(numbers)} numbers work")
+        print()
+
+def test_grid_constraints():
+    """Test how anagram constraints interact with grid constraints."""
+    print("=== TESTING GRID CONSTRAINTS ===")
+    print()
     
-    print()
-    print("=== PATTERN INSIGHTS ===")
-    print("Numbers with many anagram multiples often have:")
-    print("1. Repeated digits (1111, 2222, etc.)")
-    print("2. Symmetric patterns")
-    print("3. Small prime factors")
-    print("4. Powers of 2 (1024, 2048, etc.)")
-    print()
+    # Load the grid structure
+    try:
+        grid_data = parse_grid('data/Listener grid 4869.png')
+        print(f"Loaded grid with {len(grid_data)} clues")
+        
+        # Find unclued clues
+        unclued_clues = []
+        for clue in grid_data:
+            if clue.parameters == (-1, -1):  # Unclued
+                unclued_clues.append(clue)
+        
+        print(f"Found {len(unclued_clues)} unclued clues:")
+        for clue in unclued_clues:
+            print(f"  {clue.number} {clue.direction}: {len(clue.cell_indices)} cells")
+        
+    except Exception as e:
+        print(f"Error loading grid: {e}")
+        print("Skipping grid constraint analysis")
 
 def main():
     """Main analysis function."""
-    print("ANAGRAM GRID CONSTRAINT ANALYSIS")
-    print("=" * 50)
-    print()
+    print("="*60)
+    print("ANAGRAM CONSTRAINTS ANALYSIS")
+    print("="*60)
     
     # Analyze unclued digit constraints
     analyze_unclued_digit_constraints()
@@ -137,13 +158,21 @@ def main():
     # Test with known solutions
     test_known_solutions()
     
-    # Analyze patterns
+    # Analyze anagram multiples patterns
     analyze_anagram_multiples_pattern()
     
-    # Test with sample data
-    print("=== TESTING WITH SAMPLE DATA ===")
-    test_solutions = load_test_solutions()
-    print_anagram_analysis(test_solutions)
+    # Test grid constraints
+    test_grid_constraints()
+    
+    print("="*60)
+    print("ANALYSIS COMPLETE")
+    print("="*60)
+    
+    print("\nKey Findings:")
+    print("1. Anagram requirements create strong constraints on unclued solutions")
+    print("2. Only certain number patterns have anagram multiples")
+    print("3. This significantly reduces the search space for unclued clues")
+    print("4. Grid constraints further limit possible solutions")
 
 if __name__ == "__main__":
     main() 

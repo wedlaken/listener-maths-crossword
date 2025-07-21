@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test forward search algorithm"""
 
-from anagram_grid_solver import is_anagram
+from utils import is_anagram
 
 def test_forward_search():
     """Test that forward search finds known solutions."""
