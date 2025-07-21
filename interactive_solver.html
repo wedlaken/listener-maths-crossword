@@ -73,6 +73,29 @@
                 min-width: auto;
             }
             
+            /* Sticky grid functionality for mobile */
+            .grid-section {
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: white;
+                padding: 10px 0;
+                margin: -10px 0 0 0;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                border-radius: 0 0 8px 8px;
+            }
+            
+            /* Hide the title on mobile to save space */
+            .grid-section h3 {
+                display: none;
+            }
+            
+            /* Ensure the grid wrapper doesn't have extra margins */
+            .grid-wrapper {
+                margin: 0;
+                padding: 0;
+            }
+            
             .crossword-grid {
                 max-width: 100%;
                 overflow-x: auto;
@@ -3898,6 +3921,78 @@
                 is_prime: false
             };
         }
+
+        // Mobile sticky grid functionality
+        function updateStickyGrid() {
+            // Only apply on mobile screens
+            if (window.innerWidth > 768) return;
+            
+            const initialGridSection = document.getElementById('initial-grid-section');
+            const anagramGridSection = document.getElementById('anagram-grid-section');
+            
+            if (anagramGridSection && anagramGridSection.style.display === 'block') {
+                // Anagram phase: make anagram grid sticky, initial grid normal
+                if (initialGridSection) {
+                    initialGridSection.style.position = 'static';
+                    initialGridSection.style.top = 'auto';
+                    initialGridSection.style.zIndex = 'auto';
+                    initialGridSection.style.background = 'transparent';
+                    initialGridSection.style.boxShadow = 'none';
+                    initialGridSection.style.borderRadius = '0';
+                    initialGridSection.style.margin = '0';
+                    initialGridSection.style.padding = '0';
+                }
+                
+                if (anagramGridSection) {
+                    anagramGridSection.style.position = 'sticky';
+                    anagramGridSection.style.top = '0';
+                    anagramGridSection.style.zIndex = '100';
+                    anagramGridSection.style.background = 'white';
+                    anagramGridSection.style.padding = '10px 0';
+                    anagramGridSection.style.margin = '-10px 0 0 0';
+                    anagramGridSection.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                    anagramGridSection.style.borderRadius = '0 0 8px 8px';
+                }
+            } else {
+                // Initial phase: make initial grid sticky, anagram grid normal
+                if (initialGridSection) {
+                    initialGridSection.style.position = 'sticky';
+                    initialGridSection.style.top = '0';
+                    initialGridSection.style.zIndex = '100';
+                    initialGridSection.style.background = 'white';
+                    initialGridSection.style.padding = '10px 0';
+                    initialGridSection.style.margin = '-10px 0 0 0';
+                    initialGridSection.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                    initialGridSection.style.borderRadius = '0 0 8px 8px';
+                }
+                
+                if (anagramGridSection) {
+                    anagramGridSection.style.position = 'static';
+                    anagramGridSection.style.top = 'auto';
+                    anagramGridSection.style.zIndex = 'auto';
+                    anagramGridSection.style.background = 'transparent';
+                    anagramGridSection.style.boxShadow = 'none';
+                    anagramGridSection.style.borderRadius = '0';
+                    anagramGridSection.style.margin = '30px 0 0 0';
+                    anagramGridSection.style.padding = '0';
+                }
+            }
+        }
+
+        // Update sticky grid on window resize
+        window.addEventListener('resize', updateStickyGrid);
+        
+        // Update sticky grid when phase changes
+        const originalShowAnagramGridInline = showAnagramGridInline;
+        showAnagramGridInline = function() {
+            originalShowAnagramGridInline();
+            setTimeout(updateStickyGrid, 100); // Small delay to ensure DOM is updated
+        };
+
+        // Initialize sticky grid on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(updateStickyGrid, 100);
+        });
     </script>
 </body>
 </html>
