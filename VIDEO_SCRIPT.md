@@ -8,7 +8,7 @@
 - **GitHub:** wedlaken
 - **edX:** [nwedlake
 - **Location:** [London, United Kingdom
-- **Date:** [12 July 2025
+- **Date:** [27 July 2025
 
 ### Introduction (1 minute)
 "Hi, I'm Neil Wedlake, and this is my CS50 final project. It is a sophisticated mathematical crossword solver that has evolved to incorporate multiple programming languages, frameworks,  and methodologies, using the latest iteration of coding aids. I've started several 'final' projects over the time since I started this CS50 course a couple of years ago as I felt that the programming environment was changing around me, and I wanted to learn how I would code in the future, rather than using rapidly outmoded approaches. 
