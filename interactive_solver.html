@@ -73,40 +73,6 @@
                 min-width: auto;
             }
             
-            /* Sticky grid functionality for mobile */
-            .grid-section {
-                position: sticky !important;
-                top: 0 !important;
-                z-index: 100 !important;
-                background: white !important;
-                padding: 10px 0 !important;
-                margin: -10px 0 0 0 !important;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
-                border-radius: 0 0 8px 8px !important;
-            }
-            
-            /* Hide the title on mobile to save space */
-            .grid-section h3 {
-                display: none !important;
-            }
-            
-            /* Ensure the grid wrapper doesn't have extra margins */
-            .grid-wrapper {
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            /* Force body to allow scrolling for sticky to work */
-            body {
-                overflow-y: auto !important;
-                overflow-x: hidden !important;
-            }
-            
-            /* Ensure container allows scrolling */
-            .container {
-                overflow: visible !important;
-            }
-            
             .crossword-grid {
                 max-width: 100%;
                 overflow-x: auto;
@@ -3932,85 +3898,6 @@
                 is_prime: false
             };
         }
-
-        // Mobile sticky grid functionality
-        function updateStickyGrid() {
-            console.log('updateStickyGrid called, window width:', window.innerWidth);
-            // Only apply on mobile screens
-            if (window.innerWidth > 768) {
-                console.log('Not mobile, returning');
-                return;
-            }
-            
-            const initialGridSection = document.getElementById('initial-grid-section');
-            const anagramGridSection = document.getElementById('anagram-grid-section');
-            
-            console.log('Checking grid sections:', initialGridSection, anagramGridSection);
-            if (anagramGridSection && anagramGridSection.style.display === 'block') {
-                console.log('Anagram phase detected');
-                // Anagram phase: make anagram grid sticky, initial grid normal
-                if (initialGridSection) {
-                    initialGridSection.style.position = 'static';
-                    initialGridSection.style.top = 'auto';
-                    initialGridSection.style.zIndex = 'auto';
-                    initialGridSection.style.background = 'transparent';
-                    initialGridSection.style.boxShadow = 'none';
-                    initialGridSection.style.borderRadius = '0';
-                    initialGridSection.style.margin = '0';
-                    initialGridSection.style.padding = '0';
-                }
-                
-                if (anagramGridSection) {
-                    anagramGridSection.style.setProperty('position', 'sticky', 'important');
-                    anagramGridSection.style.setProperty('top', '0', 'important');
-                    anagramGridSection.style.setProperty('z-index', '100', 'important');
-                    anagramGridSection.style.setProperty('background', 'white', 'important');
-                    anagramGridSection.style.setProperty('padding', '10px 0', 'important');
-                    anagramGridSection.style.setProperty('margin', '-10px 0 0 0', 'important');
-                    anagramGridSection.style.setProperty('box-shadow', '0 2px 8px rgba(0,0,0,0.1)', 'important');
-                    anagramGridSection.style.setProperty('border-radius', '0 0 8px 8px', 'important');
-                }
-            } else {
-                console.log('Initial phase detected');
-                // Initial phase: make initial grid sticky, anagram grid normal
-                if (initialGridSection) {
-                    initialGridSection.style.setProperty('position', 'sticky', 'important');
-                    initialGridSection.style.setProperty('top', '0', 'important');
-                    initialGridSection.style.setProperty('z-index', '100', 'important');
-                    initialGridSection.style.setProperty('background', 'white', 'important');
-                    initialGridSection.style.setProperty('padding', '10px 0', 'important');
-                    initialGridSection.style.setProperty('margin', '-10px 0 0 0', 'important');
-                    initialGridSection.style.setProperty('box-shadow', '0 2px 8px rgba(0,0,0,0.1)', 'important');
-                    initialGridSection.style.setProperty('border-radius', '0 0 8px 8px', 'important');
-                }
-                
-                if (anagramGridSection) {
-                    anagramGridSection.style.position = 'static';
-                    anagramGridSection.style.top = 'auto';
-                    anagramGridSection.style.zIndex = 'auto';
-                    anagramGridSection.style.background = 'transparent';
-                    anagramGridSection.style.boxShadow = 'none';
-                    anagramGridSection.style.borderRadius = '0';
-                    anagramGridSection.style.margin = '30px 0 0 0';
-                    anagramGridSection.style.padding = '0';
-                }
-            }
-        }
-
-        // Update sticky grid on window resize
-        window.addEventListener('resize', updateStickyGrid);
-        
-        // Update sticky grid when phase changes
-        const originalShowAnagramGridInline = showAnagramGridInline;
-        showAnagramGridInline = function() {
-            originalShowAnagramGridInline();
-            setTimeout(updateStickyGrid, 100); // Small delay to ensure DOM is updated
-        };
-
-        // Initialize sticky grid on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(updateStickyGrid, 100);
-        });
     </script>
 </body>
 </html>
